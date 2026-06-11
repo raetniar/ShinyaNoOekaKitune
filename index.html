@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streamer & Creator Tools Portal</title>
-    <meta name="description" content="OBS配信ツール、Twitch連携ツール、クリエイター向けユーティリティのまとめポータルサイトです。">
+    <title>uikouka|tools</title>
+    <meta name="description" content="OBS配信ツール、Twitch連携ツールをまとめています。たまにおあそびも">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-primary: #080b11;
-            --bg-secondary: #0f131a;
-            --bg-card: rgba(17, 22, 32, 0.75);
-            --border-color: rgba(255, 255, 255, 0.05);
-            --border-hover: rgba(99, 102, 241, 0.4);
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-dark: #111111;
             
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --text-muted: #888888;
             
-            --accent-blue: #00d2ff;
-            --accent-purple: #9d4edd;
-            --accent-gradient: linear-gradient(135deg, #00d2ff, #9d4edd);
-            
+            --accent: #111111;
             --font-main: 'Outfit', 'Noto Sans JP', sans-serif;
-            --transition-speed: 0.3s;
+            --transition-speed: 0.4s;
+            --transition-ease: cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         * {
@@ -42,485 +38,519 @@
 
         body {
             background-color: var(--bg-primary);
-            background-image: 
-                radial-gradient(circle at 5% 10%, rgba(0, 210, 255, 0.08) 0%, transparent 35%),
-                radial-gradient(circle at 95% 90%, rgba(157, 78, 221, 0.08) 0%, transparent 35%);
-            background-attachment: fixed;
             color: var(--text-primary);
             font-family: var(--font-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            line-height: 1.6;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            letter-spacing: 0.03em;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             width: 100%;
             margin: 0 auto;
-            padding: 3rem 1.5rem;
+            padding: 4rem 2rem;
             flex: 1;
         }
 
-        /* Header design */
+        /* Header (Logo & Nav) */
         header {
-            text-align: center;
-            margin-bottom: 4rem;
-            position: relative;
-        }
-
-        .logo-area {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 70px;
-            height: 70px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .logo-icon {
-            font-size: 2.2rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        header h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            letter-spacing: -0.05em;
-            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-
-        header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            font-weight: 300;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Controls: Search and Filters */
-        .controls-wrapper {
-            max-width: 800px;
-            margin: 0 auto 3rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            align-items: center;
+            margin-bottom: 5rem;
+            text-align: center;
         }
 
-        .search-box {
+        .brand-logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        .brand-logo::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background-color: var(--text-primary);
+        }
+
+        .main-headline {
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.5;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .main-headline span {
+            font-weight: 300;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            display: block;
+            margin-top: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Controls (Category Filters & Search) */
+        .controls-section {
+            margin-bottom: 4rem;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .category-nav {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            list-style: none;
+        }
+
+        .category-link {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color var(--transition-speed);
+            padding-bottom: 0.25rem;
+            position: relative;
+        }
+
+        .category-link:hover, .category-link.active {
+            color: var(--text-primary);
+        }
+
+        .category-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--text-primary);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s var(--transition-ease);
+        }
+
+        .category-link.active::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .search-wrapper {
             position: relative;
             width: 100%;
+            max-width: 400px;
         }
 
-        .search-box i {
+        .search-wrapper i {
             position: absolute;
-            left: 1.25rem;
+            left: 0;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: 0.9rem;
         }
 
         .search-input {
             width: 100%;
-            background: rgba(8, 11, 17, 0.8);
-            border: 1px solid var(--border-color);
-            border-radius: 0.85rem;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #d1d5db;
             color: var(--text-primary);
-            padding: 0.9rem 1rem 0.9rem 3rem;
+            padding: 0.5rem 0.5rem 0.5rem 1.5rem;
             font-family: var(--font-main);
-            font-size: 1rem;
-            transition: all var(--transition-speed);
+            font-size: 0.95rem;
+            transition: border-color var(--transition-speed);
         }
 
         .search-input:focus {
             outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+            border-color: var(--text-primary);
         }
 
-        .filter-tags {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 0.4rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-            font-family: var(--font-main);
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--accent-gradient);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.2);
-        }
-
-        /* Tool Cards Grid */
-        .tools-grid {
+        /* Works Grid (Square Aspect Ratio) */
+        .works-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 2rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
         }
 
-        @media (max-width: 480px) {
-            .tools-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 768px) {
+            .works-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.5rem;
             }
         }
 
-        /* Card Design */
-        .tool-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            transition: all var(--transition-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-            color: inherit;
+        /* Tool Card - mabataki style */
+        .work-card {
+            background-color: var(--bg-secondary);
+            aspect-ratio: 1 / 1;
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: transform var(--transition-speed) var(--transition-ease),
+                        box-shadow var(--transition-speed) var(--transition-ease);
         }
 
-        .tool-card::before {
-            content: '';
+        /* Aesthetic gradient card thumbnails */
+        .card-thumbnail {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            transition: transform var(--transition-speed) var(--transition-ease);
+        }
+
+        .card-thumbnail i {
+            font-size: 3rem;
+            color: var(--text-primary);
+            opacity: 0.85;
+        }
+
+        .card-thumbnail-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        /* Hover Overlay - mabataki style */
+        .card-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: var(--accent-gradient);
+            height: 100%;
+            background-color: rgba(17, 17, 17, 0.95);
+            color: #ffffff;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             opacity: 0;
-            transition: opacity var(--transition-speed);
+            transform: scale(1.02);
+            transition: opacity var(--transition-speed) var(--transition-ease),
+                        transform var(--transition-speed) var(--transition-ease);
+            pointer-events: none; /* ホバー前はクリックを通さない */
         }
 
-        .tool-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--border-hover);
-            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
+        .work-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         }
 
-        .tool-card:hover::before {
+        .work-card:hover .card-thumbnail {
+            transform: scale(0.95);
+        }
+
+        .work-card:hover .card-overlay {
             opacity: 1;
+            transform: scale(1);
+            pointer-events: auto; /* ホバー中はクリック可能に */
         }
 
-        .tool-header {
+        /* Overlay Contents */
+        .overlay-meta {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-transform: uppercase;
             display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            margin-bottom: 1.25rem;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.75rem;
         }
 
-        .tool-icon-wrapper {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-speed);
-        }
-
-        .tool-card:hover .tool-icon-wrapper {
-            background: var(--accent-gradient);
-            border-color: transparent;
-        }
-
-        .tool-icon-wrapper i {
-            font-size: 1.4rem;
-            color: var(--accent-blue);
-            transition: color var(--transition-speed);
-        }
-
-        .tool-card:hover .tool-icon-wrapper i {
-            color: white;
-        }
-
-        .tool-title {
-            font-size: 1.25rem;
+        .overlay-title {
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
+            margin-top: 1rem;
+            line-height: 1.4;
+            letter-spacing: -0.01em;
         }
 
-        .tool-desc {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
+        .overlay-desc {
+            font-size: 0.85rem;
+            color: #cccccc;
+            line-height: 1.6;
+            margin-top: 0.75rem;
             flex-grow: 1;
         }
 
-        .tool-tags {
+        .overlay-footer {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            gap: 1rem;
+        }
+
+        .detail-btn {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
             gap: 0.5rem;
-            flex-wrap: wrap;
+            border-bottom: 1px solid #ffffff;
+            padding-bottom: 0.2rem;
+            color: #ffffff;
+            text-decoration: none;
+            transition: gap var(--transition-speed);
+            cursor: pointer;
         }
 
-        .tag {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 0.2rem 0.65rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .detail-btn:hover {
+            gap: 0.8rem;
         }
 
-        .tag-obs {
-            border-color: rgba(0, 210, 255, 0.2);
-            color: var(--accent-blue);
+        /* BOOTH Button Design */
+        .booth-btn {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all var(--transition-speed);
+            cursor: pointer;
         }
 
-        .tag-twitch {
-            border-color: rgba(157, 78, 221, 0.3);
-            color: #b983ff;
+        .booth-btn:hover {
+            background-color: #ffffff;
+            color: #111111;
+            border-color: #ffffff;
         }
+
+        /* Color variations for card thumbnails */
+        .thumb-color-1 { background: linear-gradient(135deg, #f3e8ff, #fae8ff); }
+        .thumb-color-2 { background: linear-gradient(135deg, #e0f2fe, #f0f9ff); }
+        .thumb-color-3 { background: linear-gradient(135deg, #dcfce7, #f0fdf4); }
+        .thumb-color-4 { background: linear-gradient(135deg, #ffedd5, #fff7ed); }
+        .thumb-color-5 { background: linear-gradient(135deg, #ffe4e6, #fff1f2); }
 
         /* Footer */
         footer {
             text-align: center;
-            padding: 4rem 1.5rem 2rem;
+            padding: 5rem 2rem 3rem;
             color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-top: 1px solid #f3f4f6;
         }
 
         footer a {
-            color: var(--text-secondary);
+            color: var(--text-primary);
             text-decoration: none;
-            transition: color var(--transition-speed);
+            margin-left: 1rem;
+            transition: opacity 0.2s;
         }
 
         footer a:hover {
-            color: var(--accent-blue);
+            opacity: 0.7;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
+        /* Simple loading animation */
+        .fade-in-section {
+            animation: mbtkFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes mbtkFadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .tool-card {
-            animation: fadeIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) both;
-        }
-
         /* Staggered card animation loading */
-        .tool-card:nth-child(1) { animation-delay: 0.05s; }
-        .tool-card:nth-child(2) { animation-delay: 0.1s; }
-        .tool-card:nth-child(3) { animation-delay: 0.15s; }
-        .tool-card:nth-child(4) { animation-delay: 0.2s; }
-        .tool-card:nth-child(5) { animation-delay: 0.25s; }
-        .tool-card:nth-child(6) { animation-delay: 0.3s; }
-        .tool-card:nth-child(7) { animation-delay: 0.35s; }
-        .tool-card:nth-child(8) { animation-delay: 0.4s; }
+        .work-card:nth-child(1) { animation-delay: 0.05s; }
+        .work-card:nth-child(2) { animation-delay: 0.1s; }
+        .work-card:nth-child(3) { animation-delay: 0.15s; }
+        .work-card:nth-child(4) { animation-delay: 0.2s; }
+        .work-card:nth-child(5) { animation-delay: 0.25s; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container fade-in-section">
         <!-- Header -->
         <header>
-            <div class="logo-area">
-                <i class="fa-solid fa-layer-group logo-icon"></i>
-            </div>
-            <h1>Streaming & Utility Tools</h1>
-            <p>配信や日々の創作活動を快適にする、カスタマイズ可能なHTMLツールコレクション</p>
+            <div class="brand-logo">Collection</div>
+            <h1 class="main-headline">
+                Streaming & Creation Utilities
+                <span>配信や創作活動を快適にする、HTMLツール。ときどきお遊び。</span>
+                <span>ローカルで動作される前の使用感チェックなどに</span>
+            </h1>
         </header>
 
-        <!-- Controls (Search & Tag Filters) -->
-        <div class="controls-wrapper">
-            <div class="search-box">
+        <!-- Controls (Category Nav & Search) -->
+        <div class="controls-section">
+            <ul class="category-nav">
+                <li><a class="category-link active" onclick="filterCategory('all', this)">All</a></li>
+                <li><a class="category-link" onclick="filterCategory('obs', this)">OBS Overlay</a></li>
+                <li><a class="category-link" onclick="filterCategory('twitch', this)">Twitch</a></li>
+                <li><a class="category-link" onclick="filterCategory('utility', this)">Utility</a></li>
+            </ul>
+            <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" class="search-input" placeholder="ツール名やキーワードで検索..." oninput="filterTools()">
-            </div>
-            <div class="filter-tags">
-                <button class="filter-btn active" onclick="filterCategory('all', this)">すべて</button>
-                <button class="filter-btn" onclick="filterCategory('obs', this)">OBS配信向け</button>
-                <button class="filter-btn" onclick="filterCategory('twitch', this)">Twitch連携</button>
-                <button class="filter-btn" onclick="filterCategory('management', this)">管理・集計</button>
-                <button class="filter-btn" onclick="filterCategory('utility', this)">ユーティリティ</button>
+                <input type="text" id="search-input" class="search-input" placeholder="Search tools..." oninput="filterTools()">
             </div>
         </div>
 
-        <!-- Tools Grid -->
-        <div class="tools-grid" id="tools-container">
+        <!-- Works Grid -->
+        <div class="works-grid" id="tools-container">
             
-            <!-- Tool 1: OBS Asset Manager -->
-            <a href="./OBS_Asset_Manager/" class="tool-card" data-tags="obs management" data-title="OBSアセットマネージャー">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-folder-open"></i>
+            <!-- Card 1: OBS Asset Manager -->
+            <div class="work-card" data-tags="obs utility" data-title="OBSアセットマネージャー">
+                <div class="card-thumbnail thumb-color-1">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <div class="card-thumbnail-title">OBS Asset Manager</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>OBS / Utility</span>
+                        <span>v1.0</span>
                     </div>
-                    <div class="tool-title">OBS アセットマネージャー</div>
+                    <div>
+                        <h3 class="overlay-title">OBS アセットマネージャー</h3>
+                        <p class="overlay-desc">配信用の画像、動画、BGMなどのアセットやソース配置情報を整理し、効率的に一括管理するためのダッシュボードツール。</p>
+                    </div>
+                    <div class="overlay-footer">
+                        <a href="./OBS_Asset_Manager/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                    </div>
                 </div>
-                <div class="tool-desc">
-                    OBSの配信画像、動画、BGM等のアセットやソース情報を一括して効率的に整理・管理するためのダッシュボードツール。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-obs">OBS</span>
-                    <span class="tag">配信管理</span>
-                </div>
-            </a>
+            </div>
 
-            <!-- Tool 2: OBS Twitch StatusBar -->
-            <a href="./OBS_Twitch_StatusBar/" class="tool-card" data-tags="obs twitch" data-title="OBS Twitchステータスバー">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-chart-line"></i>
+            <!-- Card 2: OBS Twitch StatusBar -->
+            <div class="work-card" data-tags="obs twitch" data-title="OBS Twitchステータスバー">
+                <div class="card-thumbnail thumb-color-2">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <div class="card-thumbnail-title">Twitch StatusBar</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>OBS Overlay / Twitch</span>
+                        <span>v1.2</span>
                     </div>
-                    <div class="tool-title">Twitch ステータスバー</div>
+                    <div>
+                        <h3 class="overlay-title">Twitch ステータスバー</h3>
+                        <p class="overlay-desc">配信画面にスマートに馴染むオーバーレイ。リアルタイムの視聴者数や接続状態をミニマルに視覚化します。</p>
+                    </div>
+                    <div class="overlay-footer">
+                        <a href="./OBS_Twitch_StatusBar/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                    </div>
                 </div>
-                <div class="tool-desc">
-                    配信画面の隅にスマートに統合可能。現在の視聴者数やTwitchの接続状態をオーバーレイとして美しく視覚化します。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-obs">OBS</span>
-                    <span class="tag tag-twitch">Twitch</span>
-                </div>
-            </a>
+            </div>
 
-            <!-- Tool 3: OBS Roulette -->
-            <a href="./OBS_roulette/" class="tool-card" data-tags="obs utility" data-title="OBSルーレット">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-circle-notch"></i>
+            <!-- Card 3: OBSブラウザドックツール タイトルセーブ -->
+            <div class="work-card" data-tags="obs utility" data-title="OBSタイトルセーバー">
+                <div class="card-thumbnail thumb-color-3">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <div class="card-thumbnail-title">Title Saver</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>OBS Dock / Utility</span>
+                        <span>v1.1</span>
                     </div>
-                    <div class="tool-title">OBS ルーレット</div>
+                    <div>
+                        <h3 class="overlay-title">タイトルセーバー</h3>
+                        <p class="overlay-desc">OBSのカスタムブラウザドック内に読み込み、配信のセットアップ時に毎回使用するタイトルや設定を一時保存・復元。</p>
+                    </div>
+                    <div class="overlay-footer">
+                        <a href="./OBS_ブラウザドックツール_タイトルセーブ/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                    </div>
                 </div>
-                <div class="tool-desc">
-                    視聴者参加型の企画や抽選イベントで大活躍する、ビジュアルとアニメーションにこだわったカスタム可能なルーレット。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-obs">OBS</span>
-                    <span class="tag">イベント用</span>
-                </div>
-            </a>
+            </div>
 
-            <!-- Tool 4: OBSブラウザドックツール タイトルセーブ -->
-            <a href="./OBS_ブラウザドックツール_タイトルセーブ/" class="tool-card" data-tags="obs utility" data-title="OBSタイトルセーバー">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-floppy-disk"></i>
+            <!-- Card 4: OBS読み聞かせテキスト用 -->
+            <div class="work-card" data-tags="obs utility" data-title="読み聞かせテキスト表示">
+                <div class="card-thumbnail thumb-color-4">
+                    <i class="fa-solid fa-book-open"></i>
+                    <div class="card-thumbnail-title">Story Text Display</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>OBS Overlay / Text</span>
+                        <span>v1.0</span>
                     </div>
-                    <div class="tool-title">タイトルセーバー</div>
+                    <div>
+                        <h3 class="overlay-title">読み聞かせテキスト表示</h3>
+                        <p class="overlay-desc">朗読配信や読み聞かせ、カラオケ字幕等に対応。テキストを美しくスクロールさせ、画面上に映えるよう装飾します。</p>
+                    </div>
+                    <div class="overlay-footer">
+                        <a href="./OBS_読み聞かせテキスト用/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                    </div>
                 </div>
-                <div class="tool-desc">
-                    OBSのカスタムブラウザドック内に格納し、配信のセットアップ時に毎回使うようなタイトルやゲームカテゴリ設定を簡単保存。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-obs">OBSドック</span>
-                    <span class="tag">ユーティリティ</span>
-                </div>
-            </a>
+            </div>
 
-            <!-- Tool 5: OBS便利ツール -->
-            <a href="./OBS_便利ツール/" class="tool-card" data-tags="obs utility" data-title="OBS便利ツール">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-toolbox"></i>
+            <!-- Card 5: Twitch Panel Editor -->
+            <div class="work-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
+                <div class="card-thumbnail thumb-color-5">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <div class="card-thumbnail-title">Twitch Panel Editor</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>Twitch / Creator</span>
+                        <span>v1.5</span>
                     </div>
-                    <div class="tool-title">OBS 便利ツール</div>
-                </div>
-                <div class="tool-desc">
-                    配信の準備やトラブルシューティング、細かなテキストオーバーレイ作成などに役立つ機能を一つにまとめたツールボックス。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-obs">OBS</span>
-                    <span class="tag">多機能</span>
-                </div>
-            </a>
-
-            <!-- Tool 6: OBS読み聞かせテキスト用 -->
-            <a href="./OBS_読み聞かせテキスト用/" class="tool-card" data-tags="obs utility" data-title="読み聞かせテキスト表示">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-book-open"></i>
+                    <div>
+                        <h3 class="overlay-title">Twitch パネルエディター</h3>
+                        <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネル画像を、テンプレートを元にブラウザ上で直感的にデザイン・書き出し。</p>
                     </div>
-                    <div class="tool-title">読み聞かせテキスト表示</div>
-                </div>
-                <div class="tool-desc">
-                    朗読や読み聞かせ、カラオケ字幕配信などに最適な、表示テキストを読みやすく綺麗にスクロール・デザインするツール。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-obs">OBS</span>
-                    <span class="tag">テキスト表示</span>
-                </div>
-            </a>
-
-            <!-- Tool 7: Twitch Panel Editor -->
-            <a href="./Twitch_Panel_Editor/" class="tool-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-pen-to-square"></i>
+                    <div class="overlay-footer">
+                        <a href="./Twitch_Panel_Editor/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
                     </div>
-                    <div class="tool-title">Twitch パネルエディター</div>
                 </div>
-                <div class="tool-desc">
-                    Twitchの概要欄に並べるパネル画像を、テンプレートやアイコン、グラデーションを用いてブラウザ上で手軽にデザイン。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag tag-twitch">Twitch</span>
-                    <span class="tag">画像編集</span>
-                </div>
-            </a>
-
-            <!-- Tool 8: Revenue Spreadsheet -->
-            <a href="./Revenue_Spreadsheet/" class="tool-card" data-tags="management" data-title="収益管理スプレッドシート">
-                <div class="tool-header">
-                    <div class="tool-icon-wrapper">
-                        <i class="fa-solid fa-table-cells"></i>
-                    </div>
-                    <div class="tool-title">収益管理スプレッドシート</div>
-                </div>
-                <div class="tool-desc">
-                    クリエイター活動や配信から得られる収入・経費を月別で集計・分析し、グラフや表で視覚的に管理するシートツール。
-                </div>
-                <div class="tool-tags">
-                    <span class="tag">収益管理</span>
-                    <span class="tag">スプレッドシート</span>
-                </div>
-            </a>
+            </div>
 
         </div>
     </div>
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 Streamer Tools Portal. Hosted on GitHub Pages.</p>
+        COPYRIGHT &copy; Streamer Tools Portal. ALL RIGHTS RESERVED.
     </footer>
 
     <!-- JS Logic for Search and Filtering -->
@@ -529,32 +559,32 @@
 
         function filterTools() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.tool-card');
+            const cards = document.querySelectorAll('.work-card');
 
             cards.forEach(card => {
                 const title = card.getAttribute('data-title').toLowerCase();
-                const desc = card.querySelector('.tool-desc').textContent.toLowerCase();
                 const tags = card.getAttribute('data-tags');
+                const desc = card.querySelector('.overlay-desc').textContent.toLowerCase();
                 
                 const matchesSearch = title.includes(query) || desc.includes(query);
                 const matchesCategory = currentCategory === 'all' || tags.includes(currentCategory);
 
                 if (matchesSearch && matchesCategory) {
-                    card.style.display = 'flex';
+                    card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
                 }
             });
         }
 
-        function filterCategory(category, button) {
+        function filterCategory(category, element) {
             currentCategory = category;
             
-            // Toggle active button class
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
+            // Toggle active category styling
+            document.querySelectorAll('.category-nav a').forEach(link => {
+                link.classList.remove('active');
             });
-            button.classList.add('active');
+            element.classList.add('active');
 
             filterTools();
         }
