@@ -3,3412 +3,1058 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch画像リサイズ＆クリエイターツール - v2.0.0</title>
+    <title>Web Utility Toolbox - 便利ツール集</title>
+    <meta name="description" content="文字数カウント、テキスト変換、タイマー、カラー変換、乱数ジェネレーターなどを備えた、ブラウザで動くモダンな便利ツール集です。">
     
-    <!-- Google Fonts: Outfit (UI用) + 日本語人気フォント -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&family=Outfit:wght@300;400;600;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons for premium visual design -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JSZip for dynamic zip generation in browser -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <!-- Embedded Stylesheet (CSS Integrated) -->
     <style>
-        /* ==========================================================================
-           Twitch Image Resizer & Creator - Integrated Stylesheet
-           Design Style: Premium Dark/Light Flat Compact Design
-           ========================================================================== */
-
-        /* 1. Theme Configuration & Global Variables */
         :root {
-            --transition-speed: 0.2s;
-            --border-radius-lg: 8px;
-            --border-radius-md: 4px;
-            --border-radius-sm: 3px;
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
             
-            /* Dark Theme Variables (Default) */
-            --bg-primary: #0e0e10;
-            --bg-secondary: #1f1f23;
-            --bg-tertiary: #18181b;
-            --text-primary: #f5f5f7;
-            --text-secondary: #adadb8;
-            --accent-purple: #9146ff;
-            --accent-purple-hover: #772ce8;
-            --accent-purple-rgb: 145, 70, 255;
-            --border-color: #2f2f35;
-            --drop-zone-bg: rgba(145, 70, 255, 0.03);
-            --drop-zone-border: rgba(145, 70, 255, 0.3);
-            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
             
-            /* Twitch Specific Colors (Constant) */
-            --twitch-chat-mod: #00AD03;
-            --twitch-chat-sub: #eb0400;
-            --twitch-chat-user-1: #1e90ff;
-            --twitch-chat-user-2: #e0245e;
-            --twitch-chat-user-3: #00ff7f;
-            --twitch-points-bg: rgba(145, 70, 255, 0.15);
+            --accent-primary: #6366f1; /* Indigo */
+            --accent-secondary: #a855f7; /* Purple */
+            --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
             
-            /* Mockup Constant Themes */
-            --mock-chat-bg: #18181b;
-            --mock-chat-msg-hover: #26262c;
-            --mock-chat-text: #efeff1;
-            --mock-chat-timestamp: #53535f;
-            --mock-chat-border: #26262c;
-            --mock-chat-input-bg: #2b2b30;
-            --mock-chat-point-btn-bg: #1f1f23;
-            --mock-profile-card-bg: #18181b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            
+            --font-main: 'Outfit', 'Noto Sans JP', sans-serif;
+            --transition-speed: 0.3s;
         }
-
-        /* Light Theme Variables */
-        body.light-theme {
-            --bg-primary: #f7f7f8;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #efeef1;
-            --text-primary: #0e0e10;
-            --text-secondary: #53535f;
-            --border-color: #e4e4e7;
-            --drop-zone-bg: rgba(145, 70, 255, 0.02);
-            --drop-zone-border: rgba(145, 70, 255, 0.2);
-            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            
-            /* Mockup Theme overrides for light mode */
-            --mock-chat-bg: #ffffff;
-            --mock-chat-msg-hover: #f2f2f7;
-            --mock-chat-text: #0e0e10;
-            --mock-chat-timestamp: #868691;
-            --mock-chat-border: #efeef1;
-            --mock-chat-input-bg: #f2f2f7;
-            --mock-chat-point-btn-bg: #efeef1;
-            --mock-profile-card-bg: #f7f7f8;
-        }
-
-        /* 2. Global Resets & Typography */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
         body {
             background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
             color: var(--text-primary);
-            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
-            line-height: 1.4;
-            transition: background-color var(--transition-speed), color var(--transition-speed);
-            overflow-x: hidden;
-            padding: 8px 12px;
+            font-family: var(--font-main);
             min-height: 100vh;
-        }
-
-        /* 3. Custom Scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-purple);
-        }
-
-                /* Ad Banner Styling */
-        .ad-rotation-container {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: var(--card-shadow);
-            transition: opacity 0.5s ease-in-out;
-        }
-        .ad-badge {
-            background-color: var(--text-secondary);
-            color: var(--bg-secondary);
-            font-size: 11px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        .ad-link {
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.2s;
-        }
-        .ad-link:hover {
-            color: var(--accent-purple);
-            text-decoration: underline;
-        }
-        /* 4. App Header Styling */
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 8px 8px 8px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 10px;
-        }
-
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logo-icon {
-            width: 24px;
-            height: 24px;
-            color: var(--accent-purple);
-            animation: pulse-compact 2s infinite alternate;
-        }
-
-        .header-logo h1 {
-            font-size: 17px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            color: var(--text-primary);
-        }
-
-        .header-logo p {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            width: 32px;
-            height: 32px;
-            border-radius: var(--border-radius-md);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-primary);
-            transition: all var(--transition-speed);
-        }
-
-        .theme-toggle-btn:hover {
-            border-color: var(--accent-purple);
-            background-color: var(--bg-tertiary);
-        }
-
-        .theme-toggle-btn .sun-icon {
-            display: none;
-        }
-        .theme-toggle-btn .moon-icon {
-            display: block;
-            width: 16px;
-            height: 16px;
-        }
-
-        body.light-theme .theme-toggle-btn .sun-icon {
-            display: block;
-            color: #f5a623;
-            width: 16px;
-            height: 16px;
-        }
-        body.light-theme .theme-toggle-btn .moon-icon {
-            display: none;
-        }
-
-        /* 5. Main Layout Structuring */
-        .app-main-layout {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 12px;
-            max-width: 1550px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 1150px) {
-            .app-main-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* 6. Card Base Styles */
-        .card {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-lg);
-            padding: 10px 12px;
-            margin-bottom: 10px;
-            box-shadow: var(--card-shadow);
-            transition: all var(--transition-speed);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card.disabled {
-            opacity: 0.35;
-            pointer-events: none;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .card-header h2 {
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .card-header h2 i {
-            width: 14px;
-            height: 14px;
-            color: var(--accent-purple);
-        }
-
-        .preset-badge {
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--accent-purple);
-        }
-
-        /* 7. Drop Zone & File Upload */
-        .drop-zone {
-            border: 1.5px dashed var(--drop-zone-border);
-            background-color: var(--drop-zone-bg);
-            border-radius: var(--border-radius-md);
-            padding: 12px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-            position: relative;
-        }
-
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--accent-purple);
-            background-color: rgba(145, 70, 255, 0.06);
-        }
-
-        .file-input {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .upload-icon {
-            width: 24px;
-            height: 24px;
-            color: var(--accent-purple);
-            margin-bottom: 4px;
-            opacity: 0.8;
-            transition: transform var(--transition-speed);
-        }
-
-        .drop-zone:hover .upload-icon {
-            transform: scale(1.05);
-        }
-
-        .upload-text {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .upload-text span {
-            color: var(--accent-purple);
-            text-decoration: underline;
-        }
-
-        .upload-hint {
-            font-size: 10px;
-            color: var(--text-secondary);
-        }
-
-        /* 7.5. Uploaded Image Queue Card styling */
-        .queue-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            max-height: 180px;
-            overflow-y: auto;
-            padding-right: 4px;
-            margin-bottom: 8px;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
-
-        .queue-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-            padding: 4px 8px;
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .queue-item:hover {
-            border-color: var(--accent-purple-hover);
-            background-color: var(--bg-secondary);
-        }
-
-        .queue-item.active {
-            background-color: rgba(145, 70, 255, 0.05);
-            border-color: var(--accent-purple);
-        }
-
-        .queue-item-thumb {
-            width: 32px;
-            height: 32px;
-            border-radius: var(--border-radius-sm);
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-primary);
-            flex-shrink: 0;
-        }
-
-        .queue-item-details {
-            display: flex;
-            flex-grow: 1;
-            align-items: center;
-            gap: 6px;
-            min-width: 0;
-        }
-
-        .queue-item-name-input {
-            width: 110px;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 4px 6px;
-            border-radius: var(--border-radius-sm);
-            font-size: 11px;
-            font-weight: 600;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .queue-item-name-input:focus {
-            border-color: var(--accent-purple);
-        }
-
-        .queue-item-preset-select {
-            width: 130px;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 4px 18px 4px 6px;
-            border-radius: var(--border-radius-sm);
-            font-size: 10px;
-            font-weight: 600;
-            outline: none;
-            cursor: pointer;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23adadb8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 4px center;
-            background-size: 10px;
-        }
-
-        .queue-item-delete-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: transparent;
-            border: none;
-            color: #eb0400;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .queue-item-delete-btn:hover {
-            background-color: rgba(235, 4, 0, 0.1);
-        }
-        .queue-item-delete-btn i {
-            width: 13px;
-            height: 13px;
-        }
-
-        .queue-actions {
-            padding-top: 6px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        /* 8. Canvas Editor Component */
-        .canvas-container {
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            position: relative;
+        /* Container & Grid layout */
+        .container {
+            max-width: 1200px;
             width: 100%;
-            min-height: 220px;
-            max-height: 280px;
-            display: flex;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            flex: 1;
+        }
+        /* Header design */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .logo-area {
+            display: inline-flex;
             align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .logo-icon {
+            font-size: 2.2rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
+        }
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #ffffff, #d1d5db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0.5rem auto 0;
+        }
+        /* Tab Navigation */
+        .tabs-nav {
+            display: flex;
             justify-content: center;
-            overflow: hidden;
-            margin-bottom: 8px;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out;
         }
-
-        #editor-canvas {
-            background-color: transparent;
-            cursor: grab;
+        .tab-btn {
+            background: rgba(31, 41, 55, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .tab-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        /* Tab Contents & Cards */
+        .tab-content {
+            display: none;
+            animation: tabFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-content.active {
             display: block;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         }
-
-        #editor-canvas:active {
-            cursor: grabbing;
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            margin: 0 auto;
         }
-
-        .canvas-overlay-tip {
-            position: absolute;
-            bottom: 6px;
-            background: rgba(15, 15, 15, 0.85);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
         }
-
-        .canvas-overlay-tip i {
-            width: 10px;
-            height: 10px;
-            color: var(--accent-purple);
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
         }
-
-        /* Editor Control Sliders and Buttons */
-        .control-group {
-            padding: 4px 0;
-        }
-
-        .control-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .control-row label {
-            font-size: 11px;
-            font-weight: 600;
-            min-width: 55px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .control-row label i {
-            width: 12px;
-            height: 12px;
-            color: var(--accent-purple);
-        }
-
-        input[type="range"] {
-            flex-grow: 1;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 4px;
-            border-radius: 2px;
-            background: var(--border-color);
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--accent-purple);
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-            background: var(--accent-purple-hover);
-        }
-
-        #zoom-val, .range-value {
-            font-size: 11px;
+        /* Form elements & UI components */
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
             font-weight: 700;
-            min-width: 35px;
-            text-align: right;
-            color: var(--accent-purple);
-        }
-
-        .button-row {
             display: flex;
-            gap: 6px;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
         }
-
-        .btn {
-            border-radius: var(--border-radius-sm);
+        h2 i {
+            color: #a855f7;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        textarea, input[type="text"], input[type="number"], select {
+            width: 100%;
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            padding: 0.85rem 1rem;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            transition: all var(--transition-speed);
+        }
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(17, 24, 39, 0.95);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        button.btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
             cursor: pointer;
+            font-family: var(--font-main);
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all var(--transition-speed);
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
+            gap: 0.5rem;
+        }
+        button.btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        button.btn-primary {
+            background: var(--accent-gradient);
+            color: white;
             border: none;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
-
-        .btn-sm {
-            padding: 5px 8px;
-            font-size: 11px;
+        button.btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #9333ea);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+            transform: translateY(-2px);
         }
-
-        .btn-lg {
-            padding: 8px 12px;
-            font-size: 13px;
+        button.btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        button.btn-danger:hover {
+            background: rgba(239, 68, 68, 0.4);
+            color: white;
+            border-color: transparent;
+        }
+        /* 1. Text Counter UI */
+        .counter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 600px) {
+            .counter-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .counter-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        .counter-val {
+            font-size: 1.8rem;
             font-weight: 700;
-            width: 100%;
-        }
-
-        .btn-secondary {
-            background-color: var(--bg-tertiary);
             color: var(--text-primary);
-            border: 1px solid var(--border-color);
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-
-        .btn-secondary:hover {
-            border-color: var(--accent-purple);
-            background-color: var(--bg-secondary);
-        }
-
-        .btn-primary {
-            background-color: var(--accent-purple);
-            color: #ffffff;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-purple-hover);
-        }
-
-        /* 9. Output & Text Settings Layout */
-        .setting-item {
-            margin-bottom: 8px;
-        }
-
-        .field-label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text-primary);
-        }
-
-        .prefix-input-group {
-            display: flex;
-            align-items: center;
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            overflow: hidden;
-            transition: all var(--transition-speed);
-        }
-
-        .prefix-input-group:focus-within {
-            border-color: var(--accent-purple);
-        }
-
-        .name-prefix-label {
-            background-color: var(--border-color);
-            color: var(--accent-purple);
-            padding: 6px 8px;
-            font-size: 11px;
-            font-family: monospace;
-            font-weight: 800;
-            border-right: 1px solid var(--border-color);
-            user-select: none;
-            text-transform: uppercase;
-        }
-
-        .prefix-input-group input {
-            flex-grow: 1;
-            border: none;
-            background: transparent;
-            padding: 6px 8px;
-            color: var(--text-primary);
-            font-size: 11px;
-            font-weight: 600;
-            outline: none;
-        }
-
-        .select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        select {
-            width: 100%;
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 6px 24px 6px 10px;
-            border-radius: var(--border-radius-md);
-            appearance: none;
-            outline: none;
-            font-size: 11px;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-        }
-
-        select:focus {
-            border-color: var(--accent-purple);
-        }
-
-        .select-arrow {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            width: 12px;
-            height: 12px;
+        .counter-lbl {
+            font-size: 0.8rem;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
         }
-
-        .text-layer-toggle {
+        /* 2. Timer UI */
+        .timer-display {
+            font-size: 5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 2rem 0;
+            font-family: monospace;
+            background: linear-gradient(to right, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.02em;
+            filter: drop-shadow(0 2px 10px rgba(99, 102, 241, 0.2));
+        }
+        .timer-controls {
             display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .timer-settings {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
             align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-            border-top: 1px solid var(--border-color);
-            margin-top: 6px;
         }
-
-        .switch-container {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
+        .timer-settings input {
+            width: 80px;
+            text-align: center;
         }
-
-        .switch-container input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .switch-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--border-color);
-            transition: .2s;
-            border-radius: 20px;
-        }
-
-        .switch-slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .2s;
-            border-radius: 50%;
-        }
-
-        .switch-container input:checked + .switch-slider {
-            background-color: var(--accent-purple);
-        }
-
-        .switch-container input:checked + .switch-slider:before {
-            transform: translateX(16px);
-        }
-
-        .toggle-label {
-            font-size: 11px;
+        /* 3. Random Generator UI */
+        .random-result {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.4rem;
             font-weight: 700;
+            min-height: 80px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            word-break: break-all;
         }
-
-        .toggle-label i {
-            width: 12px;
-            height: 12px;
-            color: var(--accent-purple);
+        .random-result.copied::after {
+            content: 'Copied!';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: normal;
         }
-
-        .text-controls-panel {
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            padding: 10px;
-            margin-top: 6px;
-            margin-bottom: 10px;
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
         }
-
-        .text-controls-panel.hidden {
-            display: none;
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            user-select: none;
         }
-
-        input[type="text"] {
+        .checkbox-label input {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--accent-primary);
+        }
+        /* 4. Color Code Tools */
+        .color-preview-box {
             width: 100%;
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
+            height: 150px;
+            border-radius: 1rem;
             border: 1px solid var(--border-color);
-            padding: 6px 10px;
-            border-radius: var(--border-radius-sm);
-            font-family: inherit;
-            font-size: 11px;
-            outline: none;
-            transition: all var(--transition-speed);
+            margin-bottom: 1.5rem;
+            transition: background-color 0.2s ease;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
         }
-
-        input[type="text"]:focus {
-            border-color: var(--accent-purple);
+        .color-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
-
-        .setting-grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 6px;
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
-
-        .setting-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            margin-top: 6px;
+        .color-row label {
+            width: 60px;
+            margin-bottom: 0;
         }
-
-        /* Color Picker customization */
+        .color-row input[type="text"] {
+            flex: 1;
+        }
         .color-picker-wrapper {
             display: flex;
+            gap: 1rem;
             align-items: center;
-            gap: 4px;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
-            padding: 4px;
-            width: 100%;
-            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
-
-        .color-picker-wrapper input[type="color"] {
+        input[type="color"] {
             -webkit-appearance: none;
             border: none;
-            width: 20px;
-            height: 20px;
-            border-radius: var(--border-radius-sm);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             cursor: pointer;
             background: none;
         }
-
-        .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+        input[type="color"]::-webkit-color-swatch-wrapper {
             padding: 0;
         }
-        .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
-        }
-
-        .color-hex {
-            font-size: 10px;
-            font-weight: 700;
-            font-family: monospace;
-            text-transform: uppercase;
-        }
-
-        .text-tip {
-            font-size: 10px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 6px;
-            opacity: 0.9;
-        }
-        .text-tip i {
-            width: 11px;
-            height: 11px;
-            color: var(--accent-purple);
-        }
-
-        /* 10. Twitch Live UI Mockup Pane */
-        .preview-card {
-            min-height: 380px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* プレビュータブ切り替えスタイル */
-        .preview-tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--bg-tertiary);
-            padding: 2px 6px 0 6px;
-            gap: 4px;
-        }
-
-        .preview-tab-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            border-bottom: none;
-            color: var(--text-secondary);
-            font-size: 10px;
-            font-weight: 700;
-            padding: 6px 10px;
-            cursor: pointer;
-            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all var(--transition-speed);
-            outline: none;
-        }
-
-        .preview-tab-btn:hover {
-            color: var(--text-primary);
-            background-color: rgba(255, 255, 255, 0.03);
-        }
-
-        .preview-tab-btn.active {
-            color: var(--accent-purple);
-            background-color: var(--bg-secondary);
-            border-color: var(--border-color);
-            border-bottom: 1px solid var(--bg-secondary);
-            margin-bottom: -1px;
-            z-index: 2;
-        }
-
-        body.light-theme .preview-tab-btn.active {
-            background-color: var(--bg-secondary);
-            border-color: var(--border-color);
-            border-bottom: 1px solid var(--bg-secondary);
-        }
-
-        .preview-mode-indicator {
-            background-color: rgba(145, 70, 255, 0.1);
-            color: var(--accent-purple);
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(145, 70, 255, 0.15);
-        }
-
-        .preview-scroll-viewport {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .mock-container {
-            border-radius: var(--border-radius-md);
-            overflow: hidden;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all var(--transition-speed);
-        }
-
-        /* Chat Mockup Styles */
-        .mock-chat-view {
-            background-color: var(--mock-chat-bg);
-            border: 1px solid var(--mock-chat-border);
-            display: flex;
-            flex-direction: column;
-            min-height: 280px;
-        }
-
-        .chat-header {
-            background-color: var(--mock-chat-bg);
-            border-bottom: 1px solid var(--mock-chat-border);
-            padding: 6px 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-title {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
-
-        .chat-dots {
-            display: flex;
-            gap: 3px;
-        }
-        .chat-dots span {
-            width: 3px;
-            height: 3px;
+        input[type="color"]::-webkit-color-swatch {
+            border: 2px solid white;
             border-radius: 50%;
-            background-color: var(--text-secondary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
-        .chat-messages-container {
-            flex-grow: 1;
-            padding: 6px 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            overflow-y: auto;
-            font-size: 11px;
-            font-family: Inter, system-ui, sans-serif;
-        }
-
-        .chat-msg {
-            display: flex;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 4px;
-            line-height: 1.4;
-            padding: 2px 4px;
-            border-radius: var(--border-radius-sm);
-            transition: background-color 0.1s;
-        }
-
-        .chat-msg:hover {
-            background-color: var(--mock-chat-msg-hover);
-        }
-
-        .chat-msg.bg-highlight {
-            background-color: rgba(145, 70, 255, 0.08);
-            border-left: 2px solid var(--accent-purple);
-        }
-        .chat-msg.bg-highlight-emote {
-            background-color: rgba(145, 70, 255, 0.04);
-        }
-
-        .chat-timestamp {
-            color: var(--mock-chat-timestamp);
-            font-size: 9px;
-            font-weight: 500;
-            margin-right: 2px;
-            user-select: none;
-        }
-
-        /* User Badges */
-        .badge-placeholder-system {
-            width: 14px;
-            height: 14px;
-            border-radius: 2px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            color: #fff;
-        }
-        .mod-badge {
-            background-color: var(--twitch-chat-mod);
-        }
-        .sub-badge {
-            background-color: var(--twitch-chat-sub);
-        }
-
-        .badge-display-area {
-            display: inline-flex;
-            vertical-align: middle;
-        }
-        .badge-display-area img {
-            width: 14px;
-            height: 14px;
-            object-fit: contain;
-            border-radius: 2px;
-        }
-
-        .badge-empty-slot {
-            width: 14px;
-            height: 14px;
-            border-radius: 2px;
-            border: 1px dashed var(--accent-purple);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-purple);
-            font-size: 8px;
-        }
-
-        .chat-user {
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .chat-user-mod { color: var(--twitch-chat-mod); }
-        .chat-user-sub { color: var(--twitch-chat-sub); }
-        .chat-user-normal { color: var(--twitch-chat-user-1); }
-
-        .chat-text {
-            color: var(--mock-chat-text);
-            word-break: break-all;
-        }
-
-        /* Emote inline display */
-        .emote-display-area {
-            display: inline-flex;
-            vertical-align: middle;
-            margin: 0 1px;
-        }
-        .emote-display-area img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-        }
-        .emote-empty-slot {
-            font-size: 8px;
-            background-color: var(--bg-tertiary);
-            border: 1px dashed var(--accent-purple);
-            color: var(--accent-purple);
-            padding: 0px 2px;
-            border-radius: 2px;
-        }
-
-        /* Chat inputs and points reward button */
-        .chat-input-area {
-            padding: 6px;
-            border-top: 1px solid var(--mock-chat-border);
-            position: relative;
-        }
-
-        .chat-input-box {
-            background-color: var(--mock-chat-input-bg);
-            border-radius: var(--border-radius-sm);
-            padding: 6px 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-secondary);
-            font-size: 11px;
-            border: 1px solid var(--mock-chat-border);
-        }
-
-        .chat-input-icons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chat-icon {
-            width: 12px;
-            height: 12px;
-            cursor: pointer;
-        }
-        .chat-icon:hover {
-            color: var(--text-primary);
-        }
-
-        /* Channel Points Reward Button */
-        .channel-points-btn {
-            background-color: var(--mock-chat-point-btn-bg);
-            border: 1px solid var(--border-color);
-            padding: 2px 4px;
-            border-radius: var(--border-radius-sm);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-
-        .channel-points-btn:hover {
-            border-color: var(--accent-purple);
-        }
-
-        .points-icon-area {
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .points-icon-area img {
-            width: 14px;
-            height: 14px;
-            object-fit: contain;
-        }
-
-        .points-empty-slot {
-            width: 14px;
-            height: 14px;
-            background: var(--twitch-points-bg);
-            border: 1px dashed var(--accent-purple);
-            border-radius: 3px;
-            font-size: 8px;
-            color: var(--accent-purple);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .points-val {
-            font-weight: 700;
-            color: var(--text-primary);
-            font-size: 9px;
-        }
-
-        /* Channel Points redemption list popover */
-        .points-popup-mock {
-            position: absolute;
-            bottom: 40px;
-            right: 6px;
-            width: 200px;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 10;
-            overflow: hidden;
-            animation: slideUp-compact 0.2s ease-out;
-        }
-
-        .points-popup-mock.hidden {
-            display: none;
-        }
-
-        .popup-header {
-            background-color: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-            padding: 6px 8px;
-            font-weight: 700;
-            font-size: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .close-popup-btn {
-            width: 12px;
-            height: 12px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-        .close-popup-btn:hover {
-            opacity: 1;
-        }
-
-        .popup-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--bg-secondary);
-            transition: background-color 0.2s;
-            cursor: pointer;
-        }
-        .popup-item:hover {
-            background-color: var(--bg-tertiary);
-        }
-
-        .popup-reward-icon-container {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .popup-reward-icon-container img {
-            width: 28px;
-            height: 28px;
-            object-fit: contain;
-        }
-
-        .points-empty-slot-large {
-            width: 28px;
-            height: 28px;
-            background: var(--twitch-points-bg);
-            border: 1px dashed var(--accent-purple);
-            border-radius: var(--border-radius-sm);
-            font-size: 12px;
-            color: var(--accent-purple);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .popup-reward-details {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-
-        .reward-title {
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .reward-cost {
-            font-size: 9px;
-            font-weight: 600;
-            color: var(--accent-purple);
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-        .reward-cost i {
-            width: 9px;
-            height: 9px;
-        }
-
-        .popup-footer {
-            padding: 4px;
+        /* Footer */
+        footer {
             text-align: center;
-            background-color: var(--bg-tertiary);
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
+            padding: 3rem 1.5rem 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
         }
-
-        /* B. Profile Mockup Styles */
-        .mock-profile-view {
-            background-color: var(--mock-profile-card-bg);
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .profile-banner-mock {
-            height: 100px;
-            width: 100%;
-            background-color: var(--bg-tertiary);
-            background-position: center;
-            background-size: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--border-color);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .banner-empty-text {
-            font-size: 10px;
-            color: var(--text-secondary);
-            opacity: 0.6;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .profile-info-bar {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-color);
-            position: relative;
-        }
-
-        .avatar-container-mock {
-            position: relative;
-            margin-top: -24px;
-            z-index: 2;
-        }
-
-        .profile-avatar-mock {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: var(--bg-secondary);
-            border: 2px solid var(--accent-purple);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .profile-avatar-mock img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .avatar-placeholder-icon {
-            width: 20px;
-            height: 20px;
-            color: var(--text-secondary);
-        }
-
-        .avatar-live-indicator {
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #eb0400;
-            color: #fff;
-            font-size: 8px;
-            font-weight: 800;
-            padding: 0.5px 4px;
-            border-radius: 8px;
-            border: 1px solid var(--bg-secondary);
-        }
-
-        .streamer-details {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .streamer-name {
-            font-size: 12px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-        .verified-icon {
-            width: 11px;
-            height: 11px;
-            color: var(--accent-purple);
-            fill: var(--accent-purple);
-        }
-        body.light-theme .verified-icon {
-            fill: none;
-        }
-
-        .streamer-status {
-            font-size: 10px;
-            color: var(--text-secondary);
-        }
-
-        .follow-btn {
-            background-color: var(--accent-purple);
-            color: #fff;
-            border: none;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: var(--border-radius-sm);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .follow-btn:hover {
-            background-color: var(--accent-purple-hover);
-        }
-        .follow-btn i {
-            width: 10px;
-            height: 10px;
-            fill: currentColor;
-        }
-
-        .profile-panels-section {
-            padding: 8px;
-            background-color: var(--bg-tertiary);
-        }
-
-        .panel-section-title {
-            font-size: 11px;
-            font-weight: 800;
-            margin-bottom: 6px;
-            color: var(--text-primary);
-            text-transform: uppercase;
-        }
-
-        .panels-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        @media (max-width: 600px) {
-            .panels-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel-card-mock {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-image-container {
-            width: 100%;
-            min-height: 50px;
-            background-color: var(--bg-tertiary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-        .panel-image-container img {
-            width: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .panel-empty-text {
-            font-size: 10px;
-            color: var(--text-secondary);
-            opacity: 0.6;
-            text-align: center;
-        }
-
-        .panel-text-content {
-            padding: 6px;
-            font-size: 10px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .panel-dummy-header {
-            background-color: var(--accent-purple);
-            color: #fff;
-            padding: 4px 6px;
-            font-weight: 800;
-            font-size: 10px;
-            text-align: center;
-        }
-
-        .dummy-panel {
-            opacity: 0.6;
-        }
-
-        /* 11. CSS Keyframe Animations */
-        @keyframes pulse-compact {
-            0% {
-                transform: scale(1);
-            }
-            100% {
-                transform: scale(1.03);
-            }
-        }
-
-        @keyframes slideUp-compact {
-            0% {
-                transform: translateY(6px);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes modalZoomIn {
-            0% {
-                transform: scale(0.97);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        /* 12. Batch Multi-Preset Export & Filename Preview Styles */
-        .batch-export-section {
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-            margin-top: 10px;
-        }
-
-        .batch-presets-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-top: 6px;
-        }
-
-        /* Custom Checkbox Design */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            position: relative;
-            padding-left: 22px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 700;
-            user-select: none;
-            height: 20px;
-            color: var(--text-primary);
-        }
-
-        .checkbox-container input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        .checkbox-checkmark {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-            height: 14px;
-            width: 14px;
-            background-color: var(--bg-tertiary);
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
-            transition: all var(--transition-speed);
-        }
-
-        .checkbox-container:hover input ~ .checkbox-checkmark {
-            border-color: var(--accent-purple);
-            background-color: rgba(145, 70, 255, 0.05);
-        }
-
-        .checkbox-container input:checked ~ .checkbox-checkmark {
-            background-color: var(--accent-purple);
-            border-color: var(--accent-purple);
-        }
-
-        .checkbox-checkmark:after {
-            content: "";
-            position: absolute;
-            display: none;
-        }
-
-        .checkbox-container input:checked ~ .checkbox-checkmark:after {
-            display: block;
-        }
-
-        .checkbox-container .checkbox-checkmark:after {
-            left: 4px;
-            top: 1px;
-            width: 3px;
-            height: 7px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        /* Filename Preview Box */
-        .filename-preview-box {
-            background-color: rgba(145, 70, 255, 0.02);
-            border: 1px dashed rgba(145, 70, 255, 0.2);
-            border-radius: var(--border-radius-md);
-            padding: 8px 10px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .filename-preview-box .preview-title {
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--accent-purple);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .preview-names-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-height: 80px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .preview-filename-item {
-            font-family: 'Outfit', monospace;
-            font-size: 10px;
-            color: var(--text-secondary);
-            background-color: var(--bg-tertiary);
-            padding: 3px 6px;
-            border-radius: var(--border-radius-sm);
-            border-left: 2px solid var(--accent-purple);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Button Variants and Layout Adjustments */
-        .btn-accent {
-            background-color: #ff46b9;
-            color: #fff;
-            border: none;
-        }
-        .btn-accent:hover {
-            background-color: #ff25a7;
-        }
-
-        body.light-theme .preview-filename-item {
-            background-color: #f0f0f5;
-            color: #444455;
-        }
-
-        .export-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 12px;
-        }
-
-        /* ==========================================================================
-           13. アフィリエイトリンク・フッター用スタイル
-           ========================================================================== */
-        .app-footer {
-            max-width: 1550px;
-            margin: 0 auto;
-            padding: 15px 12px 25px 12px;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .global-ad-banner {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2px;
-            line-height: 1.6;
-        }
-
-        .global-ad-banner a {
+        footer a {
             color: var(--text-secondary);
             text-decoration: none;
-            transition: color var(--transition-speed);
-            font-weight: 600;
-            display: inline-flex;
+            transition: color 0.2s;
+        }
+        footer a:hover {
+            color: var(--accent-primary);
+        }
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid var(--accent-primary);
+            color: var(--text-primary);
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
             align-items: center;
+            gap: 0.75rem;
+            backdrop-filter: blur(10px);
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .global-ad-banner a:hover {
-            color: var(--accent-purple);
-            text-decoration: underline;
+        .toast.show {
+            transform: translateY(0);
         }
-
-        .ad-badge {
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--accent-purple);
-            font-size: 9px;
-            font-weight: 800;
-            padding: 0 4px;
-            border-radius: var(--border-radius-sm);
-            margin-right: 5px;
-            height: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
+        .toast i {
+            color: var(--success);
         }
-
-        .copyright {
-            font-size: 10px;
-            color: var(--text-secondary);
-            opacity: 0.6;
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes tabFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
-<body class="dark-theme">
-    <header class="app-header">
-        <div class="header-logo">
-            <i data-lucide="sparkles" class="logo-icon"></i>
-        </div>
-        <button id="theme-toggle" class="theme-toggle-btn" aria-label="テーマ切り替え">
-            <i data-lucide="sun" class="sun-icon"></i>
-            <i data-lucide="moon" class="moon-icon"></i>
-        </button>
-    </header>
-
-    <main class="app-main-layout">
-        <!-- 左カラム: 画像編集 & コントロールエリア -->
-        <section class="editor-column">
-            <!-- 1. ファイルアップロード / ドロップエリア -->
-            <div class="card drop-zone-card">
-                <div id="drop-zone" class="drop-zone">
-                    <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" class="file-input" multiple>
-                    <i data-lucide="image-plus" class="upload-icon"></i>
-                    <p class="upload-text">画像をドラッグ＆ドロップ、または <span>ファイルを選択</span></p>
-                    <p class="upload-hint">PNG, JPEG, WebP | 複数ファイルをまとめてドロップ可能！</p>
-                </div>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-area">
+                <i class="fa-solid fa-toolbox logo-icon"></i>
             </div>
-
-            <!-- アップロード済み画像キューリスト -->
-            <div class="card queue-card hidden" id="queue-card">
-                <div class="card-header">
-                    <h2><i data-lucide="layers"></i> 画像キュー（編集する画像を選択してください）</h2>
-                    <span class="preset-badge" id="queue-count-badge">0枚の画像</span>
-                </div>
-                <div class="queue-list" id="queue-list">
-                    <!-- JavaScriptで動的に生成される画像行 -->
-                </div>
-                <div class="queue-actions">
-                    <button id="btn-export-all" class="btn btn-primary btn-lg">
-                        <i data-lucide="folder-zip"></i> キュー内の全画像をまとめて一括保存 (.zip)
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. 画像プレビュー & Canvas編集エリア -->
-            <div class="card editor-card disabled" id="editor-card">
-                <div class="card-header">
-                    <h2><i data-lucide="crop"></i> キャンバス編集</h2>
-                    <span class="preset-badge" id="current-preset-badge">プロフィールアイコン (1:1)</span>
-                </div>
+            <h1>Web Utility Toolbox</h1>
+            <p>ブラウザ上で安全に動作する、シンプルかつ強力なオールインワンWeb便利ツール</p>
+        </header>
+        <!-- Tab Navigation -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('text-tools')">
+                <i class="fa-solid fa-file-lines"></i> テキストツール
+            </button>
+            <button class="tab-btn" onclick="switchTab('timer-tools')">
+                <i class="fa-solid fa-stopwatch"></i> タイマー
+            </button>
+            <button class="tab-btn" onclick="switchTab('generator-tools')">
+                <i class="fa-solid fa-dice"></i> 乱数・生成器
+            </button>
+            <button class="tab-btn" onclick="switchTab('color-tools')">
+                <i class="fa-solid fa-palette"></i> カラー変換
+            </button>
+        </nav>
+        <!-- TAB 1: Text Tools -->
+        <div id="text-tools" class="tab-content active">
+            <div class="card">
+                <h2><i class="fa-solid fa-file-signature"></i> テキストカウンター & 変換</h2>
                 
-                <div class="canvas-container">
-                    <canvas id="editor-canvas"></canvas>
-                    <div class="canvas-overlay-tip">
-                        <span><i data-lucide="move"></i> ドラッグ：画像移動 / 文字移動 | ホイール：ズーム</span>
+                <div class="counter-grid">
+                    <div class="counter-box">
+                        <div class="counter-val" id="val-chars">0</div>
+                        <div class="counter-lbl">文字数</div>
+                    </div>
+                    <div class="counter-box">
+                        <div class="counter-val" id="val-chars-no-space">0</div>
+                        <div class="counter-lbl">文字数 (空白抜)</div>
+                    </div>
+                    <div class="counter-box">
+                        <div class="counter-val" id="val-lines">1</div>
+                        <div class="counter-lbl">行数</div>
+                    </div>
+                    <div class="counter-box">
+                        <div class="counter-val" id="val-bytes">0</div>
+                        <div class="counter-lbl">バイト数</div>
                     </div>
                 </div>
-
-                <div class="control-group">
-                    <div class="control-row">
-                        <label for="zoom-slider"><i data-lucide="zoom-in"></i> ズーム</label>
-                        <input type="range" id="zoom-slider" min="0.1" max="5.0" step="0.01" value="1.0">
-                        <span id="zoom-val">100%</span>
-                    </div>
-                    <div class="button-row">
-                        <button id="btn-zoom-fit" class="btn btn-secondary btn-sm"><i data-lucide="maximize"></i> 枠に合わせる</button>
-                        <button id="btn-rotate" class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw"></i> 90°回転</button>
-                        <button id="btn-reset" class="btn btn-secondary btn-sm"><i data-lucide="refresh-cw"></i> 位置リセット</button>
-                    </div>
+                <div class="form-group">
+                    <label for="text-input">テキストを入力してください (リアルタイムに計算 & 変換)</label>
+                    <textarea id="text-input" placeholder="ここにテキストを入力または貼り付け..." oninput="processText()"></textarea>
                 </div>
-            </div>
-
-            <!-- 3. 各種設定パネル -->
-            <div class="card settings-card disabled" id="settings-card">
-                <div class="card-header">
-                    <h2><i data-lucide="sliders"></i> 出力・文字入れ設定</h2>
-                </div>
-
-                <div class="setting-grid-2">
-                    <!-- 出力ファイル名設定 -->
-                    <div class="setting-item">
-                        <label for="export-name-input" class="field-label">スタンプ名 / ファイル名</label>
-                        <div class="prefix-input-group">
-                            <span class="name-prefix-label" id="name-prefix-display">ICON_</span>
-                            <input type="text" id="export-name-input" placeholder="例: happy_smile">
-                        </div>
-                    </div>
-
-                    <!-- プリセット選択 -->
-                    <div class="setting-item">
-                        <label for="preset-select" class="field-label">キャンバス表示用途・サイズ</label>
-                        <div class="select-wrapper">
-                            <select id="preset-select">
-                                <option value="avatar" selected>プロフィールアイコン (256x256 px - ICON_)</option>
-                                <option value="banner">プロフィールバナー (1200x480 px - BANNER_)</option>
-                                <option value="offline">ビデオプレーヤーバナー (1920x1080 px - OFFLINE_)</option>
-                                <option value="panel">情報パネル (320x200 px - PANEL_)</option>
-                                <option value="emote">スタンプ (112 / 56 / 28px - EMOTE_)</option>
-                                <option value="badge">サブスクバッジ (72 / 36 / 18px - BADGE_)</option>
-                                <option value="points">チャンネルポイント (112 / 56 / 28px - CP_)</option>
-                            </select>
-                            <i data-lucide="chevron-down" class="select-arrow"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 簡易文字入れトグル -->
-                <div class="text-layer-toggle">
-                    <label class="switch-container">
-                        <input type="checkbox" id="text-enabled">
-                        <span class="switch-slider"></span>
-                    </label>
-                    <span class="toggle-label"><i data-lucide="type"></i> テキスト（文字入れ）を有効にする</span>
-                </div>
-
-                <!-- 文字入れ詳細コントロール -->
-                <div id="text-controls-panel" class="text-controls-panel hidden">
-                    <div class="setting-item">
-                        <label for="text-input" class="field-label">表示文字</label>
-                        <input type="text" id="text-input" value="TWITCH" placeholder="文字を入力してください">
-                    </div>
-
-                    <div class="setting-grid-2">
-                        <div class="setting-item">
-                            <label for="font-select" class="field-label">フォントスタイル</label>
-                            <div class="select-wrapper">
-                                <select id="font-select">
-                                    <option value="'Dela Gothic One', sans-serif">Dela Gothic (極太ゴシック)</option>
-                                    <option value="'Noto Sans JP', sans-serif" selected>Noto Sans (王道ゴシック)</option>
-                                    <option value="'M PLUS Rounded 1c', sans-serif">M PLUS (丸文字)</option>
-                                    <option value="'Shippori Mincho', serif">Shippori (美しい明朝)</option>
-                                    <option value="'Noto Serif JP', serif">Noto Serif (王道明朝)</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="select-arrow"></i>
-                            </div>
-                        </div>
-
-                        <div class="setting-item">
-                            <label for="font-size-slider" class="field-label">文字サイズ</label>
-                            <input type="range" id="font-size-slider" min="10" max="200" value="48">
-                            <span class="range-value" id="font-size-val">48px</span>
-                        </div>
-                    </div>
-
-                    <div class="setting-grid-3">
-                        <div class="setting-item">
-                            <label for="text-color" class="field-label">文字色</label>
-                            <div class="color-picker-wrapper">
-                                <input type="color" id="text-color" value="#ffffff">
-                                <span class="color-hex" id="text-color-hex">#FFFFFF</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <label for="stroke-color" class="field-label">縁取り色</label>
-                            <div class="color-picker-wrapper">
-                                <input type="color" id="stroke-color" value="#9146ff">
-                                <span class="color-hex" id="stroke-color-hex">#9146FF</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <label for="stroke-width-slider" class="field-label">縁の太さ</label>
-                            <input type="range" id="stroke-width-slider" min="0" max="30" value="8">
-                            <span class="range-value" id="stroke-width-val">8px</span>
-                        </div>
-                    </div>
-                    <div class="text-tip">
-                        <p><i data-lucide="info" class="tip-icon"></i> 文字をキャンバス上で直接ドラッグして動かせます！</p>
-                    </div>
-                </div>
-
-                <!-- 複数用途一括出力設定エリア -->
-                <div class="batch-export-section">
-                    <label class="field-label"><i data-lucide="check-square"></i> 一括出力する用途（複数選択可能）</label>
-                    <div class="batch-presets-grid">
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="avatar" checked>
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">アイコン (ICON_)</span>
-                        </label>
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="banner">
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">バナー (BANNER_)</span>
-                        </label>
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="offline">
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">ビデオバナー (OFFLINE_)</span>
-                        </label>
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="panel">
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">情報パネル (PANEL_)</span>
-                        </label>
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="emote" checked>
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">スタンプ (EMOTE_)</span>
-                        </label>
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="badge">
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">バッジ (BADGE_)</span>
-                        </label>
-                        <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="points" checked>
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">チャネポ (CP_)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- リアルタイムファイル名プレビュー枠 -->
-                <div class="filename-preview-box">
-                    <span class="preview-title"><i data-lucide="file-text"></i> 出力ファイル名プレビュー</span>
-                    <div class="preview-names-list" id="filename-preview-list">
-                        <!-- JavaScriptで動的に生成 -->
-                    </div>
-                </div>
-
-                <!-- エクスポートボタンエリア -->
-                <div class="export-actions">
-                    <button id="btn-export-single" class="btn btn-secondary btn-lg" title="現在のキャンバスサイズで1枚だけPNG保存します">
-                        <i data-lucide="download"></i> 編集中の画像を単一保存
-                    </button>
-                    <button id="btn-export-multi-preset" class="btn btn-primary btn-lg" title="チェックしたすべての用途に自動リサイズし、ZIP保存します">
-                        <i data-lucide="folder-archive"></i> 選択した用途で保存 (.zip)
-                    </button>
-                    <button id="btn-export-all-presets" class="btn btn-accent btn-lg" title="キュー内の全画像を、チェックしたすべての用途に一括リサイズしてZIP保存します">
-                        <i data-lucide="folder-zip"></i> キュー全画像を複数用途で保存 (.zip)
-                    </button>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="transformText('upper')">大文字に変換</button>
+                    <button class="btn btn-primary" onclick="transformText('lower')">小文字に変換</button>
+                    <button class="btn btn-primary" onclick="transformText('zen-han')">全角から半角</button>
+                    <button class="btn btn-primary" onclick="transformText('url-encode')">URLエンコード</button>
+                    <button class="btn btn-primary" onclick="transformText('url-decode')">URLデコード</button>
+                    <button class="btn" onclick="copyText('text-input')"><i class="fa-regular fa-copy"></i> コピー</button>
+                    <button class="btn btn-danger" onclick="clearText('text-input')"><i class="fa-regular fa-trash-can"></i> クリア</button>
                 </div>
             </div>
-        </section>
-
-        <!-- 右カラム: リアルタイムTwitch UIプレビュー画面 -->
-        <section class="preview-column">
-            <div class="card preview-card" style="padding: 0; overflow: hidden;">
-
-                <div class="preview-tabs">
-                    <button class="preview-tab-btn" id="tab-btn-profile" data-target="profile">
-                        <i data-lucide="user"></i> アイコン・バナー表示
-                    </button>
-                    <button class="preview-tab-btn active" id="tab-btn-chat" data-target="chat">
-                        <i data-lucide="message-square"></i> チャット表示
-                    </button>
-                </div>
-
-                <div class="preview-scroll-viewport" style="padding: 8px 10px;">
-                    <!-- A. チャットプレビュー -->
-                    <div id="mock-twitch-chat" class="mock-container mock-chat-view">
-                        <div class="chat-header">
-                        </div>
-                                                <div class="chat-messages-container" id="chat-messages-list">
-                        </div>
-
-                        <div class="chat-input-area" style="display: flex; gap: 8px; padding: 10px; background: var(--mock-chat-input-bg); border-top: 1px solid var(--mock-chat-border);">
-                            <input type="text" id="real-chat-input" placeholder="メッセージを入力..." style="flex: 1; padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 12px;">
-                            <button id="btn-send-chat" class="btn btn-primary btn-sm" style="padding: 4px 10px; font-size: 11px;">送信</button>
-                            <button id="btn-send-emote" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">スタンプ</button>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- B. チャンネルヘッダー ＆ 自己紹介パネルプレビュー -->
-                    <div id="mock-twitch-profile" class="mock-container mock-profile-view hidden">
-                        <!-- バナープレビュー枠 -->
-                        <div class="profile-banner-mock" id="preview-banner-bg">
-                            <span class="banner-empty-text">ここにプロフィールバナーが表示されます (1200x480)</span>
-                        </div>
-
-                        <!-- 配信者情報エリア -->
-                        <div class="profile-info-bar">
-                            <div class="avatar-container-mock">
-                                <div class="profile-avatar-mock" id="preview-avatar-circle">
-                                    <i data-lucide="user" class="avatar-placeholder-icon"></i>
-                                </div>
-                                <div class="avatar-live-indicator">LIVE</div>
-                            </div>
-                            <div class="streamer-details">
-                                <span class="streamer-name">Twitch_Streamer <i data-lucide="check-circle-2" class="verified-icon"></i></span>
-                                <span class="streamer-status">雑談配信 / ゲーム実況 / お絵描き</span>
-                            </div>
-                            <button class="follow-btn"><i data-lucide="heart"></i> フォロー</button>
-                        </div>
-
-                        <!-- 自己紹介パネルセクション -->
-                        <div class="profile-panels-section">
-                            <h3 class="panel-section-title">自己紹介</h3>
-                            <div class="panels-grid">
-                                <!-- プレビュー対象パネル -->
-                                <div class="panel-card-mock">
-                                    <div class="panel-image-container" id="preview-panel-img">
-                                        <span class="panel-empty-text">情報パネル<br>(320x200)</span>
-                                    </div>
-                                    <div class="panel-text-content">
-                                        <p>ここに入力した情報パネルの画像が実際のサイズ（横幅320px）で表示されます。SNSリンクや配信スケジュールなどの画像に最適です。</p>
-                                    </div>
-                                </div>
-
-                                <!-- ダミーの別パネル -->
-                                <div class="panel-card-mock dummy-panel">
-                                    <div class="panel-dummy-header">
-                                        <h4>DONATION</h4>
-                                    </div>
-                                    <div class="panel-text-content">
-                                        <p>活動を応援していただける方は、上記のリンクからドネーション（投げ銭）をお願いいたします！配信環境のクオリティアップに繋がります。</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <!-- Zone C: プレミアムリーガルフッター（フラット・アフィリンク統合版） -->
-    <footer class="app-footer">
-        <div class="global-ad-banner">
-            <a id="amazon-ad-link" href="https://www.amazon.co.jp/cer/c/7e4fe727" target="_blank" rel="noopener noreferrer">
-                <span class="ad-badge">AD</span><span id="amazon-ad-text">AmazonプライムとTwitchを連携すると、お好きな配信者に毎月無料でサブスク（支援）ができます！</span>
-            </a>
-            <span style="margin: 0 10px; opacity: 0.5;">|</span>
-            <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer">
-                Twitchのフォローもお願いします！
-            </a>
         </div>
+        <!-- TAB 2: Timer Tools -->
+        <div id="timer-tools" class="tab-content">
+            <div class="card">
+                <h2><i class="fa-solid fa-hourglass-half"></i> タイマー & ストップウォッチ</h2>
+                
+                <div class="timer-display" id="timer-val">00:00.00</div>
+                <!-- Settings for CountDown -->
+                <div class="timer-settings" id="timer-inputs-area">
+                    <div class="form-group" style="margin-bottom:0">
+                        <input type="number" id="timer-min" min="0" max="599" value="3" placeholder="分">
+                        <span style="color: var(--text-secondary); margin: 0 0.25rem;">分</span>
+                        <input type="number" id="timer-sec" min="0" max="59" value="0" placeholder="秒">
+                        <span style="color: var(--text-secondary); margin: 0 0.25rem;">秒</span>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn btn-primary" id="btn-timer-start" onclick="toggleTimer()">
+                        <i class="fa-solid fa-play"></i> スタート
+                    </button>
+                    <button class="btn" id="btn-timer-mode" onclick="toggleTimerMode()">
+                        モード: カウントダウン
+                    </button>
+                    <button class="btn btn-danger" onclick="resetTimer()">
+                        <i class="fa-solid fa-rotate-left"></i> リセット
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- TAB 3: Random Generator Tools -->
+        <div id="generator-tools" class="tab-content">
+            <div class="card">
+                <div class="grid-2">
+                    <!-- Column 1: Password Gen -->
+                    <div>
+                        <h2><i class="fa-solid fa-key"></i> パスワード生成</h2>
+                        <div class="form-group">
+                            <label for="pass-len">長さ: <span id="pass-len-val">16</span>文字</label>
+                            <input type="range" id="pass-len" min="6" max="64" value="16" style="width:100%" oninput="document.getElementById('pass-len-val').textContent=this.value">
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-upper" checked> 大文字 (A-Z)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-lower" checked> 小文字 (a-z)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-nums" checked> 数字 (0-9)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-syms" checked> 記号 (!@#$%^&*)
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" onclick="generatePassword()" style="width:100%">
+                            <i class="fa-solid fa-shield-halved"></i> パスワード生成
+                        </button>
+                    </div>
+                    <!-- Column 2: List Picker -->
+                    <div>
+                        <h2><i class="fa-solid fa-shuffle"></i> リストからランダム抽選</h2>
+                        <div class="form-group">
+                            <label for="lot-items">項目を改行区切りで入力</label>
+                            <textarea id="lot-items" placeholder="項目A&#10;項目B&#10;項目C" style="min-height: 120px;"></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="drawLottery()" style="width:100%">
+                            <i class="fa-solid fa-clover"></i> 抽選する
+                        </button>
+                    </div>
+                </div>
+                <div class="random-result" id="gen-result" onclick="copyResult()">
+                    生成された結果がここに表示されます (クリックでコピー)
+                </div>
+            </div>
+        </div>
+        <!-- TAB 4: Color Tools -->
+        <div id="color-tools" class="tab-content">
+            <div class="card">
+                <h2><i class="fa-solid fa-eye-dropper"></i> カラーコード相互変換</h2>
+                
+                <div class="color-picker-wrapper">
+                    <input type="color" id="color-picker" value="#6366f1" oninput="updateColorFromPicker(this.value)">
+                    <div>
+                        <label>カラーピッカーで選択</label>
+                        <span id="picker-val-label" style="font-family: monospace; font-size:1.1rem; font-weight:bold;">#6366f1</span>
+                    </div>
+                </div>
+                <div class="color-preview-box" id="color-preview" style="background-color: #6366f1; color: #ffffff;">
+                    PREVIEW
+                </div>
+                <div class="color-inputs">
+                    <div class="color-row">
+                        <label for="color-hex">HEX</label>
+                        <input type="text" id="color-hex" value="#6366f1" oninput="updateColorFromInput('hex', this.value)">
+                        <button class="btn" onclick="copyText('color-hex')"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="color-row">
+                        <label for="color-rgb">RGB</label>
+                        <input type="text" id="color-rgb" value="rgb(99, 102, 241)" oninput="updateColorFromInput('rgb', this.value)">
+                        <button class="btn" onclick="copyText('color-rgb')"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="color-row">
+                        <label for="color-hsl">HSL</label>
+                        <input type="text" id="color-hsl" value="hsl(239, 84%, 67%)" oninput="updateColorFromInput('hsl', this.value)">
+                        <button class="btn" onclick="copyText('color-hsl')"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Toast Component -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">クリップボードにコピーしました！</span>
+    </div>
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Web Utility Toolbox. Built for GitHub Pages.</p>
+        <p style="margin-top:0.5rem;"><a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i> GitHubでホストする</a></p>
     </footer>
-
-    <!-- Embedded Scripts (JS Integrated) -->
+    <!-- JavaScript Logic -->
     <script>
-        // Amazon Ad Rotation Logic
-        const amazonAds = [
-            { url: 'https://www.amazon.co.jp/cer/c/7e4fe727', text: 'AmazonプライムとTwitchを連携すると、お好きな配信者に毎月無料でサブスク（支援）ができます！' },
-            { url: 'https://amzn.to/4x1PegD', text: '『Blender完全入門』形から質感、光、撮影まで全部できる！' },
-            { url: 'https://amzn.to/4tU7upp', text: '『ビデオサロン 2026年3月号』映像制作の最新情報をチェック' },
-            { url: 'https://amzn.to/4nIg0Gp', text: '『なるほどデッサン』みるみる上達するコツ教えます' },
-            { url: 'https://amzn.to/43sgXsU', text: '『サムネイルデザインのきほん』伝える、目立たせるためのアイデア' },
-            { url: 'https://amzn.to/3RDRIRQ', text: '『「悩まない」配色の基本』好きな色から考えるデザイン' },
-            { url: 'https://amzn.to/4dqcKMs', text: '『はじめての3Dモデリング Blender 4 超入門』' },
-            { url: 'https://amzn.to/4nFXw9o', text: '『描きたい絵が描けるようになる本』明暗・構図・配色の知識' },
-            { url: 'https://amzn.to/4uqBUR5', text: '『10日でBlender 4入門』ミニチュア作りで楽しくはじめる' },
-            { url: 'https://amzn.to/4nLx2Uf', text: '漫画のプロが全力で教える『「描き文字」の基本』' },
-            { url: 'https://amzn.to/49QcGTR', text: '『ポケモン公式ぜんこく図鑑 1996-2026』' }
-        ];
-        let currentAdIndex = 0;
-        function rotateAmazonAd() {
-            const adLink = document.getElementById('amazon-ad-link');
-            const adText = document.getElementById('amazon-ad-text');
-            if (adLink && adText) {
-                // Fade out
-                adLink.style.transition = 'opacity 0.5s';
-                adLink.style.opacity = '0';
+        // --- 1. General Tab Switcher ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        // Global Toast Show
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        function copyText(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            document.execCommand('copy');
+            showToast('クリップボードにコピーしました！');
+        }
+        function clearText(elementId) {
+            document.getElementById(elementId).value = '';
+            if (elementId === 'text-input') {
+                processText();
+            }
+        }
+        // --- 2. Text Tools Logic ---
+        function processText() {
+            const txt = document.getElementById('text-input').value;
+            
+            // Chars count
+            document.getElementById('val-chars').textContent = txt.length;
+            
+            // Chars no space count
+            const noSpace = txt.replace(/\s/g, '');
+            document.getElementById('val-chars-no-space').textContent = noSpace.length;
+            
+            // Lines count (empty text has 0 lines, else count newlines + 1)
+            const lines = txt === '' ? 0 : txt.split(/\r\n|\r|\n/).length;
+            document.getElementById('val-lines').textContent = lines;
+            
+            // Bytes count (UTF-8 estimate)
+            let bytes = 0;
+            for (let i = 0; i < txt.length; i++) {
+                const code = txt.charCodeAt(i);
+                if (code <= 0x7f) bytes += 1;
+                else if (code <= 0x7ff) bytes += 2;
+                else if (code <= 0xffff) bytes += 3;
+                else bytes += 4;
+            }
+            document.getElementById('val-bytes').textContent = bytes;
+        }
+        function transformText(action) {
+            const input = document.getElementById('text-input');
+            let txt = input.value;
+            if (!txt) return;
+            if (action === 'upper') {
+                txt = txt.toUpperCase();
+            } else if (action === 'lower') {
+                txt = txt.toLowerCase();
+            } else if (action === 'zen-han') {
+                // Fullwidth to Halfwidth
+                txt = txt.replace(/[！-～]/g, function(s) {
+                    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+                }).replace(/　/g, ' '); // Space
+            } else if (action === 'url-encode') {
+                txt = encodeURIComponent(txt);
+            } else if (action === 'url-decode') {
+                try {
+                    txt = decodeURIComponent(txt);
+                } catch(e) {
+                    showToast('URLデコードに失敗しました。正しいエンコード形式か確認してください。');
+                    return;
+                }
+            }
+            input.value = txt;
+            processText();
+            showToast('テキストを変換しました！');
+        }
+        // --- 3. Timer & Stopwatch Logic ---
+        let timerInterval = null;
+        let timerMode = 'countdown'; // 'countdown' or 'stopwatch'
+        let timerSeconds = 180; // Default 3 mins
+        let stopwatchMS = 0;
+        let timerIsRunning = false;
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-val');
+            if (timerMode === 'countdown') {
+                const mins = Math.floor(Math.abs(timerSeconds) / 60);
+                const secs = Math.abs(timerSeconds) % 60;
+                const sign = timerSeconds < 0 ? '-' : '';
+                display.textContent = `${sign}${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.00`;
                 
-                setTimeout(() => {
-                    currentAdIndex = (currentAdIndex + 1) % amazonAds.length;
-                    adLink.href = amazonAds[currentAdIndex].url;
-                    adText.textContent = amazonAds[currentAdIndex].text;
-                    // Fade in
-                    adLink.style.opacity = '1';
-                }, 500);
-            }
-        }
-        setInterval(rotateAmazonAd, 15000); // 15秒ごとにローテーション
-
-        // Chat Stamp Mockup Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnChat = document.getElementById('btn-send-chat');
-            const btnEmote = document.getElementById('btn-send-emote');
-            const inputChat = document.getElementById('real-chat-input');
-            const chatList = document.getElementById('chat-messages-list');
-            
-            function addMockupChatMessage(message, isEmote = false) {
-                if (!chatList) return;
-                const msgEl = document.createElement('div');
-                msgEl.className = 'mock-chat-message';
-                const time = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
-                
-                let content = '';
-                if (isEmote) {
-                    const firstImg = document.querySelector('.queue-list .canvas-preview');
-                    let imgSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="%239146ff" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>';
-                    if (firstImg && firstImg.src) {
-                        imgSrc = firstImg.src;
-                    }
-                    content = `<img src="${imgSrc}" alt="stamp" style="max-width: 28px; max-height: 28px; vertical-align: middle;">`;
+                // Visual warning if negative
+                if (timerSeconds < 0) {
+                    display.style.background = 'linear-gradient(to right, #ef4444, #f87171)';
+                    display.style.webkitBackgroundClip = 'text';
                 } else {
-                    content = `<span class="message-text">${message.replace(/</g, '&lt;')}</span>`;
+                    display.style.background = 'linear-gradient(to right, #6366f1, #a855f7, #ec4899)';
+                    display.style.webkitBackgroundClip = 'text';
                 }
-
-                msgEl.innerHTML = `
-                    <span class="chat-timestamp">${time}</span>
-                    <span class="chat-username" style="color: var(--twitch-chat-user-1);">You</span>
-                    <span class="chat-separator">:</span>
-                    ${content}
-                `;
-                chatList.appendChild(msgEl);
-                chatList.scrollTop = chatList.scrollHeight;
-            }
-
-            if (btnChat && inputChat) {
-                btnChat.addEventListener('click', () => {
-                    const text = inputChat.value.trim();
-                    if (text) {
-                        addMockupChatMessage(text, false);
-                        inputChat.value = '';
-                    }
-                });
-                inputChat.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') btnChat.click();
-                });
-            }
-            if (btnEmote) {
-                btnEmote.addEventListener('click', () => addMockupChatMessage('', true));
-            }
-        });
-        /* ==========================================================================
-           Twitch Image Resizer & Creator - Integrated Application Script
-           ========================================================================== */
-
-        // 1. App Presets Configuration with category prefixes
-        const PRESETS = {
-            avatar: { name: 'プロフィールアイコン', width: 256, height: 256, type: 'single', prefix: 'ICON', label: 'アイコン (256x256 - ICON_)' },
-            banner: { name: 'プロフィールバナー', width: 1200, height: 480, type: 'single', prefix: 'BANNER', label: 'バナー (1200x480 - BANNER_)' },
-            offline: { name: 'ビデオプレーヤーバナー', width: 1920, height: 1080, type: 'single', prefix: 'OFFLINE', label: 'オフライン (1920x1080 - OFFLINE_)' },
-            panel: { name: '自己紹介情報パネル', width: 320, height: 200, type: 'single', prefix: 'PANEL', label: '情報パネル (320x200 - PANEL_)' },
-            emote: { name: 'スタンプ', width: 112, height: 112, type: 'multi', exportSizes: [112, 56, 28], prefix: 'EMOTE', label: 'スタンプ (112x112等 - EMOTE_)' },
-            badge: { name: 'サブスクバッジ', width: 72, height: 72, type: 'multi', exportSizes: [72, 36, 18], prefix: 'BADGE', label: 'バッジ (72x72等 - BADGE_)' },
-            points: { name: 'チャンネルポイント報酬', width: 112, height: 112, type: 'multi', exportSizes: [112, 56, 28], prefix: 'CP', label: 'チャネポ (112x112等 - CP_)' }
-        };
-
-        // アプリの全体状態
-        const state = {
-            queue: [],         // 各アップロード画像の個別ステートを格納する配列
-            activeImageId: null, // 現在編集対象になっている画像のID
-            currentPresetKey: 'avatar',
-            isDragging: false,
-            dragTarget: null, // 'image' | 'text'
-            lastMouseX: 0,
-            lastMouseY: 0,
-            theme: 'dark'
-        };
-
-        // 2. DOM Elements
-        const elements = {
-            themeToggle: document.getElementById('theme-toggle'),
-            dropZone: document.getElementById('drop-zone'),
-            fileInput: document.getElementById('file-input'),
-            editorCard: document.getElementById('editor-card'),
-            settingsCard: document.getElementById('settings-card'),
-            canvas: document.getElementById('editor-canvas'),
-            presetSelect: document.getElementById('preset-select'),
-            currentPresetBadge: document.getElementById('current-preset-badge'),
-            
-            // 画像キュー
-            queueCard: document.getElementById('queue-card'),
-            queueList: document.getElementById('queue-list'),
-            queueCountBadge: document.getElementById('queue-count-badge'),
-            btnExportAll: document.getElementById('btn-export-all'),
-            
-            // スライダー＆ボタン
-            zoomSlider: document.getElementById('zoom-slider'),
-            zoomVal: document.getElementById('zoom-val'),
-            btnZoomFit: document.getElementById('btn-zoom-fit'),
-            btnRotate: document.getElementById('btn-rotate'),
-            btnReset: document.getElementById('btn-reset'),
-            
-            // 設定項目
-            exportNameInput: document.getElementById('export-name-input'),
-            namePrefixDisplay: document.getElementById('name-prefix-display'),
-            
-            // テキストコントロール
-            textEnabledCheckbox: document.getElementById('text-enabled'),
-            textControlsPanel: document.getElementById('text-controls-panel'),
-            textInput: document.getElementById('text-input'),
-            fontSelect: document.getElementById('font-select'),
-            fontSizeSlider: document.getElementById('font-size-slider'),
-            fontSizeVal: document.getElementById('font-size-val'),
-            textColorInput: document.getElementById('text-color'),
-            textColorHex: document.getElementById('text-color-hex'),
-            strokeColorInput: document.getElementById('stroke-color'),
-            strokeColorHex: document.getElementById('stroke-color-hex'),
-            strokeWidthSlider: document.getElementById('stroke-width-slider'),
-            strokeWidthVal: document.getElementById('stroke-width-val'),
-            
-            // エクスポート
-            btnExportSingle: document.getElementById('btn-export-single'),
-            btnExportMultiPreset: document.getElementById('btn-export-multi-preset'),
-            btnExportAllPresets: document.getElementById('btn-export-all-presets'),
-            
-            // ファイル名プレビュー
-            filenamePreviewList: document.getElementById('filename-preview-list'),
-            
-            // モックアップ表示部
-            previewModeName: document.getElementById('preview-mode-name'),
-            mockChatView: document.getElementById('mock-twitch-chat'),
-            mockProfileView: document.getElementById('mock-twitch-profile'),
-            
-            // モックインライン置換部
-            previewBadgeInline: document.getElementById('preview-badge-inline'),
-            previewEmoteInline: document.getElementById('preview-emote-inline'),
-            previewPointsButton: document.getElementById('preview-points-button'),
-            previewPointsPopupIcon: document.getElementById('preview-points-popup-icon'),
-            previewBannerBg: document.getElementById('preview-banner-bg'),
-            previewAvatarCircle: document.getElementById('preview-avatar-circle'),
-            previewPanelImg: document.getElementById('preview-panel-img'),
-            
-            // チャンネルポイントポップアップ
-            channelPointsTrigger: document.getElementById('channel-points-trigger'),
-            pointsPopup: document.getElementById('points-popup'),
-            pointsPopupClose: document.getElementById('points-popup-close')
-        };
-
-        const ctx = elements.canvas.getContext('2d');
-
-        // ==========================================================================
-        // 3. 初期化 ＆ イベント登録
-        // ==========================================================================
-                // --- Amazon Ad Rotation Logic ---
-        const adLinks = [
-            "https://amzn.to/4x1PegD",
-            "https://amzn.to/4tU7upp",
-            "https://amzn.to/4nIg0Gp",
-            "https://amzn.to/43sgXsU",
-            "https://amzn.to/3RDRIRQ",
-            "https://amzn.to/4dqcKMs",
-            "https://amzn.to/4nFXw9o",
-            "https://amzn.to/4uqBUR5",
-            "https://amzn.to/4nLx2Uf",
-            "https://amzn.to/49QcGTR"
-        ];
-
-        function initAdRotation() {
-            const adContainer = document.getElementById('ad-rotation-container');
-            const adAnchor = document.getElementById('ad-link-anchor');
-            if (!adContainer || !adAnchor) return;
-
-            let currentIndex = Math.floor(Math.random() * adLinks.length);
-            adAnchor.href = adLinks[currentIndex];
-
-            setInterval(() => {
-                // Fade out
-                adContainer.style.opacity = '0';
-                
-                setTimeout(() => {
-                    // Change link
-                    currentIndex = (currentIndex + 1) % adLinks.length;
-                    adAnchor.href = adLinks[currentIndex];
-                    
-                    // Fade in
-                    adContainer.style.opacity = '1';
-                }, 500); // Wait for fade out
-            }, 8000); // Rotate every 8 seconds
-        }
-        function init() {
-            initAdRotation();
-            setupTheme();
-            setupEventListeners();
-            applyPreset();
-            switchPreviewTab('chat');
-            renderQueueList();
-            updateFilenamePreview();
-            draw();
-            lucide.createIcons();
-        }
-
-        // テーマの初期設定
-                function setupTheme() {
-            try {
-                const savedTheme = localStorage.getItem('twitch-resizer-theme');
-                if (savedTheme === 'light') {
-                    document.body.classList.add('light-theme');
-                    document.body.classList.remove('dark-theme');
-                    state.theme = 'light';
-                } else {
-                    document.body.classList.remove('light-theme');
-                    document.body.classList.add('dark-theme');
-                    state.theme = 'dark';
-                }
-            } catch(e) {}
-        }
-
-        // 各種イベントリスナー登録
-        function setupEventListeners() {
-            elements.themeToggle.addEventListener('click', toggleTheme);
-            const btnSendChat = document.getElementById('btn-send-chat');
-            const btnSendEmote = document.getElementById('btn-send-emote');
-            const inputChat = document.getElementById('real-chat-input');
-            if (btnSendChat) btnSendChat.addEventListener('click', () => sendRealChatMessage(false));
-            if (btnSendEmote) btnSendEmote.addEventListener('click', () => sendRealChatMessage(true));
-            if (inputChat) inputChat.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendRealChatMessage(false); });
-            elements.dropZone.addEventListener('click', () => elements.fileInput.click());
-            elements.fileInput.addEventListener('change', handleFileSelect);
-            
-            elements.dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                elements.dropZone.classList.add('dragover');
-            });
-            elements.dropZone.addEventListener('dragleave', () => {
-                elements.dropZone.classList.remove('dragover');
-            });
-            elements.dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                elements.dropZone.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    handleMultipleFiles(e.dataTransfer.files);
-                }
-            });
-
-            elements.presetSelect.addEventListener('change', (e) => {
-                state.currentPresetKey = e.target.value;
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.presetKey = state.currentPresetKey;
-                    applyPreset();
-                    zoomToFit(activeImg);
-                    renderQueueList();
-                    updateFilenamePreview();
-                    draw();
-                }
-            });
-
-            elements.exportNameInput.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    const sanitized = e.target.value.replace(/[\/\\?%*:|"<>\s]/g, '_');
-                    activeImg.name = sanitized;
-                    
-                    const queueInput = document.querySelector(`.queue-item[data-id="${activeImg.id}"] .queue-item-name-input`);
-                    if (queueInput) {
-                        queueInput.value = sanitized;
-                    }
-                    updateFilenamePreview();
-                }
-            });
-
-            elements.zoomSlider.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.imgScale = parseFloat(e.target.value);
-                    elements.zoomVal.textContent = `${Math.round(activeImg.imgScale * 100)}%`;
-                    draw();
-                }
-            });
-            
-            elements.btnZoomFit.addEventListener('click', () => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    zoomToFit(activeImg);
-                    draw();
-                }
-            });
-
-            elements.btnRotate.addEventListener('click', () => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.imgRotation = (activeImg.imgRotation + 90) % 360;
-                    draw();
-                }
-            });
-
-            elements.btnReset.addEventListener('click', () => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    resetImageTransform(activeImg);
-                    draw();
-                }
-            });
-
-            elements.textEnabledCheckbox.addEventListener('change', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.textEnabled = e.target.checked;
-                    if (activeImg.textEnabled) {
-                        elements.textControlsPanel.classList.remove('hidden');
-                    } else {
-                        elements.textControlsPanel.classList.add('hidden');
-                    }
-                    draw();
-                }
-            });
-
-            elements.textInput.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.text = e.target.value;
-                    draw();
-                }
-            });
-
-            elements.fontSelect.addEventListener('change', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.fontFamily = e.target.value;
-                    draw();
-                }
-            });
-
-            elements.fontSizeSlider.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.fontSize = parseInt(e.target.value);
-                    elements.fontSizeVal.textContent = `${activeImg.fontSize}px`;
-                    draw();
-                }
-            });
-
-            elements.textColorInput.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.textColor = e.target.value;
-                    elements.textColorHex.textContent = e.target.value.toUpperCase();
-                    draw();
-                }
-            });
-
-            elements.strokeColorInput.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.strokeColor = e.target.value;
-                    elements.strokeColorHex.textContent = e.target.value.toUpperCase();
-                    draw();
-                }
-            });
-
-            elements.strokeWidthSlider.addEventListener('input', (e) => {
-                const activeImg = getActiveImage();
-                if (activeImg) {
-                    activeImg.strokeWidth = parseInt(e.target.value);
-                    elements.strokeWidthVal.textContent = `${activeImg.strokeWidth}px`;
-                    draw();
-                }
-            });
-
-            elements.btnExportSingle.addEventListener('click', exportSingleImage);
-            elements.btnExportMultiPreset.addEventListener('click', exportActiveImageMultiPresets);
-            elements.btnExportAllPresets.addEventListener('click', exportAllQueueMultiPresets);
-            elements.btnExportAll.addEventListener('click', exportAllImagesZip);
-
-            document.querySelectorAll('.batch-preset-checkbox').forEach(cb => {
-                cb.addEventListener('change', updateFilenamePreview);
-            });
-
-            elements.canvas.addEventListener('mousedown', handleMouseDown);
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-            
-            elements.canvas.addEventListener('wheel', (e) => {
-                const activeImg = getActiveImage();
-                if (!activeImg) return;
-                e.preventDefault();
-                const zoomStep = 0.05;
-                if (e.deltaY < 0) {
-                    activeImg.imgScale = Math.min(5.0, activeImg.imgScale + zoomStep);
-                } else {
-                    activeImg.imgScale = Math.max(0.1, activeImg.imgScale - zoomStep);
-                }
-                elements.zoomSlider.value = activeImg.imgScale;
-                elements.zoomVal.textContent = `${Math.round(activeImg.imgScale * 100)}%`;
-                draw();
-            }, { passive: false });
-
-            elements.channelPointsTrigger?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                elements.pointsPopup.classList.toggle('hidden');
-            });
-            elements.pointsPopupClose?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                elements.pointsPopup.classList.add('hidden');
-            });
-            document.addEventListener('click', () => {
-                elements.pointsPopup.classList.add('hidden');
-            });
-            elements.pointsPopup.addEventListener('click', (e) => e.stopPropagation());
-
-            // プレビュータブ切り替えリスナー
-            document.querySelectorAll('.preview-tab-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const target = e.currentTarget.getAttribute('data-target');
-                    switchPreviewTab(target);
-                });
-            });
-        }
-
-        // ==========================================================================
-        // 4. アプリケーション機能ロジック
-        // ==========================================================================
-
-        function getActiveImage() {
-            return state.queue.find(item => item.id === state.activeImageId) || null;
-        }
-
-                function toggleTheme() {
-            if (document.body.classList.contains('light-theme')) {
-                document.body.classList.remove('light-theme');
-                document.body.classList.add('dark-theme');
-                try { localStorage.setItem('twitch-resizer-theme', 'dark'); } catch(e){}
-                state.theme = 'dark';
             } else {
-                document.body.classList.add('light-theme');
-                document.body.classList.remove('dark-theme');
-                try { localStorage.setItem('twitch-resizer-theme', 'light'); } catch(e){}
-                state.theme = 'light';
+                // Stopwatch: display centiseconds
+                const totalSecs = Math.floor(stopwatchMS / 1000);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                const ms = Math.floor((stopwatchMS % 1000) / 10);
+                display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
             }
-            draw();
         }
-
-        function applyPreset() {
-            const activeImg = getActiveImage();
-            const presetKey = activeImg ? activeImg.presetKey : state.currentPresetKey;
-            const preset = PRESETS[presetKey];
+        function toggleTimerMode() {
+            if (timerIsRunning) {
+                toggleTimer(); // Stop first
+            }
+            const modeBtn = document.getElementById('btn-timer-mode');
+            const inputsArea = document.getElementById('timer-inputs-area');
             
-            elements.canvas.width = preset.width;
-            elements.canvas.height = preset.height;
-            
-            elements.currentPresetBadge.textContent = preset.label;
-            elements.previewModeName.textContent = `${preset.name} プレビュー`;
-            elements.namePrefixDisplay.textContent = `${preset.prefix}_`;
-            
-            // プリセットの種類に応じて自動で対応するタブに切り替える
-            if (['emote', 'badge', 'points'].includes(presetKey)) {
-                switchPreviewTab('chat');
+            if (timerMode === 'countdown') {
+                timerMode = 'stopwatch';
+                modeBtn.textContent = 'モード: ストップウォッチ';
+                inputsArea.style.display = 'none';
             } else {
-                switchPreviewTab('profile');
+                timerMode = 'countdown';
+                modeBtn.textContent = 'モード: カウントダウン';
+                inputsArea.style.display = 'flex';
             }
+            resetTimer();
         }
-
-        // プレビュータブの切り替え
-        function switchPreviewTab(tabKey) {
-            const tabBtns = document.querySelectorAll('.preview-tab-btn');
-            tabBtns.forEach(btn => {
-                if (btn.getAttribute('data-target') === tabKey) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-
-            if (tabKey === 'profile') {
-                elements.mockProfileView.classList.remove('hidden');
-                elements.mockChatView.classList.add('hidden');
-            } else if (tabKey === 'chat') {
-                elements.mockProfileView.classList.add('hidden');
-                elements.mockChatView.classList.remove('hidden');
-            }
-        }
-
-        function handleFileSelect(e) {
-            if (e.target.files.length > 0) {
-                handleMultipleFiles(e.target.files);
-            }
-        }
-
-        function handleMultipleFiles(files) {
-            let filesLoaded = 0;
-            const totalFiles = files.length;
-            
-            for (let i = 0; i < totalFiles; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        let baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                        baseName = baseName.replace(/[\/\\?%*:|"<>\s]/g, '_');
-                        
-                        const newItem = {
-                            id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                            file: file,
-                            img: img,
-                            name: baseName,
-                            presetKey: state.currentPresetKey,
-                            
-                            // トランスフォーム
-                            imgX: 0,
-                            imgY: 0,
-                            imgScale: 1.0,
-                            imgRotation: 0,
-                            
-                            // テキストレイヤー
-                            textEnabled: false,
-                            text: 'TWITCH',
-                            textX: 0,
-                            textY: 0,
-                            fontSize: 48,
-                            fontFamily: "'Noto Sans JP', sans-serif",
-                            textColor: '#ffffff',
-                            strokeColor: '#9146ff',
-                            strokeWidth: 8
-                        };
-                        
-                        zoomToFit(newItem);
-                        state.queue.push(newItem);
-                        filesLoaded++;
-                        
-                        if (filesLoaded === totalFiles) {
-                            if (!state.activeImageId && state.queue.length > 0) {
-                                state.activeImageId = state.queue[0].id;
-                                elements.editorCard.classList.remove('disabled');
-                                elements.settingsCard.classList.remove('disabled');
-                            }
-                            
-                            renderQueueList();
-                            loadActiveImageState();
-                            draw();
+        function toggleTimer() {
+            const startBtn = document.getElementById('btn-timer-start');
+            if (timerIsRunning) {
+                // Stop
+                clearInterval(timerInterval);
+                timerIsRunning = false;
+                startBtn.innerHTML = '<i class="fa-solid fa-play"></i> スタート';
+                startBtn.classList.remove('btn-danger');
+                startBtn.classList.add('btn-primary');
+            } else {
+                // Start
+                timerIsRunning = true;
+                startBtn.innerHTML = '<i class="fa-solid fa-pause"></i> 一時停止';
+                startBtn.classList.remove('btn-primary');
+                startBtn.classList.add('btn-danger');
+                if (timerMode === 'countdown') {
+                    // Read custom settings only on first start
+                    if (timerSeconds === 180 || timerSeconds === 0) {
+                        const m = parseInt(document.getElementById('timer-min').value) || 0;
+                        const s = parseInt(document.getElementById('timer-sec').value) || 0;
+                        timerSeconds = (m * 60) + s;
+                    }
+                    
+                    timerInterval = setInterval(() => {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                        if (timerSeconds === 0) {
+                            // Play subtle beep sound or notification (optional)
+                            showToast('時間になりました！');
                         }
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
+                    }, 1000);
+                } else {
+                    // Stopwatch
+                    let lastTime = performance.now();
+                    timerInterval = setInterval(() => {
+                        const now = performance.now();
+                        stopwatchMS += (now - lastTime);
+                        lastTime = now;
+                        updateTimerDisplay();
+                    }, 10);
+                }
             }
         }
-
-        function resetImageTransform(imgState) {
-            imgState.imgX = 0;
-            imgState.imgY = 0;
-            imgState.imgRotation = 0;
-            imgState.textX = 0;
-            imgState.textY = 0;
-        }
-
-        function zoomToFit(imgState) {
-            if (!imgState || !imgState.img) return;
-            
-            const preset = PRESETS[imgState.presetKey];
-            const canvasWidth = preset.width;
-            const canvasHeight = preset.height;
-            
-            const isRotated90 = (imgState.imgRotation === 90 || imgState.imgRotation === 270);
-            const w = isRotated90 ? imgState.img.height : imgState.img.width;
-            const h = isRotated90 ? imgState.img.width : imgState.img.height;
-            
-            const scaleX = canvasWidth / w;
-            const scaleY = canvasHeight / h;
-            const fitScale = Math.max(scaleX, scaleY);
-            
-            imgState.imgScale = parseFloat(fitScale.toFixed(2));
-            
-            const activeImg = getActiveImage();
-            if (activeImg && activeImg.id === imgState.id) {
-                elements.zoomSlider.value = imgState.imgScale;
-                elements.zoomVal.textContent = `${Math.round(imgState.imgScale * 100)}%`;
+        function resetTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
             }
-        }
-
-        // ==========================================================================
-        // 4.5. キューマネジメント＆UIレンダラー
-        // ==========================================================================
-        function renderQueueList() {
-            elements.queueList.innerHTML = '';
-            elements.queueCountBadge.textContent = `${state.queue.length}枚の画像`;
+            timerIsRunning = false;
             
-            if (state.queue.length === 0) {
-                elements.queueCard.classList.add('hidden');
-                elements.editorCard.classList.add('disabled');
-                elements.settingsCard.classList.add('disabled');
-                state.activeImageId = null;
-                resetMockupPlaceholders();
-                updateFilenamePreview();
+            const startBtn = document.getElementById('btn-timer-start');
+            startBtn.innerHTML = '<i class="fa-solid fa-play"></i> スタート';
+            startBtn.classList.remove('btn-danger');
+            startBtn.classList.add('btn-primary');
+            if (timerMode === 'countdown') {
+                const m = parseInt(document.getElementById('timer-min').value) || 0;
+                const s = parseInt(document.getElementById('timer-sec').value) || 0;
+                timerSeconds = (m * 60) + s;
+            } else {
+                stopwatchMS = 0;
+            }
+            updateTimerDisplay();
+        }
+        // --- 4. Generator Logic ---
+        function generatePassword() {
+            const len = parseInt(document.getElementById('pass-len').value);
+            const useUpper = document.getElementById('pass-upper').checked;
+            const useLower = document.getElementById('pass-lower').checked;
+            const useNums = document.getElementById('pass-nums').checked;
+            const useSyms = document.getElementById('pass-syms').checked;
+            const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowers = 'abcdefghijklmnopqrstuvwxyz';
+            const nums = '0123456789';
+            const syms = '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+            let pool = '';
+            if (useUpper) pool += uppers;
+            if (useLower) pool += lowers;
+            if (useNums) pool += nums;
+            if (useSyms) pool += syms;
+            if (!pool) {
+                showToast('オプションを少なくとも1つ選択してください。');
                 return;
             }
+            let result = '';
+            for (let i = 0; i < len; i++) {
+                result += pool.charAt(Math.floor(Math.random() * pool.length));
+            }
+            const resBox = document.getElementById('gen-result');
+            resBox.textContent = result;
+            resBox.style.borderStyle = 'solid';
+            resBox.style.borderColor = 'var(--accent-primary)';
+        }
+        function drawLottery() {
+            const text = document.getElementById('lot-items').value.trim();
+            if (!text) {
+                showToast('項目を入力してください。');
+                return;
+            }
+            const items = text.split('\n').map(i => i.trim()).filter(i => i.length > 0);
+            if (items.length === 0) {
+                showToast('項目を入力してください。');
+                return;
+            }
+            const winner = items[Math.floor(Math.random() * items.length)];
             
-            elements.queueCard.classList.remove('hidden');
-            elements.editorCard.classList.remove('disabled');
-            elements.settingsCard.classList.remove('disabled');
+            const resBox = document.getElementById('gen-result');
+            resBox.innerHTML = `<span style="font-size:0.9rem; color:var(--text-secondary); display:block;">当選者:</span> ${winner}`;
+            resBox.style.borderStyle = 'solid';
+            resBox.style.borderColor = 'var(--success)';
+        }
+        function copyResult() {
+            const resBox = document.getElementById('gen-result');
+            const txt = resBox.innerText;
+            if (txt.includes('生成された結果がここに表示されます')) return;
             
-            state.queue.forEach(item => {
-                const isActive = (item.id === state.activeImageId);
-                
-                const row = document.createElement('div');
-                row.className = `queue-item ${isActive ? 'active' : ''}`;
-                row.setAttribute('data-id', item.id);
-                
-                row.innerHTML = `
-                    <img class="queue-item-thumb" src="${item.img.src}" alt="Thumb">
-                    <div class="queue-item-details">
-                        <input type="text" class="queue-item-name-input" value="${item.name}" title="カスタム出力ファイル名">
-                        <select class="queue-item-preset-select">
-                            ${Object.keys(PRESETS).map(key => `
-                                <option value="${key}" ${item.presetKey === key ? 'selected' : ''}>${PRESETS[key].name}</option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    <button class="queue-item-delete-btn" title="画像をキューから削除">
-                        <i data-lucide="trash-2"></i>
-                    </button>
-                `;
-                
-                row.addEventListener('click', (e) => {
-                    if (e.target.closest('input') || e.target.closest('select') || e.target.closest('button')) {
-                        return;
-                    }
-                    setActiveImage(item.id);
-                });
-                
-                const nameInput = row.querySelector('.queue-item-name-input');
-                nameInput.addEventListener('input', (e) => {
-                    const sanitized = e.target.value.replace(/[\/\\?%*:|"<>\s]/g, '_');
-                    item.name = sanitized;
-                    e.target.value = sanitized;
-                    
-                    if (item.id === state.activeImageId) {
-                        elements.exportNameInput.value = sanitized;
-                    }
-                });
-                
-                const presetSelect = row.querySelector('.queue-item-preset-select');
-                presetSelect.addEventListener('change', (e) => {
-                    item.presetKey = e.target.value;
-                    zoomToFit(item);
-                    
-                    if (item.id === state.activeImageId) {
-                        elements.presetSelect.value = item.presetKey;
-                        applyPreset();
-                    }
-                    renderQueueList();
-                    draw();
-                });
-                
-                const deleteBtn = row.querySelector('.queue-item-delete-btn');
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    removeImageFromQueue(item.id);
-                });
-                
-                elements.queueList.appendChild(row);
+            // Clean text if it has the "当選者:" prefix
+            const cleanTxt = txt.replace('当選者:\n', '');
+            
+            navigator.clipboard.writeText(cleanTxt).then(() => {
+                resBox.classList.add('copied');
+                showToast('結果をコピーしました！');
+                setTimeout(() => resBox.classList.remove('copied'), 2000);
             });
-            
-            lucide.createIcons();
         }
-
-        function setActiveImage(id) {
-            if (state.activeImageId === id) return;
-            state.activeImageId = id;
-            renderQueueList();
-            loadActiveImageState();
-            draw();
+        // --- 5. Color Code Convert Logic ---
+        function hexToRgb(hex) {
+            const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
         }
-
-        function removeImageFromQueue(id) {
-            const idx = state.queue.findIndex(item => item.id === id);
-            if (idx === -1) return;
-            
-            state.queue.splice(idx, 1);
-            
-            if (state.activeImageId === id) {
-                if (state.queue.length > 0) {
-                    const newActiveIdx = Math.max(0, idx - 1);
-                    state.activeImageId = state.queue[newActiveIdx].id;
-                } else {
-                    state.activeImageId = null;
+        function rgbToHex(r, g, b) {
+            const toHex = (c) => {
+                const hex = Math.max(0, Math.min(255, c)).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+            return "#" + toHex(r) + toHex(g) + toHex(b);
+        }
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0; // achromatic
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
                 }
+                h /= 6;
             }
-            
-            renderQueueList();
-            loadActiveImageState();
-            draw();
-        }
-
-        function loadActiveImageState() {
-            const activeImg = getActiveImage();
-            if (!activeImg) return;
-            
-            applyPreset();
-            
-            elements.presetSelect.value = activeImg.presetKey;
-            elements.exportNameInput.value = activeImg.name;
-            
-            elements.zoomSlider.value = activeImg.imgScale;
-            elements.zoomVal.textContent = `${Math.round(activeImg.imgScale * 100)}%`;
-            
-            elements.textEnabledCheckbox.checked = activeImg.textEnabled;
-            if (activeImg.textEnabled) {
-                elements.textControlsPanel.classList.remove('hidden');
-            } else {
-                elements.textControlsPanel.classList.add('hidden');
-            }
-            
-            elements.textInput.value = activeImg.text;
-            elements.fontSelect.value = activeImg.fontFamily;
-            elements.fontSizeSlider.value = activeImg.fontSize;
-            elements.fontSizeVal.textContent = `${activeImg.fontSize}px`;
-            
-            elements.textColorInput.value = activeImg.textColor;
-            elements.textColorHex.textContent = activeImg.textColor.toUpperCase();
-            
-            elements.strokeColorInput.value = activeImg.strokeColor;
-            elements.strokeColorHex.textContent = activeImg.strokeColor.toUpperCase();
-            
-            elements.strokeWidthSlider.value = activeImg.strokeWidth;
-            elements.strokeWidthVal.textContent = `${activeImg.strokeWidth}px`;
-            updateFilenamePreview();
-        }
-
-        // ==========================================================================
-        // 5. Canvas レンダリングエンジン
-        // ==========================================================================
-        function draw() {
-            ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
-            
-            const activeImg = getActiveImage();
-            
-            if (activeImg && activeImg.img) {
-                ctx.save();
-                ctx.translate(elements.canvas.width / 2 + activeImg.imgX, elements.canvas.height / 2 + activeImg.imgY);
-                ctx.rotate((activeImg.imgRotation * Math.PI) / 180);
-                
-                const drawW = activeImg.img.width * activeImg.imgScale;
-                const drawH = activeImg.img.height * activeImg.imgScale;
-                
-                ctx.drawImage(activeImg.img, -drawW / 2, -drawH / 2, drawW, drawH);
-                ctx.restore();
-            } else {
-                ctx.fillStyle = 'rgba(145, 70, 255, 0.05)';
-                ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
-                ctx.strokeStyle = 'rgba(145, 70, 255, 0.2)';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.strokeRect(4, 4, elements.canvas.width - 8, elements.canvas.height - 8);
-                ctx.setLineDash([]);
-            }
-            
-            if (activeImg && activeImg.textEnabled && activeImg.text.trim() !== '') {
-                ctx.save();
-                ctx.font = `${activeImg.strokeWidth > 0 ? 'bold' : ''} ${activeImg.fontSize}px ${activeImg.fontFamily}`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                const textDrawX = elements.canvas.width / 2 + activeImg.textX;
-                const textDrawY = elements.canvas.height / 2 + activeImg.textY;
-                
-                if (activeImg.strokeWidth > 0) {
-                    ctx.strokeStyle = activeImg.strokeColor;
-                    ctx.lineWidth = activeImg.strokeWidth;
-                    ctx.lineJoin = 'round';
-                    ctx.lineCap = 'round';
-                    ctx.strokeText(activeImg.text, textDrawX, textDrawY);
-                }
-                
-                ctx.fillStyle = activeImg.textColor;
-                ctx.fillText(activeImg.text, textDrawX, textDrawY);
-                ctx.restore();
-            }
-            
-            updateTwitchMockups();
-        }
-
-        function updateTwitchMockups() {
-            let dataUrl;
-            try {
-                dataUrl = elements.canvas.toDataURL('image/png');
-            } catch (e) {
-                return;
-            }
-            
-            const activeImg = getActiveImage();
-            
-            if (activeImg) {
-                const presetKey = activeImg.presetKey;
-                if (presetKey === 'avatar') {
-                    elements.previewAvatarCircle.innerHTML = `<img src="${dataUrl}" alt="Avatar">`;
-                } else if (presetKey === 'banner' || presetKey === 'offline') {
-                    elements.previewBannerBg.style.backgroundImage = `url(${dataUrl})`;
-                    elements.previewBannerBg.innerHTML = '';
-                } else if (presetKey === 'panel') {
-                    elements.previewPanelImg.innerHTML = `<img src="${dataUrl}" alt="Panel">`;
-                } else if (presetKey === 'emote') {
-                    
-                } else if (presetKey === 'badge') {
-                    
-                } else if (presetKey === 'points') {
-                    if (elements.previewPointsButton) elements.previewPointsButton.innerHTML = `<img src="${dataUrl}" alt="Points">`;
-                    if (elements.previewPointsPopupIcon) elements.previewPointsPopupIcon.innerHTML = `<img src="${dataUrl}" alt="Points Large">`;
-                }
-            } else {
-                resetMockupPlaceholders();
-            }
-        }
-
-        function resetMockupPlaceholders() {
-            elements.previewAvatarCircle.innerHTML = `<i data-lucide="user" class="avatar-placeholder-icon"></i>`;
-            elements.previewBannerBg.style.backgroundImage = 'none';
-            elements.previewBannerBg.innerHTML = `<span class="banner-empty-text">ここにプロフィールバナーが表示されます (1200x480)</span>`;
-            elements.previewPanelImg.innerHTML = `<span class="panel-empty-text">情報パネル<br>(320x200)</span>`;
-            
-            
-            if (elements.previewPointsButton) elements.previewPointsButton.innerHTML = `<div class="points-empty-slot">★</div>`;
-            if (elements.previewPointsPopupIcon) elements.previewPointsPopupIcon.innerHTML = `<div class="points-empty-slot-large">★</div>`;
-            lucide.createIcons();
-        }
-
-        // ==========================================================================
-        // 6. マウスドラッグ ＆ インタラクティブジェスチャー
-        // ==========================================================================
-        function handleMouseDown(e) {
-            const activeImg = getActiveImage();
-            if (!activeImg) return;
-            
-            const mousePos = getCanvasMousePosition(e);
-            
-            if (activeImg.textEnabled && isMouseOnText(mousePos.x, mousePos.y)) {
-                state.dragTarget = 'text';
-                state.dragStartTextX = activeImg.textX;
-                state.dragStartTextY = activeImg.textY;
-            } else {
-                state.dragTarget = 'image';
-                state.dragStartImgX = activeImg.imgX;
-                state.dragStartImgY = activeImg.imgY;
-            }
-            
-            state.isDragging = true;
-            state.lastMouseX = mousePos.x;
-            state.lastMouseY = mousePos.y;
-            elements.canvas.style.cursor = 'grabbing';
-        }
-
-        function handleMouseMove(e) {
-            const activeImg = getActiveImage();
-            if (!activeImg) return;
-
-            if (!state.isDragging) {
-                const mousePos = getCanvasMousePosition(e);
-                if (activeImg.textEnabled && isMouseOnText(mousePos.x, mousePos.y)) {
-                    elements.canvas.style.cursor = 'move';
-                } else {
-                    elements.canvas.style.cursor = 'grab';
-                }
-                return;
-            }
-            
-            const mousePos = getCanvasMousePosition(e);
-            const dx = mousePos.x - state.lastMouseX;
-            const dy = mousePos.y - state.lastMouseY;
-            
-            if (state.dragTarget === 'text') {
-                activeImg.textX += dx;
-                activeImg.textY += dy;
-            } else {
-                activeImg.imgX += dx;
-                activeImg.imgY += dy;
-            }
-            
-            state.lastMouseX = mousePos.x;
-            state.lastMouseY = mousePos.y;
-            draw();
-        }
-
-        function handleMouseUp() {
-            state.isDragging = false;
-            state.dragTarget = null;
-            const activeImg = getActiveImage();
-            if (activeImg) {
-                elements.canvas.style.cursor = 'grab';
-            }
-        }
-
-        function getCanvasMousePosition(e) {
-            const rect = elements.canvas.getBoundingClientRect();
-            const scaleX = elements.canvas.width / rect.width;
-            const scaleY = elements.canvas.height / rect.height;
             return {
-                x: (e.clientX - rect.left) * scaleX,
-                y: (e.clientY - rect.top) * scaleY
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
             };
         }
-
-        function isMouseOnText(mx, my) {
-            const activeImg = getActiveImage();
-            if (!activeImg) return false;
-            
-            ctx.save();
-            ctx.font = `${activeImg.strokeWidth > 0 ? 'bold' : ''} ${activeImg.fontSize}px ${activeImg.fontFamily}`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            const metrics = ctx.measureText(activeImg.text);
-            const textWidth = metrics.width;
-            const textHeight = activeImg.fontSize;
-            
-            const textDrawX = elements.canvas.width / 2 + activeImg.textX;
-            const textDrawY = elements.canvas.height / 2 + activeImg.textY;
-            
-            ctx.restore();
-            
-            return (
-                mx >= textDrawX - textWidth / 2 - 10 &&
-                mx <= textDrawX + textWidth / 2 + 10 &&
-                my >= textDrawY - textHeight / 2 - 10 &&
-                my <= textDrawY + textHeight / 2 + 10
-            );
-        }
-
-        // ==========================================================================
-        // 7. エクスポート ＆ ZIP生成処理
-        // ==========================================================================
-        function exportSingleImage() {
-            const activeImg = getActiveImage();
-            if (!activeImg) return;
-            
-            const preset = PRESETS[activeImg.presetKey];
-            const dataUrl = elements.canvas.toDataURL('image/png');
-            
-            let filename;
-            if (preset.type === 'single') {
-                filename = `${preset.prefix}_${activeImg.name}.png`;
+        function hslToRgb(h, s, l) {
+            h /= 360; s /= 100; l /= 100;
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l; // achromatic
             } else {
-                filename = `${preset.prefix}_${activeImg.name}_${preset.width}x${preset.height}.png`;
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
             }
-            
-            const link = document.createElement('a');
-            link.download = filename;
-            link.href = dataUrl;
-            link.click();
-        }
-
-        function updateFilenamePreview() {
-            elements.filenamePreviewList.innerHTML = '';
-            
-            const activeImg = getActiveImage();
-            if (!activeImg) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'preview-filename-item';
-                placeholder.style.borderLeftColor = 'var(--border-color)';
-                placeholder.style.opacity = '0.5';
-                placeholder.textContent = '編集中の画像がありません';
-                elements.filenamePreviewList.appendChild(placeholder);
-                return;
-            }
-            
-            const checkedCheckboxes = document.querySelectorAll('.batch-preset-checkbox:checked');
-            if (checkedCheckboxes.length === 0) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'preview-filename-item';
-                placeholder.style.borderLeftColor = 'var(--border-color)';
-                placeholder.style.opacity = '0.5';
-                placeholder.textContent = '用途が選択されていません';
-                elements.filenamePreviewList.appendChild(placeholder);
-                return;
-            }
-            
-            checkedCheckboxes.forEach(cb => {
-                const presetKey = cb.value;
-                const preset = PRESETS[presetKey];
-                if (!preset) return;
-                
-                if (preset.type === 'single') {
-                    const filename = `${preset.prefix}_${activeImg.name}.png`;
-                    const item = document.createElement('div');
-                    item.className = 'preview-filename-item';
-                    item.textContent = filename;
-                    elements.filenamePreviewList.appendChild(item);
-                } else {
-                    preset.exportSizes.forEach(size => {
-                        const filename = `${preset.prefix}_${activeImg.name}_${size}x${size}.png`;
-                        const item = document.createElement('div');
-                        item.className = 'preview-filename-item';
-                        item.textContent = filename;
-                        elements.filenamePreviewList.appendChild(item);
-                    });
-                }
-            });
-        }
-
-        function exportActiveImageMultiPresets() {
-            const activeImg = getActiveImage();
-            if (!activeImg) return;
-            
-            const checkedCheckboxes = document.querySelectorAll('.batch-preset-checkbox:checked');
-            if (checkedCheckboxes.length === 0) {
-                alert('出力する用途を少なくとも1つ選択してください。');
-                return;
-            }
-            
-            const zip = new JSZip();
-            const offCanvas = document.createElement('canvas');
-            const offCtx = offCanvas.getContext('2d');
-            
-            checkedCheckboxes.forEach(cb => {
-                const presetKey = cb.value;
-                const preset = PRESETS[presetKey];
-                if (!preset) return;
-                
-                offCanvas.width = preset.width;
-                offCanvas.height = preset.height;
-                offCtx.clearRect(0, 0, preset.width, preset.height);
-                
-                if (activeImg.img) {
-                    offCtx.save();
-                    offCtx.translate(preset.width / 2 + activeImg.imgX, preset.height / 2 + activeImg.imgY);
-                    offCtx.rotate((activeImg.imgRotation * Math.PI) / 180);
-                    const drawW = activeImg.img.width * activeImg.imgScale;
-                    const drawH = activeImg.img.height * activeImg.imgScale;
-                    offCtx.drawImage(activeImg.img, -drawW / 2, -drawH / 2, drawW, drawH);
-                    offCtx.restore();
-                }
-                
-                if (activeImg.textEnabled && activeImg.text.trim() !== '') {
-                    offCtx.save();
-                    offCtx.font = `${activeImg.strokeWidth > 0 ? 'bold' : ''} ${activeImg.fontSize}px ${activeImg.fontFamily}`;
-                    offCtx.textAlign = 'center';
-                    offCtx.textBaseline = 'middle';
-                    const textDrawX = preset.width / 2 + activeImg.textX;
-                    const textDrawY = preset.height / 2 + activeImg.textY;
-                    if (activeImg.strokeWidth > 0) {
-                        offCtx.strokeStyle = activeImg.strokeColor;
-                        offCtx.lineWidth = activeImg.strokeWidth;
-                        offCtx.lineJoin = 'round';
-                        offCtx.lineCap = 'round';
-                        offCtx.strokeText(activeImg.text, textDrawX, textDrawY);
-                    }
-                    offCtx.fillStyle = activeImg.textColor;
-                    offCtx.fillText(activeImg.text, textDrawX, textDrawY);
-                    offCtx.restore();
-                }
-                
-                if (preset.type === 'single') {
-                    const imgUrl = offCanvas.toDataURL('image/png');
-                    const base64Data = imgUrl.split(',')[1];
-                    zip.file(`${preset.prefix}_${activeImg.name}.png`, base64Data, { base64: true });
-                } else {
-                    preset.exportSizes.forEach(size => {
-                        const resizeCanvas = document.createElement('canvas');
-                        resizeCanvas.width = size;
-                        resizeCanvas.height = size;
-                        const resizeCtx = resizeCanvas.getContext('2d');
-                        resizeCtx.imageSmoothingEnabled = true;
-                        resizeCtx.imageSmoothingQuality = 'high';
-                        resizeCtx.drawImage(offCanvas, 0, 0, offCanvas.width, offCanvas.height, 0, 0, size, size);
-                        
-                        const resizeUrl = resizeCanvas.toDataURL('image/png');
-                        const base64Data = resizeUrl.split(',')[1];
-                        zip.file(`${preset.prefix}_${activeImg.name}_${size}x${size}.png`, base64Data, { base64: true });
-                    });
-                }
-            });
-            
-            zip.generateAsync({ type: 'blob' }).then(function(content) {
-                const url = window.URL.createObjectURL(content);
-                const link = document.createElement('a');
-                link.download = `twitch_resized_${activeImg.name}.zip`;
-                link.href = url;
-                link.click();
-                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-            });
-        }
-
-        function exportAllQueueMultiPresets() {
-            if (state.queue.length === 0) return;
-            
-            const checkedCheckboxes = document.querySelectorAll('.batch-preset-checkbox:checked');
-            if (checkedCheckboxes.length === 0) {
-                alert('出力する用途を少なくとも1つ選択してください。');
-                return;
-            }
-            
-            const zip = new JSZip();
-            const offCanvas = document.createElement('canvas');
-            const offCtx = offCanvas.getContext('2d');
-            
-            state.queue.forEach(item => {
-                checkedCheckboxes.forEach(cb => {
-                    const presetKey = cb.value;
-                    const preset = PRESETS[presetKey];
-                    if (!preset) return;
-                    
-                    offCanvas.width = preset.width;
-                    offCanvas.height = preset.height;
-                    offCtx.clearRect(0, 0, preset.width, preset.height);
-                    
-                    if (item.img) {
-                        offCtx.save();
-                        offCtx.translate(preset.width / 2 + item.imgX, preset.height / 2 + item.imgY);
-                        offCtx.rotate((item.imgRotation * Math.PI) / 180);
-                        const drawW = item.img.width * item.imgScale;
-                        const drawH = item.img.height * item.imgScale;
-                        offCtx.drawImage(item.img, -drawW / 2, -drawH / 2, drawW, drawH);
-                        offCtx.restore();
-                    }
-                    
-                    if (item.textEnabled && item.text.trim() !== '') {
-                        offCtx.save();
-                        offCtx.font = `${item.strokeWidth > 0 ? 'bold' : ''} ${item.fontSize}px ${item.fontFamily}`;
-                        offCtx.textAlign = 'center';
-                        offCtx.textBaseline = 'middle';
-                        const textDrawX = preset.width / 2 + item.textX;
-                        const textDrawY = preset.height / 2 + item.textY;
-                        if (item.strokeWidth > 0) {
-                            offCtx.strokeStyle = item.strokeColor;
-                            offCtx.lineWidth = item.strokeWidth;
-                            offCtx.lineJoin = 'round';
-                            offCtx.lineCap = 'round';
-                            offCtx.strokeText(item.text, textDrawX, textDrawY);
-                        }
-                        offCtx.fillStyle = item.textColor;
-                        offCtx.fillText(item.text, textDrawX, textDrawY);
-                        offCtx.restore();
-                    }
-                    
-                    if (preset.type === 'single') {
-                        const imgUrl = offCanvas.toDataURL('image/png');
-                        const base64Data = imgUrl.split(',')[1];
-                        zip.file(`${preset.prefix}_${item.name}.png`, base64Data, { base64: true });
-                    } else {
-                        preset.exportSizes.forEach(size => {
-                            const resizeCanvas = document.createElement('canvas');
-                            resizeCanvas.width = size;
-                            resizeCanvas.height = size;
-                            const resizeCtx = resizeCanvas.getContext('2d');
-                            resizeCtx.imageSmoothingEnabled = true;
-                            resizeCtx.imageSmoothingQuality = 'high';
-                            resizeCtx.drawImage(offCanvas, 0, 0, offCanvas.width, offCanvas.height, 0, 0, size, size);
-                            
-                            const resizeUrl = resizeCanvas.toDataURL('image/png');
-                            const base64Data = resizeUrl.split(',')[1];
-                            zip.file(`${preset.prefix}_${item.name}_${size}x${size}.png`, base64Data, { base64: true });
-                        });
-                    }
-                });
-            });
-            
-            zip.generateAsync({ type: 'blob' }).then(function(content) {
-                const url = window.URL.createObjectURL(content);
-                const link = document.createElement('a');
-                link.download = 'twitch_all_presets_batch.zip';
-                link.href = url;
-                link.click();
-                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-            });
-        }
-
-        // ==========================================================================
-        // 8. キュー内の全画像をZIPで一括エクスポート
-        // ==========================================================================
-        function exportAllImagesZip() {
-            alert('この機能は削除されています。');
-        }
-        // ==========================================================================
-        // 14. [NEW] 法的モーダル制御 ＆ 日本語ポリシーデータ
-        // ==========================================================================
-        const LEGAL_DOCS = {
-            privacy: {
-                title: 'プライバシーポリシー',
-                icon: 'shield',
-                content: `
-                    <p>当ツール（以下、「本サービス」）は、ユーザーのプライバシーの保護を最優先事項として運営しております。</p>
-                    
-                    <h3>1. 完全ローカル処理の遵守</h3>
-                    <p>本サービスはHTML5 Canvas技術を利用し、<strong>ユーザーがアップロードしたすべての画像データをユーザーのブラウザ（ローカル）内のみで処理します。</strong> 画像データが外部のサーバーに送信、保存、あるいは解析されることは一切ありません。完全オフライン環境であっても同様に動作します。</p>
-                    
-                    <h3>2. 広告配信サービスについて</h3>
-                    <p>本サービスでは、運営費用を補うために第三者配信の広告サービス（Google AdSense等）を利用しています。これらの広告配信事業者は、ユーザーの興味に応じた商品やサービスの広告を表示するため、本サービスや他のウェブサイトへのアクセスに関する情報「Cookie」（氏名、住所、メールアドレス、電話番号は含まれません）を使用することがあります。</p>
-                    
-                    <h3>3. 利用状況の解析について</h3>
-                    <p>本サービスでは、サービスの改善およびユーザー体験の向上のため、個人を特定しない形でのトラフィックデータ収集を行う場合があります。ブラウザのセキュリティ設定よりCookieを無効にすることで、収集を拒否することが可能です。</p>
-                    
-                    <h3>4. お問い合わせ</h3>
-                    <p>プライバシーポリシーに関するご質問やお問い合わせは、本ツールの配布プラットフォーム、または「免責事項・お問い合わせ」に記載の窓口までご連絡ください。</p>
-                `
-            },
-            terms: {
-                title: '利用規約',
-                icon: 'file-text',
-                content: `
-                    <p>この利用規約（以下、「本規約」）は、本リサイズツール（以下、「本サービス」）の利用条件を定めるものです。</p>
-                    
-                    <h3>1. 利用許諾</h3>
-                    <p>ユーザーは、本規約に従って本サービスを個人的、あるいは商用（Twitch配信でのスタンプやバッジ等への使用）の目的で無償で利用することができます。ソースコードの複製や改造、自己のサイトでの公開も非営利・個人利用に限り自由に行っていただけます。</p>
-                    
-                    <h3>2. 禁止事項</h3>
-                    <p>ユーザーは、本サービスの利用にあたり、以下の行為を行ってはなりません。</p>
-                    <ul>
-                        <li>本サービスの意図的な不具合の利用や攻撃行為</li>
-                        <li>本サービスのサーバーリソースを悪用する行為</li>
-                        <li>公序良俗に反する画像、他者の知的財産権を侵害する画像の編集・作成</li>
-                        <li>その他、運営が不適切と判断する行為</li>
-                    </ul>
-                    
-                    <h3>3. 免責について</h3>
-                    <p>本サービスのソースコードの改変・再配布について、開発元は何ら制限を設けません。ただし、それによって生じた損害については一切の責任を免れるものとします。</p>
-                `
-            },
-            disclaimer: {
-                title: '免責事項・お問い合わせ',
-                icon: 'mail',
-                content: `
-                    <h3>免責事項</h3>
-                    <p>本サービスで提供される変換結果、エクスポートされたZIPファイルの完全性、安全性、有用性について、運営は一切の保証を行いません。</p>
-                    <p><strong>本サービスのご利用によりユーザーまたは第三者に生じた損害、不利益、データ消失、Twitchアカウントに対する措置等について、運営は一切の責任を負いません。</strong> ユーザー自身の責任においてご利用いただきますようお願い申し上げます。</p>
-                    
-                    <h3>不具合報告・お問い合わせ</h3>
-                    <p>本ツールはオープンに無料公開されています。機能のバグ報告や機能追加のご要望がございましたら、以下の方法でお気軽にご連絡ください。</p>
-                    <ul>
-                        <li><strong>GitHub等の配布リポジトリ:</strong> IssueまたはPull Request（開発版公開元）</li>
-                        <li><strong>SNS/E-mail:</strong> 配布元のウェブサイト、またはプロフィールの連絡先まで</li>
-                    </ul>
-                    <p>※個別のご質問やカスタム機能の対応にはお時間をいただく、あるいは対応できない場合がございます。予めご了承ください。</p>
-                `
-            }
-        };
-
-        let modalElements = {};
-
-        function setupModalEvents() {
-            modalElements = {
-                modal: document.getElementById('legal-modal'),
-                overlayBg: document.getElementById('modal-overlay-bg'),
-                titleText: document.getElementById('modal-title-text'),
-                bodyContent: document.getElementById('modal-body-content'),
-                closeBtn: document.getElementById('modal-close-btn'),
-                okBtn: document.getElementById('modal-ok-btn'),
-                linkPrivacy: document.getElementById('link-privacy'),
-                linkTerms: document.getElementById('link-terms'),
-                linkDisclaimer: document.getElementById('link-disclaimer')
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
             };
-
-            if (!modalElements.modal) return;
-
-            modalElements.linkPrivacy?.addEventListener('click', (e) => { e.preventDefault(); openLegalModal('privacy'); });
-            modalElements.linkTerms?.addEventListener('click', (e) => { e.preventDefault(); openLegalModal('terms'); });
-            modalElements.linkDisclaimer?.addEventListener('click', (e) => { e.preventDefault(); openLegalModal('disclaimer'); });
-
-            modalElements.closeBtn?.addEventListener('click', closeLegalModal);
-            modalElements.okBtn?.addEventListener('click', closeLegalModal);
-            modalElements.overlayBg?.addEventListener('click', closeLegalModal);
-
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !modalElements.modal.classList.contains('hidden')) {
-                    closeLegalModal();
-                }
-            });
         }
-
-        function openLegalModal(docKey) {
-            const doc = LEGAL_DOCS[docKey];
-            if (!doc) return;
-
-            modalElements.titleText.innerHTML = `<i data-lucide="${doc.icon}"></i> ${doc.title}`;
-            modalElements.bodyContent.innerHTML = doc.content;
+        function updateColorDisplay(hex, rgb, hsl, updatePicker=true) {
+            const preview = document.getElementById('color-preview');
+            preview.style.backgroundColor = hex;
             
-            lucide.createIcons();
-            modalElements.modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // 背景スクロール固定
-        }
-
-        function closeLegalModal() {
-            if (modalElements.modal) {
-                modalElements.modal.classList.add('hidden');
-                document.body.style.overflow = '';
+            // Set text color based on brightness
+            const rgbVal = rgb || hexToRgb(hex);
+            if (rgbVal) {
+                const brightness = (rgbVal.r * 299 + rgbVal.g * 587 + rgbVal.b * 114) / 1000;
+                preview.style.color = brightness > 125 ? '#111827' : '#f3f4f6';
+            }
+            document.getElementById('color-hex').value = hex;
+            if (rgb) document.getElementById('color-rgb').value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            if (hsl) document.getElementById('color-hsl').value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+            
+            if (updatePicker) {
+                document.getElementById('color-picker').value = hex;
+                document.getElementById('picker-val-label').textContent = hex;
             }
         }
-
-        // アプリの起動
-        document.addEventListener('DOMContentLoaded', init);
+        function updateColorFromPicker(value) {
+            const rgb = hexToRgb(value);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            updateColorDisplay(value, rgb, hsl, false);
+            document.getElementById('picker-val-label').textContent = value;
+        }
+        function updateColorFromInput(type, value) {
+            if (type === 'hex') {
+                if (/^#?[0-9a-fA-F]{6}$/.test(value)) {
+                    const cleanHex = value.startsWith('#') ? value : '#' + value;
+                    const rgb = hexToRgb(cleanHex);
+                    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                    updateColorDisplay(cleanHex, rgb, hsl);
+                }
+            } else if (type === 'rgb') {
+                const match = value.match(/rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/);
+                if (match) {
+                    const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
+                    if (r <= 255 && g <= 255 && b <= 255) {
+                        const hex = rgbToHex(r, g, b);
+                        const hsl = rgbToHsl(r, g, b);
+                        updateColorDisplay(hex, {r, g, b}, hsl);
+                    }
+                }
+            } else if (type === 'hsl') {
+                const match = value.match(/hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/);
+                if (match) {
+                    const h = parseInt(match[1]), s = parseInt(match[2]), l = parseInt(match[3]);
+                    if (h <= 360 && s <= 100 && l <= 100) {
+                        const rgb = hslToRgb(h, s, l);
+                        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+                        updateColorDisplay(hex, rgb, {h, s, l});
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>
