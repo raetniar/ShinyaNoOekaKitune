@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVGカレンダー生成ツール</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 画面全体を確実に上揃えに */
+            min-height: 100vh;
+        }
+        .app-wrapper {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+        }
+        @media (max-width: 900px) {
+            .app-wrapper { flex-direction: column; }
+        }
+        
+        /* コンパクトなUIコンテナ */
+        .container {
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            flex: 0 0 320px;
+            box-sizing: border-box;
+        }
+        h1 { font-size: 16px; margin: 0 0 10px; color: #2c3e50; text-align: center; }
+        
+        .section-title { 
+            font-size: 13px; 
+            font-weight: bold; 
+            margin: 10px 0 6px; 
+            padding-bottom: 3px; 
+            border-bottom: 1px solid #ddd; 
+            color: #2c3e50; 
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 10px;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / 3; }
+        
+        label { 
+            font-size: 11px; 
+            margin-bottom: 2px; 
+            font-weight: bold; 
+            color: #555; 
+        }
+        input[type="number"], select, input[type="color"] { 
+            width: 100%; 
+            height: 24px; 
+            padding: 2px 6px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 13px; 
+        }
+        input[type="color"] { padding: 0; cursor: pointer; }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+            gap: 6px;
+        }
+        .checkbox-label input { width: 14px; height: 14px; cursor: pointer; margin: 0; }
+        
+        button { 
+            width: 100%; 
+            padding: 8px; 
+            background-color: #3498db; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #2980b9; }
+
+        /* プレビュー側 */
+        .preview-container {
+            background-color: #e9ecef;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            flex: 1;
+            position: relative;
+            box-sizing: border-box;
+            padding: 40px 20px 20px 20px; /* 上部にラベル用の余白 */
+            text-align: center; /* 子要素（SVG）を横方向中央に */
+        }
+        .preview-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #7f8c8d;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        #svg-preview {
+            max-width: 100%;
+            max-height: 85vh;
+            background-color: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div class="container">
+      
+        <div class="section-title">基本・形式</div>
+        <div class="form-grid">
+            <div class="form-group"><label>年</label><input type="number" id="year" value="2024"></div>
+            <div class="form-group"><label>月</label><input type="number" id="month" min="1" max="12" value="1"></div>
+            <div class="form-group"><label>開始曜日</label>
+                <select id="startDay"><option value="0">日曜</option><option value="1">月曜</option></select>
+            </div>
+            <div class="form-group"><label>形式</label>
+                <select id="layoutType"><option value="grid">グリッド</option><option value="vertical">縦積み</option></select>
+            </div>
+        </div>
+
+        <div class="section-title">サイズ・レイアウト</div>
+        <div class="form-grid">
+            <div class="form-group"><label>幅 (px)</label><input type="number" id="docWidth" value="1000"></div>
+            <div class="form-group"><label>高さ (px)</label><input type="number" id="docHeight" value="1000"></div>
+            <div class="form-group"><label>ヘッダー高</label><input type="number" id="headerHeight" value="80"></div>
+            <div class="form-group"><label>文字サイズ</label><input type="number" id="fontSize" value="15"></div>
+            <div class="form-group"><label>日付 左余白</label><input type="number" id="padLeft" value="20"></div>
+            <div class="form-group"><label>日付 上余白</label><input type="number" id="padTop" value="30"></div>
+        </div>
+        
+        <div class="section-title">デザイン・色</div>
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label class="checkbox-label"><input type="checkbox" id="showGrid" checked> 枠線を描画する</label>
+            </div>
+            <div class="form-group"><label>線の種類</label>
+                <select id="lineStyle">
+                    <option value="solid">実線</option>
+                    <option value="dashed">破線</option>
+                    <option value="dotted">点線</option>
+                    <option value="wavy">波線</option>
+                </select>
+            </div>
+            <div class="form-group"><label>線の太さ</label><input type="number" id="lineWidth" value="2"></div>
+            <div class="form-group"><label>線の色</label><input type="color" id="lineColor" value="#000000"></div>
+            <div class="form-group"><label>線の濃さ (0〜1)</label><input type="number" id="lineOpacity" min="0" max="1" step="0.1" value="1"></div>
+            
+            <div class="form-group"><label>文字の色</label><input type="color" id="textColor" value="#000000"></div>
+            <div class="form-group"><label>文字の濃さ (0〜1)</label><input type="number" id="textOpacity" min="0" max="1" step="0.1" value="1"></div>
+        </div>
+
+        <button onclick="downloadSVG()">SVGをダウンロード</button>
+    </div>
+
+    <div class="preview-container">
+        <div class="preview-label">プレビュー</div>
+        <!-- flexを使わずブロック要素として扱うことで確実に上揃えにする -->
+        <div id="svg-preview-wrap"></div>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        document.getElementById('year').value = nextMonth.getFullYear();
+        document.getElementById('month').value = nextMonth.getMonth() + 1;
+        
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+        updatePreview();
+    };
+
+    function createLineSVG(x1, y1, x2, y2, style, strokeWidth) {
+        if (style === 'wavy') {
+            const isHoriz = Math.abs(y1 - y2) < 0.1;
+            const len = isHoriz ? Math.abs(x2 - x1) : Math.abs(y2 - y1);
+            const waveLen = 12;
+            const amp = strokeWidth * 2; 
+            let d = `M ${x1} ${y1}`;
+            let current = 0;
+            let sign = 1;
+            while(current < len) {
+                let step = Math.min(waveLen, len - current);
+                if (isHoriz) d += ` q ${step/2} ${amp * sign}, ${step} 0`;
+                else d += ` q ${amp * sign} ${step/2}, 0 ${step}`;
+                current += step;
+                sign *= -1;
+            }
+            return `    <path d="${d}" fill="none" />\n`;
+        } else {
+            let dash = "";
+            let cap = "";
+            if (style === 'dashed') dash = `stroke-dasharray="${strokeWidth * 4} ${strokeWidth * 3}" `;
+            if (style === 'dotted') {
+                dash = `stroke-dasharray="0 ${strokeWidth * 2.5}" `;
+                cap = `stroke-linecap="round" `;
+            }
+            return `    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${dash}${cap}/>\n`;
+        }
+    }
+
+    function generateSVGString() {
+        const year = parseInt(document.getElementById('year').value, 10);
+        const month = parseInt(document.getElementById('month').value, 10) - 1;
+        const startDayOffset = parseInt(document.getElementById('startDay').value, 10);
+        const layoutType = document.getElementById('layoutType').value;
+        const showGrid = document.getElementById('showGrid').checked;
+        
+        const width = parseFloat(document.getElementById('docWidth').value) || 1000;
+        const height = parseFloat(document.getElementById('docHeight').value) || 1000;
+        const headerHeight = parseFloat(document.getElementById('headerHeight').value) || 0;
+        
+        const fontSize = parseFloat(document.getElementById('fontSize').value) || 15;
+        const padLeft = parseFloat(document.getElementById('padLeft').value) || 20;
+        const padTop = parseFloat(document.getElementById('padTop').value) || 30;
+
+        const lineStyle = document.getElementById('lineStyle').value;
+        const strokeWidth = parseFloat(document.getElementById('lineWidth').value) || 2;
+        const lineColor = document.getElementById('lineColor').value;
+        const lineOpacity = document.getElementById('lineOpacity').value;
+        
+        const textColor = document.getElementById('textColor').value;
+        const textOpacity = document.getElementById('textOpacity').value;
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const numDays = lastDay.getDate();
+        
+        const dayNames = startDayOffset === 1 
+            ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] 
+            : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        let svg = `<svg id="svg-preview" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">\n`;
+        svg += `  <rect width="100%" height="100%" fill="white" />\n`;
+
+        let textAttrs = `font-family="sans-serif" font-size="${fontSize}px" fill="${textColor}" opacity="${textOpacity}"`;
+
+        if (layoutType === 'grid') {
+            const gridHeight = height - headerHeight;
+            const cols = 7;
+            const rows = 6;
+            const cellWidth = width / cols;
+            const cellHeight = gridHeight / rows;
+
+            if (showGrid) {
+                svg += `  <g id="grid-lines" stroke="${lineColor}" stroke-width="${strokeWidth}" stroke-opacity="${lineOpacity}">\n`;
+                for (let i = 0; i <= cols; i++) {
+                    let x = i * cellWidth;
+                    if (i === cols && lineStyle !== 'wavy') x -= strokeWidth / 2;
+                    else if (i === 0 && lineStyle !== 'wavy') x += strokeWidth / 2;
+                    svg += createLineSVG(x, headerHeight, x, height, lineStyle, strokeWidth);
+                }
+                for (let j = 0; j <= rows; j++) {
+                    let y = headerHeight + j * cellHeight;
+                    if (j === rows && lineStyle !== 'wavy') y -= strokeWidth / 2;
+                    else if (j === 0 && lineStyle !== 'wavy') y += strokeWidth / 2;
+                    svg += createLineSVG(0, y, width, y, lineStyle, strokeWidth);
+                }
+                svg += `  </g>\n`;
+            }
+
+            svg += `  <g id="day-headers">\n`;
+            for (let d = 0; d < 7; d++) {
+                let textX = d * cellWidth + (cellWidth / 2);
+                let textY = headerHeight / 2 + (fontSize / 3); 
+                svg += `    <text x="${textX}" y="${textY}" ${textAttrs} text-anchor="middle">${dayNames[d]}</text>\n`;
+            }
+            svg += `  </g>\n`;
+
+            svg += `  <g id="dates">\n`;
+            let startDay = firstDay.getDay(); 
+            let startCol = startDay - startDayOffset;
+            if (startCol < 0) startCol += 7;
+            
+            let currentCol = startCol;
+            let currentRow = 0;
+            
+            for (let day = 1; day <= numDays; day++) {
+                let tx = currentCol * cellWidth + padLeft; 
+                let ty = headerHeight + currentRow * cellHeight + padTop; 
+                svg += `    <text x="${tx}" y="${ty}" ${textAttrs} text-anchor="start">${day}</text>\n`;
+                currentCol++;
+                if (currentCol > 6) {
+                    currentCol = 0;
+                    currentRow++;
+                }
+            }
+            svg += `  </g>\n`;
+
+        } else if (layoutType === 'vertical') {
+            const listHeight = height - headerHeight;
+            const rowHeight = listHeight / numDays;
+            
+            if (headerHeight > 0) {
+                svg += `  <g id="header">\n`;
+                let headerY = headerHeight / 2 + (fontSize / 3);
+                svg += `    <text x="${padLeft}" y="${headerY}" ${textAttrs} text-anchor="start">${year} / ${month + 1}</text>\n`;
+                svg += `  </g>\n`;
+            }
+
+            if (showGrid) {
+                svg += `  <g id="grid-lines" stroke="${lineColor}" stroke-width="${strokeWidth}" stroke-opacity="${lineOpacity}">\n`;
+                svg += createLineSVG(strokeWidth/2, headerHeight, strokeWidth/2, height, lineStyle, strokeWidth);
+                svg += createLineSVG(width - strokeWidth/2, headerHeight, width - strokeWidth/2, height, lineStyle, strokeWidth);
+                for (let i = 0; i <= numDays; i++) {
+                    let y = headerHeight + i * rowHeight;
+                    if (i === numDays && lineStyle !== 'wavy') y -= strokeWidth / 2;
+                    else if (i === 0 && lineStyle !== 'wavy') y += strokeWidth / 2;
+                    svg += createLineSVG(0, y, width, y, lineStyle, strokeWidth);
+                }
+                svg += `  </g>\n`;
+            }
+
+            svg += `  <g id="dates">\n`;
+            for (let day = 1; day <= numDays; day++) {
+                let currentDate = new Date(year, month, day);
+                let dayOfWeek = currentDate.getDay();
+                let nameIndex = dayOfWeek - startDayOffset;
+                if (nameIndex < 0) nameIndex += 7;
+                let dayStr = dayNames[nameIndex];
+
+                let tx = padLeft; 
+                let ty = headerHeight + (day - 1) * rowHeight + padTop;
+                
+                svg += `    <text x="${tx}" y="${ty}" ${textAttrs} text-anchor="start">${day}</text>\n`;
+                svg += `    <text x="${tx + fontSize * 2.5}" y="${ty}" font-family="sans-serif" font-size="${fontSize}px" fill="${textColor}" opacity="${textOpacity * 0.7}" text-anchor="start">${dayStr}</text>\n`;
+            }
+            svg += `  </g>\n`;
+        }
+
+        svg += `</svg>`;
+        return svg;
+    }
+
+    function updatePreview() {
+        const wrap = document.getElementById('svg-preview-wrap');
+        wrap.innerHTML = generateSVGString();
+    }
+
+    function downloadSVG() {
+        const year = parseInt(document.getElementById('year').value, 10);
+        const month = parseInt(document.getElementById('month').value, 10) - 1;
+        
+        if (isNaN(year) || isNaN(month) || month < 0 || month > 11) {
+            alert("正しい年月を入力してください。");
+            return;
+        }
+
+        const svgContent = generateSVGString();
+        const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Calendar_${year}_${month + 1}.svg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>
