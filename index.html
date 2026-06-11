@@ -364,6 +364,7 @@
         .thumb-color-3 { background: linear-gradient(135deg, #dcfce7, #f0fdf4); }
         .thumb-color-4 { background: linear-gradient(135deg, #ffedd5, #fff7ed); }
         .thumb-color-5 { background: linear-gradient(135deg, #ffe4e6, #fff1f2); }
+        .thumb-color-6 { background: linear-gradient(135deg, #fef9c3, #fef08a); }
 
         /* Footer */
         footer {
@@ -403,6 +404,7 @@
         .work-card:nth-child(3) { animation-delay: 0.15s; }
         .work-card:nth-child(4) { animation-delay: 0.2s; }
         .work-card:nth-child(5) { animation-delay: 0.25s; }
+        .work-card:nth-child(6) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
@@ -425,6 +427,7 @@
                 <li><a class="category-link" onclick="filterCategory('obs', this)">OBS Overlay</a></li>
                 <li><a class="category-link" onclick="filterCategory('twitch', this)">Twitch</a></li>
                 <li><a class="category-link" onclick="filterCategory('utility', this)">Utility</a></li>
+                <li><a class="category-link" onclick="filterCategory('game', this)">Game</a></li>
             </ul>
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -540,6 +543,28 @@
                     </div>
                     <div class="overlay-footer">
                         <a href="./Twitch_Panel_Editor/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6: Godot Game -->
+            <div class="work-card" data-tags="game" data-title="Godotゲーム">
+                <div class="card-thumbnail thumb-color-6">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <div class="card-thumbnail-title">Godot Game</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>Game / HTML5</span>
+                        <span>v1.0</span>
+                    </div>
+                    <div>
+                        <h3 class="overlay-title">Godot Webゲーム</h3>
+                        <p class="overlay-desc">Godot Engineで制作され、WebAssembly（WASM）形式で書き出されたブラウザ動作対応の2D/3Dゲームスロット。</p>
+                    </div>
+                    <div class="overlay-footer">
+                        <a href="./godot_game/" class="detail-btn">Play Game <i class="fa-solid fa-arrow-right"></i></a>
                         <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
                     </div>
                 </div>
