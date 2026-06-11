@@ -3,49 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uikouka|tools</title>
-    <meta name="description" content="初狐羽鹿uikoukaが自分用に作成している主にTwitch・OBS関連のhtmlツール公開版です">
+    <title>Streamer & Creator Tools Portal</title>
+    <meta name="description" content="OBS配信ツール、Twitch連携ツール、クリエイター向けユーティリティのまとめポータルサイトです。">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-primary: #0b0f19;
-            --bg-secondary: #111827;
-            --bg-card: rgba(17, 24, 39, 0.7);
-            --border-color: rgba(255, 255, 255, 0.08);
+            --bg-primary: #080b11;
+            --bg-secondary: #0f131a;
+            --bg-card: rgba(17, 22, 32, 0.75);
+            --border-color: rgba(255, 255, 255, 0.05);
+            --border-hover: rgba(99, 102, 241, 0.4);
             
             --text-primary: #f3f4f6;
             --text-secondary: #9ca3af;
             --text-muted: #6b7280;
             
-            --accent-primary: #6366f1; /* Indigo */
-            --accent-secondary: #a855f7; /* Purple */
-            --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
-            
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
+            --accent-blue: #00d2ff;
+            --accent-purple: #9d4edd;
+            --accent-gradient: linear-gradient(135deg, #00d2ff, #9d4edd);
             
             --font-main: 'Outfit', 'Noto Sans JP', sans-serif;
             --transition-speed: 0.3s;
         }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+
         body {
             background-color: var(--bg-primary);
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+                radial-gradient(circle at 5% 10%, rgba(0, 210, 255, 0.08) 0%, transparent 35%),
+                radial-gradient(circle at 95% 90%, rgba(157, 78, 221, 0.08) 0%, transparent 35%);
             background-attachment: fixed;
             color: var(--text-primary);
             font-family: var(--font-main);
@@ -53,1007 +52,511 @@
             display: flex;
             flex-direction: column;
             line-height: 1.6;
-            overflow-x: hidden;
         }
-        /* Container & Grid layout */
+
         .container {
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 3rem 1.5rem;
             flex: 1;
         }
+
         /* Header design */
         header {
             text-align: center;
-            margin-bottom: 3rem;
-            animation: fadeInDown 0.8s ease-out;
+            margin-bottom: 4rem;
+            position: relative;
         }
+
         .logo-area {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
+
         .logo-icon {
             font-size: 2.2rem;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
         }
+
         header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 800;
             letter-spacing: -0.05em;
-            background: linear-gradient(to right, #ffffff, #d1d5db);
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
         }
+
         header p {
             color: var(--text-secondary);
             font-size: 1.1rem;
             font-weight: 300;
             max-width: 600px;
-            margin: 0.5rem auto 0;
-        }
-        /* Tab Navigation */
-        .tabs-nav {
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-            animation: fadeIn 1s ease-out;
-        }
-        .tab-btn {
-            background: rgba(31, 41, 55, 0.4);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-family: var(--font-main);
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            backdrop-filter: blur(10px);
-        }
-        .tab-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        .tab-btn.active {
-            background: var(--accent-gradient);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-        /* Tab Contents & Cards */
-        .tab-content {
-            display: none;
-            animation: tabFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.5rem;
-            padding: 2.5rem;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
             margin: 0 auto;
         }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-        @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            .card {
-                padding: 1.5rem;
-            }
-            header h1 {
-                font-size: 2rem;
-            }
-        }
-        /* Form elements & UI components */
-        h2 {
-            font-size: 1.6rem;
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.75rem;
-        }
-        h2 i {
-            color: #a855f7;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        label {
-            display: block;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-        textarea, input[type="text"], input[type="number"], select {
-            width: 100%;
-            background: rgba(17, 24, 39, 0.8);
+
+        /* Controls: Search and Filters */
+        .controls-wrapper {
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(8, 11, 17, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 0.85rem;
             color: var(--text-primary);
-            padding: 0.85rem 1rem;
+            padding: 0.9rem 1rem 0.9rem 3rem;
             font-family: var(--font-main);
             font-size: 1rem;
             transition: all var(--transition-speed);
         }
-        textarea:focus, input:focus, select:focus {
+
+        .search-input:focus {
             outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            background: rgba(17, 24, 39, 0.95);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
         }
-        textarea {
-            resize: vertical;
-            min-height: 150px;
-        }
-        .btn-group {
+
+        .filter-tags {
             display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-        button.btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            font-family: var(--font-main);
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all var(--transition-speed);
-            display: inline-flex;
-            align-items: center;
             gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        button.btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            font-family: var(--font-main);
         }
-        button.btn-primary {
+
+        .filter-btn:hover, .filter-btn.active {
             background: var(--accent-gradient);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        button.btn-primary:hover {
-            background: linear-gradient(135deg, #4f46e5, #9333ea);
-            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
-            transform: translateY(-2px);
-        }
-        button.btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border-color: rgba(239, 68, 68, 0.4);
-        }
-        button.btn-danger:hover {
-            background: rgba(239, 68, 68, 0.4);
             color: white;
             border-color: transparent;
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.2);
         }
-        /* 1. Text Counter UI */
-        .counter-grid {
+
+        /* Tool Cards Grid */
+        .tools-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
         }
-        @media (max-width: 600px) {
-            .counter-grid {
-                grid-template-columns: 1fr 1fr;
+
+        @media (max-width: 480px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
             }
         }
-        .counter-box {
-            background: rgba(255, 255, 255, 0.03);
+
+        /* Card Design */
+        .tool-card {
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            text-align: center;
-        }
-        .counter-val {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .counter-lbl {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 0.25rem;
-        }
-        /* 2. Timer UI */
-        .timer-display {
-            font-size: 5rem;
-            font-weight: 800;
-            text-align: center;
-            margin: 2rem 0;
-            font-family: monospace;
-            background: linear-gradient(to right, #6366f1, #a855f7, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 0.02em;
-            filter: drop-shadow(0 2px 10px rgba(99, 102, 241, 0.2));
-        }
-        .timer-controls {
+            border-radius: 1.5rem;
+            padding: 2rem;
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-        .timer-settings {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            align-items: center;
-        }
-        .timer-settings input {
-            width: 80px;
-            text-align: center;
-        }
-        /* 3. Random Generator UI */
-        .random-result {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: 700;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 1.5rem;
+            flex-direction: column;
+            transition: all var(--transition-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
             position: relative;
             overflow: hidden;
-            word-break: break-all;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
         }
-        .random-result.copied::after {
-            content: 'Copied!';
+
+        .tool-card::before {
+            content: '';
             position: absolute;
-            top: 5px;
-            right: 10px;
-            font-size: 0.8rem;
-            color: var(--success);
-            font-weight: normal;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity var(--transition-speed);
         }
-        .checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin: 1rem 0;
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-hover);
+            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
         }
-        .checkbox-label {
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            user-select: none;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
         }
-        .checkbox-label input {
-            width: 1.1rem;
-            height: 1.1rem;
-            accent-color: var(--accent-primary);
-        }
-        /* 4. Color Code Tools */
-        .color-preview-box {
-            width: 100%;
-            height: 150px;
-            border-radius: 1rem;
+
+        .tool-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
-            transition: background-color 0.2s ease;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            transition: all var(--transition-speed);
         }
-        .color-inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+
+        .tool-card:hover .tool-icon-wrapper {
+            background: var(--accent-gradient);
+            border-color: transparent;
         }
-        .color-row {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+
+        .tool-icon-wrapper i {
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+            transition: color var(--transition-speed);
         }
-        .color-row label {
-            width: 60px;
-            margin-bottom: 0;
+
+        .tool-card:hover .tool-icon-wrapper i {
+            color: white;
         }
-        .color-row input[type="text"] {
-            flex: 1;
+
+        .tool-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
         }
-        .color-picker-wrapper {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
+
+        .tool-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
             margin-bottom: 1.5rem;
+            flex-grow: 1;
         }
-        input[type="color"] {
-            -webkit-appearance: none;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            background: none;
+
+        .tool-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
-        input[type="color"]::-webkit-color-swatch-wrapper {
-            padding: 0;
+
+        .tag {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.2rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
-        input[type="color"]::-webkit-color-swatch {
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+
+        .tag-obs {
+            border-color: rgba(0, 210, 255, 0.2);
+            color: var(--accent-blue);
         }
+
+        .tag-twitch {
+            border-color: rgba(157, 78, 221, 0.3);
+            color: #b983ff;
+        }
+
         /* Footer */
         footer {
             text-align: center;
-            padding: 3rem 1.5rem 2rem;
+            padding: 4rem 1.5rem 2rem;
             color: var(--text-muted);
             font-size: 0.85rem;
             margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
         }
+
         footer a {
             color: var(--text-secondary);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: color var(--transition-speed);
         }
+
         footer a:hover {
-            color: var(--accent-primary);
+            color: var(--accent-blue);
         }
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: rgba(17, 24, 39, 0.9);
-            border: 1px solid var(--accent-primary);
-            color: var(--text-primary);
-            padding: 0.85rem 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            backdrop-filter: blur(10px);
-            transform: translateY(150%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .toast.show {
-            transform: translateY(0);
-        }
-        .toast i {
-            color: var(--success);
-        }
+
         /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+
+        .tool-card {
+            animation: fadeIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) both;
         }
-        @keyframes tabFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+
+        /* Staggered card animation loading */
+        .tool-card:nth-child(1) { animation-delay: 0.05s; }
+        .tool-card:nth-child(2) { animation-delay: 0.1s; }
+        .tool-card:nth-child(3) { animation-delay: 0.15s; }
+        .tool-card:nth-child(4) { animation-delay: 0.2s; }
+        .tool-card:nth-child(5) { animation-delay: 0.25s; }
+        .tool-card:nth-child(6) { animation-delay: 0.3s; }
+        .tool-card:nth-child(7) { animation-delay: 0.35s; }
+        .tool-card:nth-child(8) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <!-- Header -->
         <header>
             <div class="logo-area">
-                <i class="fa-solid fa-toolbox logo-icon"></i>
+                <i class="fa-solid fa-layer-group logo-icon"></i>
             </div>
-            <h1>Web Utility Toolbox</h1>
-            <p>ブラウザ上で安全に動作する、シンプルかつ強力なオールインワンWeb便利ツール</p>
+            <h1>Streaming & Utility Tools</h1>
+            <p>配信や日々の創作活動を快適にする、カスタマイズ可能なHTMLツールコレクション</p>
         </header>
-        <!-- Tab Navigation -->
-        <nav class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('text-tools')">
-                <i class="fa-solid fa-file-lines"></i> テキストツール
-            </button>
-            <button class="tab-btn" onclick="switchTab('timer-tools')">
-                <i class="fa-solid fa-stopwatch"></i> タイマー
-            </button>
-            <button class="tab-btn" onclick="switchTab('generator-tools')">
-                <i class="fa-solid fa-dice"></i> 乱数・生成器
-            </button>
-            <button class="tab-btn" onclick="switchTab('color-tools')">
-                <i class="fa-solid fa-palette"></i> カラー変換
-            </button>
-        </nav>
-        <!-- TAB 1: Text Tools -->
-        <div id="text-tools" class="tab-content active">
-            <div class="card">
-                <h2><i class="fa-solid fa-file-signature"></i> テキストカウンター & 変換</h2>
-                
-                <div class="counter-grid">
-                    <div class="counter-box">
-                        <div class="counter-val" id="val-chars">0</div>
-                        <div class="counter-lbl">文字数</div>
-                    </div>
-                    <div class="counter-box">
-                        <div class="counter-val" id="val-chars-no-space">0</div>
-                        <div class="counter-lbl">文字数 (空白抜)</div>
-                    </div>
-                    <div class="counter-box">
-                        <div class="counter-val" id="val-lines">1</div>
-                        <div class="counter-lbl">行数</div>
-                    </div>
-                    <div class="counter-box">
-                        <div class="counter-val" id="val-bytes">0</div>
-                        <div class="counter-lbl">バイト数</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="text-input">テキストを入力してください (リアルタイムに計算 & 変換)</label>
-                    <textarea id="text-input" placeholder="ここにテキストを入力または貼り付け..." oninput="processText()"></textarea>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="transformText('upper')">大文字に変換</button>
-                    <button class="btn btn-primary" onclick="transformText('lower')">小文字に変換</button>
-                    <button class="btn btn-primary" onclick="transformText('zen-han')">全角から半角</button>
-                    <button class="btn btn-primary" onclick="transformText('url-encode')">URLエンコード</button>
-                    <button class="btn btn-primary" onclick="transformText('url-decode')">URLデコード</button>
-                    <button class="btn" onclick="copyText('text-input')"><i class="fa-regular fa-copy"></i> コピー</button>
-                    <button class="btn btn-danger" onclick="clearText('text-input')"><i class="fa-regular fa-trash-can"></i> クリア</button>
-                </div>
+
+        <!-- Controls (Search & Tag Filters) -->
+        <div class="controls-wrapper">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" class="search-input" placeholder="ツール名やキーワードで検索..." oninput="filterTools()">
+            </div>
+            <div class="filter-tags">
+                <button class="filter-btn active" onclick="filterCategory('all', this)">すべて</button>
+                <button class="filter-btn" onclick="filterCategory('obs', this)">OBS配信向け</button>
+                <button class="filter-btn" onclick="filterCategory('twitch', this)">Twitch連携</button>
+                <button class="filter-btn" onclick="filterCategory('management', this)">管理・集計</button>
+                <button class="filter-btn" onclick="filterCategory('utility', this)">ユーティリティ</button>
             </div>
         </div>
-        <!-- TAB 2: Timer Tools -->
-        <div id="timer-tools" class="tab-content">
-            <div class="card">
-                <h2><i class="fa-solid fa-hourglass-half"></i> タイマー & ストップウォッチ</h2>
-                
-                <div class="timer-display" id="timer-val">00:00.00</div>
-                <!-- Settings for CountDown -->
-                <div class="timer-settings" id="timer-inputs-area">
-                    <div class="form-group" style="margin-bottom:0">
-                        <input type="number" id="timer-min" min="0" max="599" value="3" placeholder="分">
-                        <span style="color: var(--text-secondary); margin: 0 0.25rem;">分</span>
-                        <input type="number" id="timer-sec" min="0" max="59" value="0" placeholder="秒">
-                        <span style="color: var(--text-secondary); margin: 0 0.25rem;">秒</span>
+
+        <!-- Tools Grid -->
+        <div class="tools-grid" id="tools-container">
+            
+            <!-- Tool 1: OBS Asset Manager -->
+            <a href="./OBS_Asset_Manager/" class="tool-card" data-tags="obs management" data-title="OBSアセットマネージャー">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-folder-open"></i>
                     </div>
+                    <div class="tool-title">OBS アセットマネージャー</div>
                 </div>
-                <div class="timer-controls">
-                    <button class="btn btn-primary" id="btn-timer-start" onclick="toggleTimer()">
-                        <i class="fa-solid fa-play"></i> スタート
-                    </button>
-                    <button class="btn" id="btn-timer-mode" onclick="toggleTimerMode()">
-                        モード: カウントダウン
-                    </button>
-                    <button class="btn btn-danger" onclick="resetTimer()">
-                        <i class="fa-solid fa-rotate-left"></i> リセット
-                    </button>
+                <div class="tool-desc">
+                    OBSの配信画像、動画、BGM等のアセットやソース情報を一括して効率的に整理・管理するためのダッシュボードツール。
                 </div>
-            </div>
-        </div>
-        <!-- TAB 3: Random Generator Tools -->
-        <div id="generator-tools" class="tab-content">
-            <div class="card">
-                <div class="grid-2">
-                    <!-- Column 1: Password Gen -->
-                    <div>
-                        <h2><i class="fa-solid fa-key"></i> パスワード生成</h2>
-                        <div class="form-group">
-                            <label for="pass-len">長さ: <span id="pass-len-val">16</span>文字</label>
-                            <input type="range" id="pass-len" min="6" max="64" value="16" style="width:100%" oninput="document.getElementById('pass-len-val').textContent=this.value">
-                        </div>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="pass-upper" checked> 大文字 (A-Z)
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="pass-lower" checked> 小文字 (a-z)
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="pass-nums" checked> 数字 (0-9)
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="pass-syms" checked> 記号 (!@#$%^&*)
-                            </label>
-                        </div>
-                        <button class="btn btn-primary" onclick="generatePassword()" style="width:100%">
-                            <i class="fa-solid fa-shield-halved"></i> パスワード生成
-                        </button>
+                <div class="tool-tags">
+                    <span class="tag tag-obs">OBS</span>
+                    <span class="tag">配信管理</span>
+                </div>
+            </a>
+
+            <!-- Tool 2: OBS Twitch StatusBar -->
+            <a href="./OBS_Twitch_StatusBar/" class="tool-card" data-tags="obs twitch" data-title="OBS Twitchステータスバー">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-chart-line"></i>
                     </div>
-                    <!-- Column 2: List Picker -->
-                    <div>
-                        <h2><i class="fa-solid fa-shuffle"></i> リストからランダム抽選</h2>
-                        <div class="form-group">
-                            <label for="lot-items">項目を改行区切りで入力</label>
-                            <textarea id="lot-items" placeholder="項目A&#10;項目B&#10;項目C" style="min-height: 120px;"></textarea>
-                        </div>
-                        <button class="btn btn-primary" onclick="drawLottery()" style="width:100%">
-                            <i class="fa-solid fa-clover"></i> 抽選する
-                        </button>
-                    </div>
+                    <div class="tool-title">Twitch ステータスバー</div>
                 </div>
-                <div class="random-result" id="gen-result" onclick="copyResult()">
-                    生成された結果がここに表示されます (クリックでコピー)
+                <div class="tool-desc">
+                    配信画面の隅にスマートに統合可能。現在の視聴者数やTwitchの接続状態をオーバーレイとして美しく視覚化します。
                 </div>
-            </div>
-        </div>
-        <!-- TAB 4: Color Tools -->
-        <div id="color-tools" class="tab-content">
-            <div class="card">
-                <h2><i class="fa-solid fa-eye-dropper"></i> カラーコード相互変換</h2>
-                
-                <div class="color-picker-wrapper">
-                    <input type="color" id="color-picker" value="#6366f1" oninput="updateColorFromPicker(this.value)">
-                    <div>
-                        <label>カラーピッカーで選択</label>
-                        <span id="picker-val-label" style="font-family: monospace; font-size:1.1rem; font-weight:bold;">#6366f1</span>
-                    </div>
+                <div class="tool-tags">
+                    <span class="tag tag-obs">OBS</span>
+                    <span class="tag tag-twitch">Twitch</span>
                 </div>
-                <div class="color-preview-box" id="color-preview" style="background-color: #6366f1; color: #ffffff;">
-                    PREVIEW
+            </a>
+
+            <!-- Tool 3: OBS Roulette -->
+            <a href="./OBS_roulette/" class="tool-card" data-tags="obs utility" data-title="OBSルーレット">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-circle-notch"></i>
+                    </div>
+                    <div class="tool-title">OBS ルーレット</div>
                 </div>
-                <div class="color-inputs">
-                    <div class="color-row">
-                        <label for="color-hex">HEX</label>
-                        <input type="text" id="color-hex" value="#6366f1" oninput="updateColorFromInput('hex', this.value)">
-                        <button class="btn" onclick="copyText('color-hex')"><i class="fa-regular fa-copy"></i></button>
-                    </div>
-                    <div class="color-row">
-                        <label for="color-rgb">RGB</label>
-                        <input type="text" id="color-rgb" value="rgb(99, 102, 241)" oninput="updateColorFromInput('rgb', this.value)">
-                        <button class="btn" onclick="copyText('color-rgb')"><i class="fa-regular fa-copy"></i></button>
-                    </div>
-                    <div class="color-row">
-                        <label for="color-hsl">HSL</label>
-                        <input type="text" id="color-hsl" value="hsl(239, 84%, 67%)" oninput="updateColorFromInput('hsl', this.value)">
-                        <button class="btn" onclick="copyText('color-hsl')"><i class="fa-regular fa-copy"></i></button>
-                    </div>
+                <div class="tool-desc">
+                    視聴者参加型の企画や抽選イベントで大活躍する、ビジュアルとアニメーションにこだわったカスタム可能なルーレット。
                 </div>
-            </div>
+                <div class="tool-tags">
+                    <span class="tag tag-obs">OBS</span>
+                    <span class="tag">イベント用</span>
+                </div>
+            </a>
+
+            <!-- Tool 4: OBSブラウザドックツール タイトルセーブ -->
+            <a href="./OBS_ブラウザドックツール_タイトルセーブ/" class="tool-card" data-tags="obs utility" data-title="OBSタイトルセーバー">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </div>
+                    <div class="tool-title">タイトルセーバー</div>
+                </div>
+                <div class="tool-desc">
+                    OBSのカスタムブラウザドック内に格納し、配信のセットアップ時に毎回使うようなタイトルやゲームカテゴリ設定を簡単保存。
+                </div>
+                <div class="tool-tags">
+                    <span class="tag tag-obs">OBSドック</span>
+                    <span class="tag">ユーティリティ</span>
+                </div>
+            </a>
+
+            <!-- Tool 5: OBS便利ツール -->
+            <a href="./OBS_便利ツール/" class="tool-card" data-tags="obs utility" data-title="OBS便利ツール">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-toolbox"></i>
+                    </div>
+                    <div class="tool-title">OBS 便利ツール</div>
+                </div>
+                <div class="tool-desc">
+                    配信の準備やトラブルシューティング、細かなテキストオーバーレイ作成などに役立つ機能を一つにまとめたツールボックス。
+                </div>
+                <div class="tool-tags">
+                    <span class="tag tag-obs">OBS</span>
+                    <span class="tag">多機能</span>
+                </div>
+            </a>
+
+            <!-- Tool 6: OBS読み聞かせテキスト用 -->
+            <a href="./OBS_読み聞かせテキスト用/" class="tool-card" data-tags="obs utility" data-title="読み聞かせテキスト表示">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div class="tool-title">読み聞かせテキスト表示</div>
+                </div>
+                <div class="tool-desc">
+                    朗読や読み聞かせ、カラオケ字幕配信などに最適な、表示テキストを読みやすく綺麗にスクロール・デザインするツール。
+                </div>
+                <div class="tool-tags">
+                    <span class="tag tag-obs">OBS</span>
+                    <span class="tag">テキスト表示</span>
+                </div>
+            </a>
+
+            <!-- Tool 7: Twitch Panel Editor -->
+            <a href="./Twitch_Panel_Editor/" class="tool-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div class="tool-title">Twitch パネルエディター</div>
+                </div>
+                <div class="tool-desc">
+                    Twitchの概要欄に並べるパネル画像を、テンプレートやアイコン、グラデーションを用いてブラウザ上で手軽にデザイン。
+                </div>
+                <div class="tool-tags">
+                    <span class="tag tag-twitch">Twitch</span>
+                    <span class="tag">画像編集</span>
+                </div>
+            </a>
+
+            <!-- Tool 8: Revenue Spreadsheet -->
+            <a href="./Revenue_Spreadsheet/" class="tool-card" data-tags="management" data-title="収益管理スプレッドシート">
+                <div class="tool-header">
+                    <div class="tool-icon-wrapper">
+                        <i class="fa-solid fa-table-cells"></i>
+                    </div>
+                    <div class="tool-title">収益管理スプレッドシート</div>
+                </div>
+                <div class="tool-desc">
+                    クリエイター活動や配信から得られる収入・経費を月別で集計・分析し、グラフや表で視覚的に管理するシートツール。
+                </div>
+                <div class="tool-tags">
+                    <span class="tag">収益管理</span>
+                    <span class="tag">スプレッドシート</span>
+                </div>
+            </a>
+
         </div>
     </div>
-    <!-- Toast Component -->
-    <div class="toast" id="toast">
-        <i class="fa-solid fa-circle-check"></i>
-        <span id="toast-message">クリップボードにコピーしました！</span>
-    </div>
+
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 Web Utility Toolbox. Built for GitHub Pages.</p>
-        <p style="margin-top:0.5rem;"><a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i> GitHubでホストする</a></p>
+        <p>&copy; 2026 Streamer Tools Portal. Hosted on GitHub Pages.</p>
     </footer>
-    <!-- JavaScript Logic -->
+
+    <!-- JS Logic for Search and Filtering -->
     <script>
-        // --- 1. General Tab Switcher ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+        let currentCategory = 'all';
+
+        function filterTools() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.tool-card');
+
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title').toLowerCase();
+                const desc = card.querySelector('.tool-desc').textContent.toLowerCase();
+                const tags = card.getAttribute('data-tags');
+                
+                const matchesSearch = title.includes(query) || desc.includes(query);
+                const matchesCategory = currentCategory === 'all' || tags.includes(currentCategory);
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
             });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+        }
+
+        function filterCategory(category, button) {
+            currentCategory = category;
+            
+            // Toggle active button class
+            document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-        // Global Toast Show
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        }
-        function copyText(elementId) {
-            const el = document.getElementById(elementId);
-            el.select();
-            document.execCommand('copy');
-            showToast('クリップボードにコピーしました！');
-        }
-        function clearText(elementId) {
-            document.getElementById(elementId).value = '';
-            if (elementId === 'text-input') {
-                processText();
-            }
-        }
-        // --- 2. Text Tools Logic ---
-        function processText() {
-            const txt = document.getElementById('text-input').value;
-            
-            // Chars count
-            document.getElementById('val-chars').textContent = txt.length;
-            
-            // Chars no space count
-            const noSpace = txt.replace(/\s/g, '');
-            document.getElementById('val-chars-no-space').textContent = noSpace.length;
-            
-            // Lines count (empty text has 0 lines, else count newlines + 1)
-            const lines = txt === '' ? 0 : txt.split(/\r\n|\r|\n/).length;
-            document.getElementById('val-lines').textContent = lines;
-            
-            // Bytes count (UTF-8 estimate)
-            let bytes = 0;
-            for (let i = 0; i < txt.length; i++) {
-                const code = txt.charCodeAt(i);
-                if (code <= 0x7f) bytes += 1;
-                else if (code <= 0x7ff) bytes += 2;
-                else if (code <= 0xffff) bytes += 3;
-                else bytes += 4;
-            }
-            document.getElementById('val-bytes').textContent = bytes;
-        }
-        function transformText(action) {
-            const input = document.getElementById('text-input');
-            let txt = input.value;
-            if (!txt) return;
-            if (action === 'upper') {
-                txt = txt.toUpperCase();
-            } else if (action === 'lower') {
-                txt = txt.toLowerCase();
-            } else if (action === 'zen-han') {
-                // Fullwidth to Halfwidth
-                txt = txt.replace(/[！-～]/g, function(s) {
-                    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-                }).replace(/　/g, ' '); // Space
-            } else if (action === 'url-encode') {
-                txt = encodeURIComponent(txt);
-            } else if (action === 'url-decode') {
-                try {
-                    txt = decodeURIComponent(txt);
-                } catch(e) {
-                    showToast('URLデコードに失敗しました。正しいエンコード形式か確認してください。');
-                    return;
-                }
-            }
-            input.value = txt;
-            processText();
-            showToast('テキストを変換しました！');
-        }
-        // --- 3. Timer & Stopwatch Logic ---
-        let timerInterval = null;
-        let timerMode = 'countdown'; // 'countdown' or 'stopwatch'
-        let timerSeconds = 180; // Default 3 mins
-        let stopwatchMS = 0;
-        let timerIsRunning = false;
-        function updateTimerDisplay() {
-            const display = document.getElementById('timer-val');
-            if (timerMode === 'countdown') {
-                const mins = Math.floor(Math.abs(timerSeconds) / 60);
-                const secs = Math.abs(timerSeconds) % 60;
-                const sign = timerSeconds < 0 ? '-' : '';
-                display.textContent = `${sign}${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.00`;
-                
-                // Visual warning if negative
-                if (timerSeconds < 0) {
-                    display.style.background = 'linear-gradient(to right, #ef4444, #f87171)';
-                    display.style.webkitBackgroundClip = 'text';
-                } else {
-                    display.style.background = 'linear-gradient(to right, #6366f1, #a855f7, #ec4899)';
-                    display.style.webkitBackgroundClip = 'text';
-                }
-            } else {
-                // Stopwatch: display centiseconds
-                const totalSecs = Math.floor(stopwatchMS / 1000);
-                const mins = Math.floor(totalSecs / 60);
-                const secs = totalSecs % 60;
-                const ms = Math.floor((stopwatchMS % 1000) / 10);
-                display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
-            }
-        }
-        function toggleTimerMode() {
-            if (timerIsRunning) {
-                toggleTimer(); // Stop first
-            }
-            const modeBtn = document.getElementById('btn-timer-mode');
-            const inputsArea = document.getElementById('timer-inputs-area');
-            
-            if (timerMode === 'countdown') {
-                timerMode = 'stopwatch';
-                modeBtn.textContent = 'モード: ストップウォッチ';
-                inputsArea.style.display = 'none';
-            } else {
-                timerMode = 'countdown';
-                modeBtn.textContent = 'モード: カウントダウン';
-                inputsArea.style.display = 'flex';
-            }
-            resetTimer();
-        }
-        function toggleTimer() {
-            const startBtn = document.getElementById('btn-timer-start');
-            if (timerIsRunning) {
-                // Stop
-                clearInterval(timerInterval);
-                timerIsRunning = false;
-                startBtn.innerHTML = '<i class="fa-solid fa-play"></i> スタート';
-                startBtn.classList.remove('btn-danger');
-                startBtn.classList.add('btn-primary');
-            } else {
-                // Start
-                timerIsRunning = true;
-                startBtn.innerHTML = '<i class="fa-solid fa-pause"></i> 一時停止';
-                startBtn.classList.remove('btn-primary');
-                startBtn.classList.add('btn-danger');
-                if (timerMode === 'countdown') {
-                    // Read custom settings only on first start
-                    if (timerSeconds === 180 || timerSeconds === 0) {
-                        const m = parseInt(document.getElementById('timer-min').value) || 0;
-                        const s = parseInt(document.getElementById('timer-sec').value) || 0;
-                        timerSeconds = (m * 60) + s;
-                    }
-                    
-                    timerInterval = setInterval(() => {
-                        timerSeconds--;
-                        updateTimerDisplay();
-                        if (timerSeconds === 0) {
-                            // Play subtle beep sound or notification (optional)
-                            showToast('時間になりました！');
-                        }
-                    }, 1000);
-                } else {
-                    // Stopwatch
-                    let lastTime = performance.now();
-                    timerInterval = setInterval(() => {
-                        const now = performance.now();
-                        stopwatchMS += (now - lastTime);
-                        lastTime = now;
-                        updateTimerDisplay();
-                    }, 10);
-                }
-            }
-        }
-        function resetTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            timerIsRunning = false;
-            
-            const startBtn = document.getElementById('btn-timer-start');
-            startBtn.innerHTML = '<i class="fa-solid fa-play"></i> スタート';
-            startBtn.classList.remove('btn-danger');
-            startBtn.classList.add('btn-primary');
-            if (timerMode === 'countdown') {
-                const m = parseInt(document.getElementById('timer-min').value) || 0;
-                const s = parseInt(document.getElementById('timer-sec').value) || 0;
-                timerSeconds = (m * 60) + s;
-            } else {
-                stopwatchMS = 0;
-            }
-            updateTimerDisplay();
-        }
-        // --- 4. Generator Logic ---
-        function generatePassword() {
-            const len = parseInt(document.getElementById('pass-len').value);
-            const useUpper = document.getElementById('pass-upper').checked;
-            const useLower = document.getElementById('pass-lower').checked;
-            const useNums = document.getElementById('pass-nums').checked;
-            const useSyms = document.getElementById('pass-syms').checked;
-            const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const lowers = 'abcdefghijklmnopqrstuvwxyz';
-            const nums = '0123456789';
-            const syms = '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
-            let pool = '';
-            if (useUpper) pool += uppers;
-            if (useLower) pool += lowers;
-            if (useNums) pool += nums;
-            if (useSyms) pool += syms;
-            if (!pool) {
-                showToast('オプションを少なくとも1つ選択してください。');
-                return;
-            }
-            let result = '';
-            for (let i = 0; i < len; i++) {
-                result += pool.charAt(Math.floor(Math.random() * pool.length));
-            }
-            const resBox = document.getElementById('gen-result');
-            resBox.textContent = result;
-            resBox.style.borderStyle = 'solid';
-            resBox.style.borderColor = 'var(--accent-primary)';
-        }
-        function drawLottery() {
-            const text = document.getElementById('lot-items').value.trim();
-            if (!text) {
-                showToast('項目を入力してください。');
-                return;
-            }
-            const items = text.split('\n').map(i => i.trim()).filter(i => i.length > 0);
-            if (items.length === 0) {
-                showToast('項目を入力してください。');
-                return;
-            }
-            const winner = items[Math.floor(Math.random() * items.length)];
-            
-            const resBox = document.getElementById('gen-result');
-            resBox.innerHTML = `<span style="font-size:0.9rem; color:var(--text-secondary); display:block;">当選者:</span> ${winner}`;
-            resBox.style.borderStyle = 'solid';
-            resBox.style.borderColor = 'var(--success)';
-        }
-        function copyResult() {
-            const resBox = document.getElementById('gen-result');
-            const txt = resBox.innerText;
-            if (txt.includes('生成された結果がここに表示されます')) return;
-            
-            // Clean text if it has the "当選者:" prefix
-            const cleanTxt = txt.replace('当選者:\n', '');
-            
-            navigator.clipboard.writeText(cleanTxt).then(() => {
-                resBox.classList.add('copied');
-                showToast('結果をコピーしました！');
-                setTimeout(() => resBox.classList.remove('copied'), 2000);
-            });
-        }
-        // --- 5. Color Code Convert Logic ---
-        function hexToRgb(hex) {
-            const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-            hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-        function rgbToHex(r, g, b) {
-            const toHex = (c) => {
-                const hex = Math.max(0, Math.min(255, c)).toString(16);
-                return hex.length === 1 ? '0' + hex : hex;
-            };
-            return "#" + toHex(r) + toHex(g) + toHex(b);
-        }
-        function rgbToHsl(r, g, b) {
-            r /= 255; g /= 255; b /= 255;
-            const max = Math.max(r, g, b), min = Math.min(r, g, b);
-            let h, s, l = (max + min) / 2;
-            if (max === min) {
-                h = s = 0; // achromatic
-            } else {
-                const d = max - min;
-                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                switch (max) {
-                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                    case g: h = (b - r) / d + 2; break;
-                    case b: h = (r - g) / d + 4; break;
-                }
-                h /= 6;
-            }
-            return {
-                h: Math.round(h * 360),
-                s: Math.round(s * 100),
-                l: Math.round(l * 100)
-            };
-        }
-        function hslToRgb(h, s, l) {
-            h /= 360; s /= 100; l /= 100;
-            let r, g, b;
-            if (s === 0) {
-                r = g = b = l; // achromatic
-            } else {
-                const hue2rgb = (p, q, t) => {
-                    if (t < 0) t += 1;
-                    if (t > 1) t -= 1;
-                    if (t < 1/6) return p + (q - p) * 6 * t;
-                    if (t < 1/2) return q;
-                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                    return p;
-                };
-                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                const p = 2 * l - q;
-                r = hue2rgb(p, q, h + 1/3);
-                g = hue2rgb(p, q, h);
-                b = hue2rgb(p, q, h - 1/3);
-            }
-            return {
-                r: Math.round(r * 255),
-                g: Math.round(g * 255),
-                b: Math.round(b * 255)
-            };
-        }
-        function updateColorDisplay(hex, rgb, hsl, updatePicker=true) {
-            const preview = document.getElementById('color-preview');
-            preview.style.backgroundColor = hex;
-            
-            // Set text color based on brightness
-            const rgbVal = rgb || hexToRgb(hex);
-            if (rgbVal) {
-                const brightness = (rgbVal.r * 299 + rgbVal.g * 587 + rgbVal.b * 114) / 1000;
-                preview.style.color = brightness > 125 ? '#111827' : '#f3f4f6';
-            }
-            document.getElementById('color-hex').value = hex;
-            if (rgb) document.getElementById('color-rgb').value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-            if (hsl) document.getElementById('color-hsl').value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
-            
-            if (updatePicker) {
-                document.getElementById('color-picker').value = hex;
-                document.getElementById('picker-val-label').textContent = hex;
-            }
-        }
-        function updateColorFromPicker(value) {
-            const rgb = hexToRgb(value);
-            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-            updateColorDisplay(value, rgb, hsl, false);
-            document.getElementById('picker-val-label').textContent = value;
-        }
-        function updateColorFromInput(type, value) {
-            if (type === 'hex') {
-                if (/^#?[0-9a-fA-F]{6}$/.test(value)) {
-                    const cleanHex = value.startsWith('#') ? value : '#' + value;
-                    const rgb = hexToRgb(cleanHex);
-                    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-                    updateColorDisplay(cleanHex, rgb, hsl);
-                }
-            } else if (type === 'rgb') {
-                const match = value.match(/rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/);
-                if (match) {
-                    const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
-                    if (r <= 255 && g <= 255 && b <= 255) {
-                        const hex = rgbToHex(r, g, b);
-                        const hsl = rgbToHsl(r, g, b);
-                        updateColorDisplay(hex, {r, g, b}, hsl);
-                    }
-                }
-            } else if (type === 'hsl') {
-                const match = value.match(/hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/);
-                if (match) {
-                    const h = parseInt(match[1]), s = parseInt(match[2]), l = parseInt(match[3]);
-                    if (h <= 360 && s <= 100 && l <= 100) {
-                        const rgb = hslToRgb(h, s, l);
-                        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
-                        updateColorDisplay(hex, rgb, {h, s, l});
-                    }
-                }
-            }
+            button.classList.add('active');
+
+            filterTools();
         }
     </script>
 </body>
