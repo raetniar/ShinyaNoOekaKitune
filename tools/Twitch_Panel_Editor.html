@@ -703,6 +703,28 @@ input:checked + .slider:before {
     font-weight: 300;
     margin-left: 10px;
 }
+.tool-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.header-theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.header-theme-toggle:hover {
+    background-color: var(--bg-secondary);
+}
 @media (max-width: 768px) {
     .tool-description-sub {
         display: none;
@@ -720,9 +742,15 @@ input:checked + .slider:before {
             <h1 class="tool-name-heading">Twitch Panel Editor</h1>
             <span class="tool-description-sub">Twitchプロフィールパネル用の画像をかんたん作成</span>
         </div>
-        <a href="index.html" class="back-home-btn">
-            <i class="fa-solid fa-arrow-left"></i> TOPに戻る
-        </a>
+        <div class="tool-header-actions">
+            <button id="header-theme-toggle" class="header-theme-toggle" title="テーマ切り替え">
+                <i class="fa-solid fa-sun" id="header-theme-icon"></i>
+                <span id="header-theme-text">ライトモード</span>
+            </button>
+            <a href="index.html" class="back-home-btn">
+                <i class="fa-solid fa-arrow-left"></i> TOPに戻る
+            </a>
+        </div>
     </header>
 
     <div class="app-container">
@@ -743,13 +771,6 @@ input:checked + .slider:before {
                     <button id="btn-export" class="btn btn-secondary btn-small" title="バックアップ(JSON)をダウンロード">エクスポート</button>
                     <label for="input-import" class="btn btn-secondary btn-small" title="バックアップ(JSON)を読み込み">インポート</label>
                     <input type="file" id="input-import" accept=".json" style="display: none;">
-                </div>
-                <div class="theme-switch-wrapper">
-                    <span id="theme-label">ダークモード</span>
-                    <label class="theme-switch" for="checkbox-theme">
-                        <input type="checkbox" id="checkbox-theme" checked />
-                        <div class="slider round"></div>
-                    </label>
                 </div>
             </div>
         </aside>
@@ -874,8 +895,6 @@ const titleInput = document.getElementById('input-title');
 const saveStatus = document.getElementById('save-status');
 const historyList = document.getElementById('history-list');
 const btnNew = document.getElementById('btn-new');
-const checkboxTheme = document.getElementById('checkbox-theme');
-const themeLabel = document.getElementById('theme-label');
 const btnExport = document.getElementById('btn-export');
 const inputImport = document.getElementById('input-import');
 const inputImageFile = document.getElementById('input-image-file');
@@ -915,15 +934,7 @@ function init() {
 
     // Load theme
     const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
-    if (savedTheme === 'light') {
-        checkboxTheme.checked = false;
-        document.body.className = 'light-mode';
-        themeLabel.textContent = 'ライトモード';
-    } else {
-        checkboxTheme.checked = true;
-        document.body.className = 'dark-mode';
-        themeLabel.textContent = 'ダークモード';
-    }
+    updateThemeUI(savedTheme);
 
     // Load History
     loadHistoryList();
@@ -934,7 +945,6 @@ function init() {
     inputImageAlt.addEventListener('input', handleInput);
     inputImageLink.addEventListener('input', handleInput);
     btnNew.addEventListener('click', createNew);
-    checkboxTheme.addEventListener('change', toggleTheme);
     btnExport.addEventListener('click', exportBackup);
     inputImport.addEventListener('change', importBackup);
     inputImageFile.addEventListener('change', handleImageUpload);
@@ -942,6 +952,16 @@ function init() {
     inputImageHeight.addEventListener('input', () => { if (originalImageObj) processImage(); });
     selectImageBg.addEventListener('change', () => { if (originalImageObj) processImage(); });
     btnDownloadImage.addEventListener('click', downloadImage);
+    
+    // Header Theme Toggle Event
+    const headerThemeToggle = document.getElementById('header-theme-toggle');
+    if (headerThemeToggle) {
+        headerThemeToggle.addEventListener('click', () => {
+            const currentTheme = localStorage.getItem(THEME_KEY) || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            updateThemeUI(newTheme);
+        });
+    }
     
     function updateToggleButtonVisibility() {
         if (sidebar.classList.contains('collapsed')) {
@@ -1500,16 +1520,31 @@ function deleteItem(id) {
     }
 }
 
-// Theme Toggle
-function toggleTheme(e) {
-    if (e.target.checked) {
+// Theme Toggle & Sync
+function updateThemeUI(theme) {
+    localStorage.setItem(THEME_KEY, theme);
+    
+    const iconEl = document.getElementById('header-theme-icon');
+    const textEl = document.getElementById('header-theme-text');
+    
+    if (theme === 'dark') {
         document.body.className = 'dark-mode';
-        themeLabel.textContent = 'ダークモード';
-        localStorage.setItem(THEME_KEY, 'dark');
+        
+        if (iconEl) {
+            iconEl.className = 'fa-solid fa-moon';
+        }
+        if (textEl) {
+            textEl.textContent = 'ダークモード';
+        }
     } else {
         document.body.className = 'light-mode';
-        themeLabel.textContent = 'ライトモード';
-        localStorage.setItem(THEME_KEY, 'light');
+        
+        if (iconEl) {
+            iconEl.className = 'fa-solid fa-sun';
+        }
+        if (textEl) {
+            textEl.textContent = 'ライトモード';
+        }
     }
 }
 
