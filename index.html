@@ -252,7 +252,7 @@
             height: 100%;
             background-color: rgba(17, 17, 17, 0.95);
             color: #ffffff;
-            padding: 2.5rem;
+            padding: 1.25rem; /* Reduced padding for more space */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -263,46 +263,46 @@
             pointer-events: none; /* ホバー前はクリックを通さない */
         }
 
-        .work-card:hover {
+        .work-card:hover, .work-card.active {
             transform: translateY(-4px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         }
 
-        .work-card:hover .card-thumbnail {
+        .work-card:hover .card-thumbnail, .work-card.active .card-thumbnail {
             transform: scale(0.95);
         }
 
-        .work-card:hover .card-overlay {
+        .work-card:hover .card-overlay, .work-card.active .card-overlay {
             opacity: 1;
             transform: scale(1);
-            pointer-events: auto; /* ホバー中はクリック可能に */
+            pointer-events: auto; /* ホバー中やアクティブ時はクリック可能に */
         }
 
         /* Overlay Contents */
         .overlay-meta {
-            font-size: 0.75rem;
-            letter-spacing: 0.1em;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
             color: var(--text-muted);
             text-transform: uppercase;
             display: flex;
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.75rem;
+            padding-bottom: 0.4rem;
         }
 
         .overlay-title {
-            font-size: 1.3rem;
+            font-size: 1.15rem; /* Reduced from 1.3rem to fit title */
             font-weight: 700;
-            margin-top: 1rem;
-            line-height: 1.4;
+            margin-top: 0.5rem;
+            line-height: 1.3;
             letter-spacing: -0.01em;
         }
 
         .overlay-desc {
-            font-size: 0.85rem;
+            font-size: 0.78rem; /* Reduced from 0.85rem */
             color: #cccccc;
-            line-height: 1.6;
-            margin-top: 0.75rem;
+            line-height: 1.5;
+            margin-top: 0.5rem;
             flex-grow: 1;
         }
 
@@ -310,8 +310,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 1.5rem;
-            gap: 1rem;
+            margin-top: 0.8rem;
+            gap: 0.8rem;
         }
 
         .detail-btn {
@@ -366,6 +366,34 @@
         .thumb-color-5 { background: linear-gradient(135deg, #ffe4e6, #fff1f2); }
         .thumb-color-6 { background: linear-gradient(135deg, #fef9c3, #fef08a); }
 
+        /* Social Links styling */
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition-speed);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .social-link:hover {
+            color: var(--text-primary);
+        }
+
+        .social-link i {
+            font-size: 1.1rem;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -418,6 +446,23 @@
                 <span>配信や創作活動を快適にする、HTMLツール。ときどきお遊び。</span>
                 <span>ローカルで動作される前の使用感チェックなどに　まだこのさいとじたいがさくせいちゅうだよん</span>
             </h1>
+            <div class="social-links">
+                <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fa-brands fa-twitch"></i> Twitch
+                </a>
+                <a href="https://x.com/uikouka" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fa-brands fa-x-twitter"></i> X (Twitter)
+                </a>
+                <a href="https://www.youtube.com/@uiko_uka" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fa-brands fa-youtube"></i> YouTube
+                </a>
+                <a href="https://note.com/konpeito_fox" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fa-solid fa-pen-nib"></i> note
+                </a>
+                <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fa-solid fa-shop"></i> booth
+                </a>
+            </div>
         </header>
 
         <!-- Controls (Category Nav & Search) -->
@@ -454,79 +499,57 @@
                         <p class="overlay-desc">配信用の画像、動画、BGMなどのアセットやソース配置情報を整理し、効率的に一括管理するためのダッシュボードツール。</p>
                     </div>
                     <div class="overlay-footer">
-                        <a href="./OBS_Asset_Manager/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                        <a href="tools/OBS_AssetManager_damee.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <span class="booth-btn" style="cursor: not-allowed; opacity: 0.65;" title="開発中"><i class="fa-solid fa-hourglass-half"></i> 開発中</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 2: OBS Twitch StatusBar -->
-            <div class="work-card" data-tags="obs twitch" data-title="OBS Twitchステータスバー">
+            <!-- Card 2: Twitch Image Resizer -->
+            <div class="work-card" data-tags="twitch utility" data-title="Twitch画像リサイザー">
                 <div class="card-thumbnail thumb-color-2">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <div class="card-thumbnail-title">Twitch StatusBar</div>
+                    <i class="fa-solid fa-images"></i>
+                    <div class="card-thumbnail-title">Twitch Image Resizer</div>
                 </div>
                 <div class="card-overlay">
                     <div class="overlay-meta">
-                        <span>OBS Overlay / Twitch</span>
-                        <span>v1.2</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">Twitch ステータスバー</h3>
-                        <p class="overlay-desc">配信画面にスマートに馴染むオーバーレイ。リアルタイムの視聴者数や接続状態をミニマルに視覚化します。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="./OBS_Twitch_StatusBar/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3: OBSブラウザドックツール タイトルセーブ -->
-            <div class="work-card" data-tags="obs utility" data-title="OBSタイトルセーバー">
-                <div class="card-thumbnail thumb-color-3">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <div class="card-thumbnail-title">Title Saver</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>OBS Dock / Utility</span>
-                        <span>v1.1</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">タイトルセーバー</h3>
-                        <p class="overlay-desc">OBSのカスタムブラウザドック内に読み込み、配信のセットアップ時に毎回使用するタイトルや設定を一時保存・復元。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="./OBS_ブラウザドックツール_タイトルセーブ/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4: OBS読み聞かせテキスト用 -->
-            <div class="work-card" data-tags="obs utility" data-title="読み聞かせテキスト表示">
-                <div class="card-thumbnail thumb-color-4">
-                    <i class="fa-solid fa-book-open"></i>
-                    <div class="card-thumbnail-title">Story Text Display</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>OBS Overlay / Text</span>
+                        <span>Twitch / Utility</span>
                         <span>v1.0</span>
                     </div>
                     <div>
-                        <h3 class="overlay-title">読み聞かせテキスト表示</h3>
-                        <p class="overlay-desc">朗読配信や読み聞かせ、カラオケ字幕等に対応。テキストを美しくスクロールさせ、画面上に映えるよう装飾します。</p>
+                        <h3 class="overlay-title">Twitch 画像リサイザー</h3>
+                        <p class="overlay-desc">Twitchのスタンプやバッジなどの画像を、簡単な操作で一括リサイズ・書き出しができるクリエイター向けツール。</p>
                     </div>
                     <div class="overlay-footer">
-                        <a href="./OBS_読み聞かせテキスト用/" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                        <a href="tools/Twitch_Image_Resizer_02.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://shinya-oekaki.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 5: Twitch Panel Editor -->
+            <!-- Card 3: SVG Calendar Generator -->
+            <div class="work-card" data-tags="utility" data-title="SVGカレンダー生成ツール">
+                <div class="card-thumbnail thumb-color-3">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <div class="card-thumbnail-title">SVG Calendar Generator</div>
+                </div>
+                <div class="card-overlay">
+                    <div class="overlay-meta">
+                        <span>Utility / Vector</span>
+                        <span>v1.0</span>
+                    </div>
+                    <div>
+                        <h3 class="overlay-title">SVG カレンダー生成ツール</h3>
+                        <p class="overlay-desc">配信スケジュールや壁紙に使える、カスタマイズ可能なSVGカレンダー画像を直感的な操作で生成するツール。</p>
+                    </div>
+                    <div class="overlay-footer">
+                        <a href="tools/SVGカレンダー生成ツール.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Twitch Panel Editor -->
             <div class="work-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
                 <div class="card-thumbnail thumb-color-5">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -538,34 +561,12 @@
                         <span>v1.5</span>
                     </div>
                     <div>
-                        <h3 class="overlay-title">TwitchPanelPreviewEditor</h3>
-                        <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネルのテキスト（マークダウン）を、ブラウザ上でプレビューしながら直感的に作成できます。</p>
+                        <h3 class="overlay-title">Twitch パネルエディター</h3>
+                        <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネル画像を、テンプレートを元にブラウザ上で直感的にデザイン・書き出し。</p>
                     </div>
                     <div class="overlay-footer">
                         <a href="tools/Twitch_Panel_Editor.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://toumei2suisai.booth.pm/items/8415575" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 6: Godot Game -->
-            <div class="work-card" data-tags="game" data-title="Godotゲーム">
-                <div class="card-thumbnail thumb-color-6">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <div class="card-thumbnail-title">Godot Game</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>Game / HTML5</span>
-                        <span>v1.0</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">Godot Webゲーム</h3>
-                        <p class="overlay-desc">Godot Engineで制作され、WebAssembly（WASM）形式で書き出されたブラウザ動作対応の2D/3Dゲームスロット。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="./godot_game/" class="detail-btn">Play Game <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> BOOTH</a>
+                        <a href="https://toumei2suisai.booth.pm/items/8415575" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
                     </div>
                 </div>
             </div>
@@ -613,6 +614,39 @@
 
             filterTools();
         }
+
+        // Handle touch/click toggle for mobile responsiveness
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.work-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // If click/touch is on a link button, let normal navigation happen
+                    if (e.target.closest('a')) {
+                        return;
+                    }
+                    
+                    // Otherwise, toggle the active class to show/hide overlay on touch
+                    const isActive = card.classList.contains('active');
+                    
+                    // Clear active state on all cards first
+                    document.querySelectorAll('.work-card').forEach(c => {
+                        c.classList.remove('active');
+                    });
+                    
+                    if (!isActive) {
+                        card.classList.add('active');
+                    }
+                });
+            });
+
+            // Tap outside cards to close overlays
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.work-card')) {
+                    document.querySelectorAll('.work-card').forEach(c => {
+                        c.classList.remove('active');
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
