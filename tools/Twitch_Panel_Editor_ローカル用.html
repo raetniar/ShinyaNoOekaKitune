@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 20 20 L 80 20 L 80 65 L 65 65 L 55 75 L 45 65 L 20 65 Z' fill='%23FFEAA7' stroke='%239146FF' stroke-width='6' stroke-linejoin='round'/%3E%3Cpolygon points='25,20 35,5 45,20' fill='%23FFEAA7' stroke='%239146FF' stroke-width='4' stroke-linejoin='round'/%3E%3Cpolygon points='55,20 65,5 75,20' fill='%23FFEAA7' stroke='%239146FF' stroke-width='4' stroke-linejoin='round'/%3E%3Crect x='35' y='35' width='8' height='15' rx='4' fill='%239146FF'/%3E%3Crect x='57' y='35' width='8' height='15' rx='4' fill='%239146FF'/%3E%3C/svg%3E" type="image/svg+xml">
+    <title>Twitch Panel Markdown Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+:root {
+    /* Twitch Brand Colors */
+    --twitch-purple: #9146FF;
+    --twitch-purple-hover: #772CE8;
+    
+    /* Light Mode Variables */
+    --bg-main-light: #F7F7F8;
+    --bg-secondary-light: #EFEFF1;
+    --bg-panel-light: #FFFFFF;
+    --text-primary-light: #0E0E10;
+    --text-secondary-light: #53535F;
+    --border-color-light: #D3D3D3;
+    
+    /* Dark Mode Variables */
+    --bg-main-dark: #0E0E10;
+    --bg-secondary-dark: #18181B;
+    --bg-panel-dark: #1F1F23;
+    --text-primary-dark: #EFEFF1;
+    --text-secondary-dark: #ADADB8;
+    --border-color-dark: #3A3A3D;
+
+    /* Base Dimensions */
+    --panel-width: 320px;
+    --sidebar-width: 250px;
+}
+
+body.light-mode {
+    --bg-main: var(--bg-main-light);
+    --bg-secondary: var(--bg-secondary-light);
+    --bg-panel: var(--bg-panel-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
+    --border-color: var(--border-color-light);
+}
+
+body.dark-mode {
+    --bg-main: var(--bg-main-dark);
+    --bg-secondary: var(--bg-secondary-dark);
+    --bg-panel: var(--bg-panel-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --border-color: var(--border-color-dark);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.3);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(128, 128, 128, 0.5);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container {
+    display: flex;
+    flex-grow: 1;
+    height: 0;
+    width: 100vw;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: width 0.3s, opacity 0.3s;
+}
+
+.sidebar.collapsed {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    border: none;
+}
+
+.sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.history-list {
+    list-style: none;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.history-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-item:hover {
+    background-color: var(--bg-panel);
+}
+
+.history-item.active {
+    background-color: var(--bg-panel);
+    border-left: 4px solid var(--twitch-purple);
+}
+
+.history-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.history-title {
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.btn-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.history-item:hover .btn-delete {
+    opacity: 1;
+}
+
+.btn-delete:hover {
+    color: #ff4a4a;
+}
+
+.sidebar-footer {
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--twitch-purple);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--twitch-purple-hover);
+}
+
+.btn-secondary {
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-secondary);
+}
+
+.btn-small {
+    padding: 6px 10px;
+    font-size: 12px;
+    flex: 1;
+}
+
+/* Theme Switch */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--twitch-purple);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+.slider.round {
+    border-radius: 20px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.editor-section, .preview-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.preview-section {
+    border-right: none;
+    background-color: var(--bg-secondary);
+    align-items: center;
+    transition: flex 0.3s, padding 0.3s, width 0.3s;
+}
+
+.preview-section.collapsed {
+    flex: 0 0 0px;
+    padding: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+.section-header {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.title-input {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    flex-grow: 1;
+}
+
+.title-input:focus {
+    outline: none;
+    border-color: var(--twitch-purple);
+}
+
+.status-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 70px;
+    text-align: right;
+}
+
+/* Editor */
+#editor-textarea {
+    flex-grow: 1;
+    width: 100%;
+    resize: none;
+    padding: 10px;
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 200px;
+}
+
+#editor-textarea:focus {
+    outline: none;
+    border-color: var(--twitch-purple);
+}
+
+/* Preview */
+.preview-container {
+    flex-grow: 1;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+/* Twitch Panel Styles */
+.twitch-panel {
+    width: var(--panel-width);
+    background-color: transparent;
+    color: var(--text-primary);
+    padding: 10px 0; /* 左右の余白をなくして横幅320pxフルに使う */
+    word-wrap: break-word;
+    /* Twitch specific styling defaults */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.twitch-panel h1, .twitch-panel h2, .twitch-panel h3, .twitch-panel h4, .twitch-panel h5, .twitch-panel h6 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px; /* Twitch本家の見出しサイズをシミュレート（全て同じ大きめの太字） */
+    line-height: 1.2;
+}
+
+.twitch-panel p {
+    margin-bottom: 10px;
+}
+
+.twitch-panel a {
+    color: var(--twitch-purple);
+    text-decoration: none;
+}
+
+.twitch-panel a:hover {
+    text-decoration: underline;
+}
+
+.twitch-panel ul, .twitch-panel ol {
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+.twitch-panel img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.twitch-panel blockquote {
+    border-left: 4px solid var(--twitch-purple);
+    padding-left: 10px;
+    margin: 10px 0;
+    color: var(--text-secondary);
+}
+
+.twitch-panel pre {
+    background-color: var(--bg-secondary);
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+
+.twitch-panel code {
+    background-color: var(--bg-secondary);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.twitch-panel pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+/* Image Settings Accordion & Panel */
+.image-settings-accordion {
+    margin-bottom: 8px;
+}
+
+.image-settings-accordion summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 10px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    user-select: none;
+    display: inline-block;
+    color: var(--text-primary);
+    transition: background-color 0.2s;
+}
+
+.image-settings-accordion summary:hover {
+    background-color: var(--bg-panel);
+}
+
+.image-settings-accordion .image-settings-panel {
+    margin-top: 6px;
+    margin-bottom: 0;
+}
+
+.image-settings-panel {
+    background-color: var(--bg-secondary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.compact-inputs {
+    display: flex;
+    gap: 8px;
+}
+
+.compact-input {
+    flex: 1;
+    width: 100%;
+    min-width: 0; /* needed for text-overflow to work in flex */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.compact-input:focus {
+    text-overflow: clip; /* show full text on focus */
+}
+
+.file-name-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Twitch Panel Wrapper & Image */
+.twitch-panel-wrapper {
+    width: var(--panel-width);
+    display: flex;
+    flex-direction: column;
+}
+
+.twitch-panel-wrapper a {
+    text-decoration: none;
+}
+
+.twitch-panel-image {
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+    object-fit: contain;
+}
+
+/* Markdown Toolbar */
+.markdown-toolbar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-toolbar {
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.btn-toolbar:hover {
+    background: var(--bg-secondary);
+}
+
+/* Responsive adjustments (handled by JS auto-collapse) */
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+.modal.show {
+    display: flex;
+}
+.modal-content {
+    background-color: var(--bg-panel);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: var(--text-secondary);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Global Ad Banner (Rotation) */
+.global-ad-banner {
+    width: 100%;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 8px 15px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: opacity 0.5s ease-in-out;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.global-ad-banner a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.global-ad-banner a:hover {
+    color: var(--accent-purple);
+    text-decoration: underline;
+}
+
+.ad-badge {
+    background-color: var(--text-secondary);
+    color: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 10px;
+}
+    </style>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.0/dist/purify.min.js"></script>
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="display: flex; align-items: center; gap: 8px;">
+                <h2 style="flex-grow: 1; margin: 0;">履歴</h2>
+                <button id="btn-new" class="btn btn-primary btn-small" style="padding: 6px 8px; flex: 0 0 auto;">新規作成</button>
+                <button id="btn-close-sidebar" class="btn btn-secondary btn-small" style="padding: 6px 8px; flex: 0 0 auto; font-size: 16px; line-height: 1;" title="閉じる">×</button>
+            </div>
+            
+            <ul id="history-list" class="history-list">
+                <!-- History items will be injected here -->
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="backup-actions">
+                    <button id="btn-export" class="btn btn-secondary btn-small" title="バックアップ(JSON)をダウンロード">エクスポート</button>
+                    <label for="input-import" class="btn btn-secondary btn-small" title="バックアップ(JSON)を読み込み">インポート</label>
+                    <input type="file" id="input-import" accept=".json" style="display: none;">
+                </div>
+                <div class="theme-switch-wrapper">
+                    <span id="theme-label">ダークモード</span>
+                    <label class="theme-switch" for="checkbox-theme">
+                        <input type="checkbox" id="checkbox-theme" checked />
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="editor-section">
+                <div class="section-header" style="flex-wrap: wrap; gap: 6px;">
+                    <button id="toggle-sidebar-btn" class="btn btn-secondary btn-small" title="履歴の開閉" style="flex: 0 0 auto;">☰</button>
+                    <input type="text" id="input-title" placeholder="タイトル (未設定)" class="title-input">
+                    <button id="toggle-preview-btn" class="btn btn-secondary btn-small" title="プレビューの開閉" style="flex: 0 0 auto;">プレビュー</button>
+                    <span id="save-status" class="status-text" style="width: 100%; text-align: right; margin-top: -4px;"></span>
+                </div>
+                
+                <details class="image-settings-accordion">
+                    <summary>🖼️ 画像とリンクの設定（確認用）</summary>
+                    <div class="image-settings-panel">
+                        <div class="input-group">
+                            <label for="input-image-file" class="btn btn-secondary btn-small">画像を選択</label>
+                            <input type="file" id="input-image-file" accept="image/*" style="display: none;">
+                            <span id="image-file-name" class="file-name-text">画像未設定</span>
+                            <button id="btn-clear-image" class="btn btn-secondary btn-small" style="flex: 0 0 auto;">クリア</button>
+                        </div>
+                        <div class="input-group compact-inputs" style="margin-top: 6px;">
+                            <input type="text" id="input-image-alt" placeholder="ALT（代替テキスト）" class="title-input compact-input">
+                            <input type="text" id="input-image-link" placeholder="リンク先URL (https://...)" class="title-input compact-input" title="画像をクリックしたときのリンク先">
+                        </div>
+                        <div class="input-group compact-inputs" style="margin-top: 6px; align-items: center;">
+                            <label style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">リサイズ:</label>
+                            <input type="number" id="input-image-height" placeholder="高さ(任意)" class="title-input compact-input" title="指定の高さで余白を埋めます" style="width: 70px; flex: none;">
+                            <select id="select-image-bg" class="title-input compact-input" style="width: 90px; flex: none;">
+                                <option value="transparent">背景:透明</option>
+                                <option value="#000000">背景:黒</option>
+                                <option value="#ffffff">背景:白</option>
+                            </select>
+                            <button id="btn-download-image" class="btn btn-primary btn-small" style="flex: 1;" title="現在の画像をダウンロード" disabled>↓ 画像保存</button>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="markdown-toolbar">
+                    <button type="button" class="btn-toolbar" data-action="bold" title="太字"><b>B</b></button>
+                    <button type="button" class="btn-toolbar" data-action="italic" title="斜体"><i>I</i></button>
+                    <button type="button" class="btn-toolbar" data-action="h1" title="見出し1">H1</button>
+                    <button type="button" class="btn-toolbar" data-action="link" title="リンク">🔗</button>
+                    <button type="button" class="btn-toolbar" data-action="list" title="リスト">・</button>
+                    <button type="button" class="btn-toolbar" data-action="ordered-list" title="番号付きリスト">1.</button>
+                    <button type="button" class="btn-toolbar" data-action="quote" title="引用">”</button>
+                    <button type="button" class="btn-toolbar" data-action="code" title="コード">&lt;&gt;</button>
+                    
+                    <details class="image-settings-accordion" style="margin-bottom: 0; margin-left: 4px; position: relative;">
+                        <summary style="font-size: 12px; padding: 4px 8px; border: 1px solid var(--border-color); background: var(--surface-color); border-radius: 4px; cursor: pointer; color: var(--text-color);">▽ テンプレ</summary>
+                        <div class="image-settings-panel" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; padding: 6px; position: absolute; left: 0; top: 100%; z-index: 100; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: max-content; min-width: 120px;">
+                            <button type="button" class="btn-toolbar btn-template" data-template="about" style="width: 100%; text-align: left; padding: 6px 10px;">自己紹介</button>
+                            <button type="button" class="btn-toolbar btn-template" data-template="specs" style="width: 100%; text-align: left; padding: 6px 10px;">PCスペック</button>
+                            <button type="button" class="btn-toolbar btn-template" data-template="links" style="width: 100%; text-align: left; padding: 6px 10px;">リンク集</button>
+                            <button type="button" class="btn-toolbar btn-template" data-template="rules" style="width: 100%; text-align: left; padding: 6px 10px;">配信ルール</button>
+                            <button type="button" class="btn-toolbar btn-template" data-template="games" style="width: 100%; text-align: left; padding: 6px 10px;">ゲームリスト</button>
+                        </div>
+                    </details>
+
+                    <div style="margin-left: auto; display: flex; gap: 4px;">
+                        <button type="button" id="btn-copy-all" class="btn-toolbar" title="全文コピー">📋</button>
+                        <button type="button" class="btn-toolbar" id="btn-help-twitch" title="TwitchのMarkdown仕様について" style="border-color: var(--accent-purple); color: var(--accent-purple);">💡</button>
+                    </div>
+                </div>
+
+                <textarea id="editor-textarea" placeholder="Twitchパネル用のテキストをここに記述します..."></textarea>
+            </div>
+            
+            <div class="preview-section">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h3 style="margin: 0;">プレビュー</h3>
+                    <button id="btn-close-preview" class="btn btn-secondary btn-small" style="flex: 0 0 auto;">× 閉じる</button>
+                </div>
+                <div class="preview-container">
+                    <div class="twitch-panel-wrapper">
+                        <a id="preview-panel-link" target="_blank" rel="noopener noreferrer" style="display: none;">
+                            <img id="preview-panel-image" class="twitch-panel-image">
+                        </a>
+                        <img id="preview-panel-image-nolink" class="twitch-panel-image" style="display: none;">
+                        <div id="preview-panel" class="twitch-panel">
+                            <!-- Preview content will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-help-modal">&times;</span>
+            <h3 style="margin-top:0; margin-bottom:10px; color: var(--text-primary); font-size: 14px;">● TwitchのMarkdown仕様</h3>
+            <p style="font-size: 12px; line-height: 1.6; color: var(--text-secondary);">
+                Twitchのパネル特有の仕様について：<br><br>
+                ・<strong>改行</strong>: Enter1回で改行されます。Enter2回（空行を作る）にすると行間が少し広くなります。<br>
+                ・<strong>引用</strong>: Enter2回（空行）を挟むまでは、同じ引用ブロックとして繋がります。
+            </p>
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: right;">
+                <a href="https://note.com/konpeito_fox/n/nb3034c14a6e6" target="_blank" rel="noopener noreferrer" style="color: var(--accent-purple); text-decoration: none; font-size: 13px; font-weight: bold;">このツールについてnoteで読む ＞</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="global-ad-banner">
+        <div id="global-ad-banner-content" style="display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.5s ease-in-out;">
+            <!-- JS injected ads -->
+        </div>
+        <span style="margin: 0 10px; opacity: 0.5;">|</span>
+        <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" style="flex-shrink: 0;">
+            Twitchのフォローもお願いします！
+        </a>
+    </div>
+    
+    <script>
+// Elements
+const editorTextarea = document.getElementById('editor-textarea');
+const previewPanel = document.getElementById('preview-panel');
+const titleInput = document.getElementById('input-title');
+const saveStatus = document.getElementById('save-status');
+const historyList = document.getElementById('history-list');
+const btnNew = document.getElementById('btn-new');
+const checkboxTheme = document.getElementById('checkbox-theme');
+const themeLabel = document.getElementById('theme-label');
+const btnExport = document.getElementById('btn-export');
+const inputImport = document.getElementById('input-import');
+const inputImageFile = document.getElementById('input-image-file');
+const btnClearImage = document.getElementById('btn-clear-image');
+const inputImageAlt = document.getElementById('input-image-alt');
+const inputImageLink = document.getElementById('input-image-link');
+const imageFileName = document.getElementById('image-file-name');
+const previewPanelLink = document.getElementById('preview-panel-link');
+const previewPanelImage = document.getElementById('preview-panel-image');
+const previewPanelImageNolink = document.getElementById('preview-panel-image-nolink');
+const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+const togglePreviewBtn = document.getElementById('toggle-preview-btn');
+const sidebar = document.querySelector('.sidebar');
+const previewSection = document.querySelector('.preview-section');
+const toolbarBtns = document.querySelectorAll('.btn-toolbar[data-action]');
+const inputImageHeight = document.getElementById('input-image-height');
+const selectImageBg = document.getElementById('select-image-bg');
+const btnDownloadImage = document.getElementById('btn-download-image');
+
+// State
+let currentId = null;
+let saveTimeout = null;
+let currentImageData = null;
+let originalImageObj = null;
+
+// Constants
+const STORAGE_KEY = 'twitch_panel_editor_history';
+const THEME_KEY = 'twitch_panel_editor_theme';
+
+// Initialize
+function init() {
+    // Configure Marked.js
+    marked.setOptions({
+        breaks: true, // Twitchの現在の仕様に合わせ、シングル改行をそのまま改行として反映
+        gfm: true      // GitHub Flavored Markdown
+    });
+
+    // Load theme
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+    if (savedTheme === 'light') {
+        checkboxTheme.checked = false;
+        document.body.className = 'light-mode';
+        themeLabel.textContent = 'ライトモード';
+    } else {
+        checkboxTheme.checked = true;
+        document.body.className = 'dark-mode';
+        themeLabel.textContent = 'ダークモード';
+    }
+
+    // Load History
+    loadHistoryList();
+
+    // Event Listeners
+    editorTextarea.addEventListener('input', handleInput);
+    titleInput.addEventListener('input', handleInput);
+    inputImageAlt.addEventListener('input', handleInput);
+    inputImageLink.addEventListener('input', handleInput);
+    btnNew.addEventListener('click', createNew);
+    checkboxTheme.addEventListener('change', toggleTheme);
+    btnExport.addEventListener('click', exportBackup);
+    inputImport.addEventListener('change', importBackup);
+    inputImageFile.addEventListener('change', handleImageUpload);
+    btnClearImage.addEventListener('click', clearImage);
+    inputImageHeight.addEventListener('input', () => { if (originalImageObj) processImage(); });
+    selectImageBg.addEventListener('change', () => { if (originalImageObj) processImage(); });
+    btnDownloadImage.addEventListener('click', downloadImage);
+    
+    function updateToggleButtonVisibility() {
+        if (sidebar.classList.contains('collapsed')) {
+            toggleSidebarBtn.style.display = '';
+        } else {
+            toggleSidebarBtn.style.display = 'none';
+        }
+        if (previewSection.classList.contains('collapsed')) {
+            togglePreviewBtn.style.display = '';
+        } else {
+            togglePreviewBtn.style.display = 'none';
+        }
+    }
+
+    toggleSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.remove('collapsed');
+        updateToggleButtonVisibility();
+    });
+    
+    togglePreviewBtn.addEventListener('click', () => {
+        previewSection.classList.remove('collapsed');
+        updateToggleButtonVisibility();
+    });
+
+    // パネル側の閉じるボタン
+    const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+    if(btnCloseSidebar) {
+        btnCloseSidebar.addEventListener('click', () => {
+            sidebar.classList.add('collapsed');
+            updateToggleButtonVisibility();
+        });
+    }
+
+    const btnClosePreview = document.getElementById('btn-close-preview');
+    if(btnClosePreview) {
+        btnClosePreview.addEventListener('click', () => {
+            previewSection.classList.add('collapsed');
+            updateToggleButtonVisibility();
+        });
+    }
+    
+    // Help Modal
+    const btnHelpTwitch = document.getElementById('btn-help-twitch');
+    const helpModal = document.getElementById('help-modal');
+    const closeHelpModal = document.getElementById('close-help-modal');
+    if (btnHelpTwitch) {
+        btnHelpTwitch.addEventListener('click', () => {
+            helpModal.classList.add('show');
+        });
+    }
+    if (closeHelpModal) {
+        closeHelpModal.addEventListener('click', () => {
+            helpModal.classList.remove('show');
+        });
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            helpModal.classList.remove('show');
+        }
+    });
+
+    // Responsive auto-collapse
+    const mqlSidebar = window.matchMedia('(max-width: 1000px)');
+    const mqlPreview = window.matchMedia('(max-width: 700px)');
+
+    function handleMqlSidebar(e) {
+        if (e.matches) {
+            sidebar.classList.add('collapsed');
+        } else {
+            sidebar.classList.remove('collapsed');
+        }
+        updateToggleButtonVisibility();
+    }
+    
+    function handleMqlPreview(e) {
+        if (e.matches) {
+            previewSection.classList.add('collapsed');
+        } else {
+            previewSection.classList.remove('collapsed');
+        }
+        updateToggleButtonVisibility();
+    }
+
+    // Initialize state
+    if (mqlSidebar.matches) sidebar.classList.add('collapsed');
+    if (mqlPreview.matches) previewSection.classList.add('collapsed');
+    updateToggleButtonVisibility();
+
+    // Add listeners
+    if (mqlSidebar.addEventListener) {
+        mqlSidebar.addEventListener('change', handleMqlSidebar);
+        mqlPreview.addEventListener('change', handleMqlPreview);
+    } else {
+        // Fallback for older browsers
+        mqlSidebar.addListener(handleMqlSidebar);
+        mqlPreview.addListener(handleMqlPreview);
+    }
+
+    toolbarBtns.forEach(btn => {
+        btn.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // フォーカスの消失を防ぐ
+        });
+        btn.addEventListener('click', (e) => {
+            const action = e.currentTarget.getAttribute('data-action');
+            insertMarkdown(action);
+        });
+    });
+
+    // テンプレート挿入ボタン
+    const templates = {
+        about: "# 自己紹介\n\nはじめまして！〇〇と申します。\n普段はFPSやRPGを中心に配信しています！\n\n気軽にコメントしてね！",
+        specs: "# PCスペック\n\n- **CPU**: \n- **GPU**: \n- **メモリ**: \n- **マウス**: \n- **キーボード**: \n- **マイク**: ",
+        links: "# リンク集\n\n- [Twitter(X)](https://x.com/)\n- [YouTube](https://youtube.com/)\n- [欲しいものリスト](https://amazon.co.jp/)",
+        rules: "# 配信ルール\n\nみんなが楽しめるように以下のルールを守ってね！\n\n1. 他の人が不快になるコメントは禁止\n2. 配信に関係のない話題（自分語り等）は控えめに\n3. 荒らしはスルーでお願いします",
+        games: "# よく遊ぶゲーム\n\n- VALORANT\n- Apex Legends\n- 雑談\n- その他色々！"
+    };
+
+    document.querySelectorAll('.btn-template').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const templateKey = e.target.getAttribute('data-template');
+            if(templates[templateKey]) {
+                const text = templates[templateKey];
+                const start = editorTextarea.selectionStart;
+                const end = editorTextarea.selectionEnd;
+                const currentVal = editorTextarea.value;
+                editorTextarea.value = currentVal.substring(0, start) + text + "\n\n" + currentVal.substring(end);
+                editorTextarea.selectionStart = editorTextarea.selectionEnd = start + text.length + 2;
+                editorTextarea.focus();
+                handleInput();
+                
+                // 挿入後、ドロップダウンを自動で閉じる
+                const details = e.target.closest('details');
+                if(details) details.removeAttribute('open');
+            }
+        });
+    });
+
+    // 全文コピーボタン
+    const btnCopyAll = document.getElementById('btn-copy-all');
+    if (btnCopyAll) {
+        btnCopyAll.addEventListener('click', () => {
+            navigator.clipboard.writeText(editorTextarea.value).then(() => {
+                const originalText = btnCopyAll.innerHTML;
+                btnCopyAll.innerHTML = "✅ コピーしました！";
+                btnCopyAll.style.color = "#20c997";
+                setTimeout(() => {
+                    btnCopyAll.innerHTML = originalText;
+                    btnCopyAll.style.color = "";
+                }, 2000);
+            });
+        });
+    }
+}
+
+// Insert Markdown from Toolbar
+function insertMarkdown(action) {
+    const start = editorTextarea.selectionStart;
+    const end = editorTextarea.selectionEnd;
+    const text = editorTextarea.value;
+    const selectedText = text.substring(start, end);
+    let before = '';
+    let after = '';
+    let defaultText = '';
+
+    switch(action) {
+        case 'bold': before = '**'; after = '**'; defaultText = '太字'; break;
+        case 'italic': before = '*'; after = '*'; defaultText = '斜体'; break;
+        case 'h1': before = '# '; defaultText = '見出し'; break;
+        case 'link': 
+            if (selectedText.startsWith('http://') || selectedText.startsWith('https://')) {
+                before = '['; after = '](' + selectedText + ')'; defaultText = 'リンクテキスト';
+            } else {
+                before = '['; after = '](https://)'; defaultText = 'リンクテキスト';
+            }
+            break;
+        case 'list': before = '- '; defaultText = 'リスト項目'; break;
+        case 'ordered-list': before = '1. '; defaultText = 'リスト項目'; break;
+        case 'quote': before = '> '; defaultText = ''; break;
+        case 'code': before = '`'; after = '`'; defaultText = 'コード'; break;
+    }
+
+    let insertText = selectedText || defaultText;
+    let finalCursorStart, finalCursorEnd;
+
+    if (action === 'link' && (selectedText.startsWith('http://') || selectedText.startsWith('https://'))) {
+        // URLを選択してリンクボタンを押した場合、テキストはURL自身ではなく「リンクテキスト」などのプレースホルダーにする
+        insertText = defaultText;
+        editorTextarea.value = text.substring(0, start) + before + insertText + after + text.substring(end);
+        finalCursorStart = start + before.length;
+        finalCursorEnd = finalCursorStart + insertText.length;
+    } else if (action === 'link') {
+        // 通常のリンク挿入（テキストを選択している場合、または何も選択していない場合）
+        editorTextarea.value = text.substring(0, start) + before + insertText + after + text.substring(end);
+        if (selectedText) {
+            // URL部分を選択状態にする
+            finalCursorStart = start + before.length + insertText.length + ']('.length;
+            finalCursorEnd = finalCursorStart + 'https://'.length;
+        } else {
+            // リンクテキスト部分を選択状態にする
+            finalCursorStart = start + before.length;
+            finalCursorEnd = finalCursorStart + defaultText.length;
+        }
+    } else {
+        editorTextarea.value = text.substring(0, start) + before + insertText + after + text.substring(end);
+        if (selectedText) {
+            finalCursorStart = start + before.length;
+            finalCursorEnd = finalCursorStart + selectedText.length;
+        } else {
+            finalCursorStart = start + before.length;
+            finalCursorEnd = finalCursorStart + defaultText.length;
+        }
+    }
+    
+    editorTextarea.focus();
+    editorTextarea.setSelectionRange(finalCursorStart, finalCursorEnd);
+    
+    handleInput();
+}
+
+// Render Markdown and Image to Preview
+function renderPreview() {
+    // Markdown
+    const rawMarkdown = editorTextarea.value;
+    const html = marked.parse(rawMarkdown);
+    const sanitizedHtml = DOMPurify.sanitize(html);
+    previewPanel.innerHTML = sanitizedHtml;
+
+    // Image
+    if (currentImageData) {
+        const linkUrl = inputImageLink.value.trim();
+        if (linkUrl) {
+            previewPanelLink.href = linkUrl;
+            previewPanelLink.style.display = 'block';
+            previewPanelImage.src = currentImageData;
+            previewPanelImage.alt = inputImageAlt.value;
+            previewPanelImageNolink.style.display = 'none';
+            previewPanelImageNolink.src = '';
+        } else {
+            previewPanelLink.style.display = 'none';
+            previewPanelLink.href = '';
+            previewPanelImageNolink.src = currentImageData;
+            previewPanelImageNolink.alt = inputImageAlt.value;
+            previewPanelImageNolink.style.display = 'block';
+        }
+    } else {
+        previewPanelLink.style.display = 'none';
+        previewPanelImageNolink.style.display = 'none';
+        previewPanelImage.src = '';
+        previewPanelImageNolink.src = '';
+    }
+}
+
+// Handle Image Upload
+function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 画像サイズチェック (Twitch制限: 2.9MB)
+    const MAX_SIZE = 2.9 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+        imageFileName.innerHTML = `<span style="color: #ff4a4a;">⚠️ 制限オーバー(2.9MB超): ${file.name}</span>`;
+    } else {
+        imageFileName.textContent = file.name;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            originalImageObj = img;
+            processImage();
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Process Image with Canvas (Resize and Padding)
+function processImage() {
+    if (!originalImageObj) return;
+
+    const targetWidth = 320;
+    let targetHeight = parseInt(inputImageHeight.value);
+    
+    const aspectRatio = originalImageObj.height / originalImageObj.width;
+    
+    // If no target height is specified, use the original aspect ratio
+    if (!targetHeight || isNaN(targetHeight) || targetHeight <= 0) {
+        targetHeight = Math.round(targetWidth * aspectRatio);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const ctx = canvas.getContext('2d');
+
+    // Fill background
+    const bgColor = selectImageBg.value;
+    if (bgColor !== 'transparent') {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+    } else {
+        ctx.clearRect(0, 0, targetWidth, targetHeight);
+    }
+
+    // Calculate scale and offset for "contain" behavior
+    const scale = Math.min(targetWidth / originalImageObj.width, targetHeight / originalImageObj.height);
+    const drawWidth = originalImageObj.width * scale;
+    const drawHeight = originalImageObj.height * scale;
+    
+    const offsetX = (targetWidth - drawWidth) / 2;
+    const offsetY = (targetHeight - drawHeight) / 2;
+
+    ctx.drawImage(originalImageObj, offsetX, offsetY, drawWidth, drawHeight);
+
+    currentImageData = canvas.toDataURL('image/png');
+    btnDownloadImage.disabled = false;
+    handleInput();
+}
+
+// Download processed image
+function downloadImage() {
+    if (!currentImageData) return;
+    const a = document.createElement('a');
+    a.href = currentImageData;
+    a.download = `twitch_panel_image_${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// Clear Image
+function clearImage() {
+    currentImageData = null;
+    originalImageObj = null;
+    inputImageFile.value = '';
+    imageFileName.textContent = '画像未設定';
+    inputImageAlt.value = '';
+    inputImageLink.value = '';
+    btnDownloadImage.disabled = true;
+    handleInput();
+}
+
+// Handle Input with Debounce for Saving
+function handleInput() {
+    renderPreview();
+    
+    saveStatus.textContent = '保存中...';
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveCurrentItem();
+    }, 1000);
+}
+
+// Save Current Item to LocalStorage
+function saveCurrentItem() {
+    const content = editorTextarea.value;
+    const title = titleInput.value.trim() || '名称未設定';
+    const altText = inputImageAlt.value;
+    const linkUrl = inputImageLink.value;
+    
+    if (!content && !titleInput.value && !currentImageData) {
+        saveStatus.textContent = '';
+        return; // Don't save empty drafts
+    }
+
+    let history = getHistory();
+    const now = new Date().toISOString();
+
+    if (!currentId) {
+        currentId = Date.now().toString();
+        history.unshift({
+            id: currentId,
+            title: title,
+            content: content,
+            imageData: currentImageData,
+            imageAlt: altText,
+            imageLink: linkUrl,
+            updatedAt: now
+        });
+    } else {
+        const index = history.findIndex(item => item.id === currentId);
+        if (index > -1) {
+            history[index].title = title;
+            history[index].content = content;
+            history[index].imageData = currentImageData;
+            history[index].imageAlt = altText;
+            history[index].imageLink = linkUrl;
+            history[index].updatedAt = now;
+            // Move to top
+            const item = history.splice(index, 1)[0];
+            history.unshift(item);
+        } else {
+            // Failsafe
+            history.unshift({
+                id: currentId,
+                title: title,
+                content: content,
+                imageData: currentImageData,
+                imageAlt: altText,
+                imageLink: linkUrl,
+                updatedAt: now
+            });
+        }
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    saveStatus.textContent = '保存完了';
+    
+    // Refresh list
+    renderHistoryList(history);
+    
+    setTimeout(() => {
+        if (saveStatus.textContent === '保存完了') {
+            saveStatus.textContent = '';
+        }
+    }, 2000);
+}
+
+// Get History from LocalStorage
+function getHistory() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+// Load and Render History List
+function loadHistoryList() {
+    const history = getHistory();
+    renderHistoryList(history);
+    
+    // Load most recent if available
+    if (history.length > 0) {
+        loadItem(history[0].id);
+    } else {
+        createNew();
+    }
+}
+
+// HTML Escape helper to prevent XSS
+function escapeHtml(unsafe) {
+    return (unsafe || '').toString()
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
+function renderHistoryList(history) {
+    historyList.innerHTML = '';
+    
+    history.forEach(item => {
+        const li = document.createElement('li');
+        li.className = `history-item ${item.id === currentId ? 'active' : ''}`;
+        
+        const dateObj = new Date(item.updatedAt);
+        const dateStr = `${dateObj.getMonth()+1}/${dateObj.getDate()} ${dateObj.getHours()}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+        
+        const safeTitle = escapeHtml(item.title);
+        
+        li.innerHTML = `
+            <div class="history-info">
+                <span class="history-title" title="${safeTitle}">${safeTitle}</span>
+                <span class="history-date">${dateStr}</span>
+            </div>
+            <button class="btn-delete" title="削除">×</button>
+        `;
+        
+        li.addEventListener('click', (e) => {
+            if (e.target.className !== 'btn-delete') {
+                loadItem(item.id);
+            }
+        });
+        
+        li.querySelector('.btn-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteItem(item.id);
+        });
+        
+        historyList.appendChild(li);
+    });
+}
+
+// Load Specific Item
+function loadItem(id) {
+    const history = getHistory();
+    const item = history.find(i => i.id === id);
+    
+    if (item) {
+        currentId = id;
+        titleInput.value = item.title === '名称未設定' ? '' : item.title;
+        editorTextarea.value = item.content || '';
+        
+        currentImageData = item.imageData || null;
+        if (currentImageData) {
+            const img = new Image();
+            img.onload = function() {
+                originalImageObj = img;
+            };
+            img.src = currentImageData;
+            btnDownloadImage.disabled = false;
+        } else {
+            originalImageObj = null;
+            btnDownloadImage.disabled = true;
+        }
+        
+        inputImageAlt.value = item.imageAlt || '';
+        inputImageLink.value = item.imageLink || '';
+        imageFileName.textContent = currentImageData ? '保存された画像' : '画像未設定';
+        inputImageFile.value = ''; // clear file input state
+        
+        renderPreview();
+        renderHistoryList(history); // update active state
+        saveStatus.textContent = '';
+    }
+}
+
+// Create New Item
+function createNew() {
+    currentId = null;
+    titleInput.value = '';
+    editorTextarea.value = '';
+    
+    currentImageData = null;
+    originalImageObj = null;
+    inputImageAlt.value = '';
+    inputImageLink.value = '';
+    imageFileName.textContent = '画像未設定';
+    inputImageFile.value = '';
+    btnDownloadImage.disabled = true;
+    
+    renderPreview();
+    
+    const history = getHistory();
+    renderHistoryList(history); // clear active state
+    saveStatus.textContent = '';
+    editorTextarea.focus();
+}
+
+// Delete Item
+function deleteItem(id) {
+    if (!confirm('この履歴を削除してもよろしいですか？')) return;
+    
+    let history = getHistory();
+    history = history.filter(item => item.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    
+    if (currentId === id) {
+        if (history.length > 0) {
+            loadItem(history[0].id);
+        } else {
+            createNew();
+        }
+    } else {
+        renderHistoryList(history);
+    }
+}
+
+// Theme Toggle
+function toggleTheme(e) {
+    if (e.target.checked) {
+        document.body.className = 'dark-mode';
+        themeLabel.textContent = 'ダークモード';
+        localStorage.setItem(THEME_KEY, 'dark');
+    } else {
+        document.body.className = 'light-mode';
+        themeLabel.textContent = 'ライトモード';
+        localStorage.setItem(THEME_KEY, 'light');
+    }
+}
+
+// Export Backup (JSON)
+function exportBackup() {
+    const history = getHistory();
+    if (history.length === 0) {
+        alert('保存する履歴がありません。');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(history, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.download = `twitch_panel_backup_${dateStr}.json`;
+    
+    document.body.appendChild(a);
+    a.click();
+    
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Import Backup (JSON)
+function importBackup(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        try {
+            const importedData = JSON.parse(event.target.result);
+            if (!Array.isArray(importedData)) {
+                throw new Error("Invalid format");
+            }
+            
+            // Check if it's the expected format
+            if (importedData.length > 0 && (!importedData[0].id || !importedData[0].content === undefined)) {
+                throw new Error("Invalid structure");
+            }
+            
+            if (confirm(`インポートすると現在の履歴に結合されます。よろしいですか？\n(${importedData.length}件のデータ)`)) {
+                let currentHistory = getHistory();
+                
+                // Merge, avoiding duplicates by ID, giving preference to imported data
+                const merged = [...importedData];
+                const importedIds = new Set(importedData.map(i => i.id));
+                
+                currentHistory.forEach(item => {
+                    if (!importedIds.has(item.id)) {
+                        merged.push(item);
+                    }
+                });
+                
+                // Sort by date descending
+                merged.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+                loadHistoryList();
+                alert('インポートが完了しました。');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('ファイルの読み込みに失敗しました。正しいJSONバックアップファイルを選択してください。');
+        }
+        
+        // Reset input
+        e.target.value = '';
+    };
+    reader.readAsText(file);
+}
+
+
+
+let currentAdIndex = 0;
+const adBannerContainer = document.getElementById('global-ad-banner-content');
+
+function rotateAd() {
+    if (!adBannerContainer) return;
+    
+    // Fade out
+    adBannerContainer.style.opacity = 0;
+    
+    setTimeout(() => {
+        const ad = ads[currentAdIndex];
+        adBannerContainer.innerHTML = `
+            <a href="${ad.link}" target="_blank" rel="noopener noreferrer">
+                <span class="ad-badge">${ad.badge}</span>${ad.text}
+            </a>
+        `;
+        // Fade in
+        adBannerContainer.style.opacity = 1;
+        
+        currentAdIndex = (currentAdIndex + 1) % ads.length;
+    }, 500);
+}
+
+// Initial run and interval
+rotateAd();
+setInterval(rotateAd, 30000);
+
+// Start
+init();
+    </script>
+</body>
+</html>

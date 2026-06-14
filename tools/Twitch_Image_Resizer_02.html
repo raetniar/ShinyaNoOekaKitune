@@ -2543,7 +2543,7 @@
         }
 
         function updateThemeUI(theme) {
-            localStorage.setItem('twitch-resizer-theme-v2', theme);
+            localStorage.setItem('twitch-resizer-theme-v3', theme);
             state.theme = theme;
             
             const iconEl = document.getElementById('header-theme-icon');
@@ -2566,7 +2566,7 @@
         // テーマの初期設定
         function setupTheme() {
             try {
-                const savedTheme = localStorage.getItem('twitch-resizer-theme-v2') || 'light';
+                const savedTheme = localStorage.getItem('twitch-resizer-theme-v3') || 'light';
                 updateThemeUI(savedTheme);
             } catch(e) {
                 updateThemeUI('light');
