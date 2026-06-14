@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     
     <style>
         :root {
@@ -105,89 +105,228 @@
             letter-spacing: 0.05em;
         }
 
-        /* Controls (Category Filters & Search) */
-        .controls-section {
-            margin-bottom: 4rem;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 2rem 0;
+        /* Tab Navigation (Aesthetic Minimal Tabs) */
+        .tab-nav-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .category-nav {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
             justify-content: center;
-            list-style: none;
-        }
-
-        .category-link {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            text-decoration: none;
-            cursor: pointer;
-            transition: color var(--transition-speed);
-            padding-bottom: 0.25rem;
+            margin-top: 1rem;
+            margin-bottom: 4rem;
+            border-bottom: 1px solid #e5e7eb;
             position: relative;
         }
 
-        .category-link:hover, .category-link.active {
+        .tab-nav {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .tab-trigger {
+            background: none;
+            border: none;
+            font-family: var(--font-main);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 1rem 0;
+            cursor: pointer;
+            position: relative;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color var(--transition-speed);
+        }
+
+        .tab-trigger:hover, .tab-trigger.active {
             color: var(--text-primary);
         }
 
-        .category-link::after {
+        .tab-trigger::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -1px;
             left: 0;
             width: 100%;
-            height: 1px;
+            height: 2px;
             background-color: var(--text-primary);
             transform: scaleX(0);
             transform-origin: right;
             transition: transform 0.3s var(--transition-ease);
         }
 
-        .category-link.active::after {
+        .tab-trigger.active::after {
             transform: scaleX(1);
             transform-origin: left;
         }
 
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
+        /* Tab Content Control */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s var(--transition-ease),
+                        transform 0.5s var(--transition-ease);
         }
 
-        .search-wrapper i {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .search-input {
+        /* About Section Layout */
+        .about-section {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 3.5rem;
+            background-color: var(--bg-secondary);
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+                text-align: center;
+                padding: 2.5rem 1.5rem;
+                gap: 2rem;
+            }
+        }
+
+        .profile-image-wrapper {
+            flex-shrink: 0;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-image-wrapper img {
             width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #d1d5db;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
             color: var(--text-primary);
-            padding: 0.5rem 0.5rem 0.5rem 1.5rem;
-            font-family: var(--font-main);
-            font-size: 0.95rem;
-            transition: border-color var(--transition-speed);
         }
 
-        .search-input:focus {
-            outline: none;
+        .profile-name span {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .profile-bio {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* About Links Grid */
+        .about-links-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+            border-left: 3px solid var(--text-primary);
+            padding-left: 1rem;
+        }
+
+        .about-links-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .about-links-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .about-links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .link-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
+            transition: transform var(--transition-speed) var(--transition-ease),
+                        box-shadow var(--transition-speed) var(--transition-ease),
+                        border-color var(--transition-speed);
+        }
+
+        .link-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
             border-color: var(--text-primary);
+        }
+
+        .link-icon-box {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: var(--text-primary); /* モノクロ */
+            transition: transform var(--transition-speed) var(--transition-ease), color var(--transition-speed);
+        }
+
+        .link-card:hover .link-icon-box {
+            transform: scale(1.15);
+            color: var(--text-secondary);
+        }
+
+        .link-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .link-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .link-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
 
         /* Works Grid (Square Aspect Ratio) */
@@ -394,6 +533,34 @@
             font-size: 1.1rem;
         }
 
+        .wick-w {
+            transform: rotate(-12deg);
+            display: inline-block;
+        }
+
+        .link-image-box {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            background-color: var(--bg-primary);
+            transition: transform var(--transition-speed) var(--transition-ease);
+        }
+
+        .link-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .link-card:hover .link-image-box {
+            transform: scale(1.1);
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -440,12 +607,25 @@
     <div class="container fade-in-section">
         <!-- Header -->
         <header>
-            <div class="brand-logo">Collection</div>
-            <h1 class="main-headline">
-                Streaming & Creation Utilities
-                <span>配信や創作活動を快適にする、HTMLツール。ときどきお遊び。</span>
-                <span>ローカルで動作される前の使用感チェックなどに　まだこのさいとじたいがさくせいちゅうだよん</span>
-            </h1>
+            <!-- Collection用ヘッダーテキスト -->
+            <div id="collection-header-text" class="fade-in-section">
+                <div class="brand-logo">Collection</div>
+                <h1 class="main-headline">
+                    Streaming & Creation Utilities
+                    <span>配信や創作活動を快適にする、HTMLツール。ときどきお遊び。</span>
+                    <span>ローカルで動作される前の使用感チェックなどに　まだこのさいとじたいがさくせいちゅうだよん</span>
+                </h1>
+            </div>
+
+            <!-- About用ヘッダーテキスト（初期は非表示） -->
+            <div id="about-header-text" class="fade-in-section" style="display: none;">
+                <div class="brand-logo">About</div>
+                <h1 class="main-headline">
+                    About uikouka
+                    <span>初狐羽鹿（ういこうか）の生態を書いていく場所です。</span>
+                </h1>
+            </div>
+
             <div class="social-links">
                 <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" class="social-link">
                     <i class="fa-brands fa-twitch"></i> Twitch
@@ -465,135 +645,306 @@
             </div>
         </header>
 
-        <!-- Controls (Category Nav & Search) -->
-        <div class="controls-section">
-            <ul class="category-nav">
-                <li><a class="category-link active" onclick="filterCategory('all', this)">All</a></li>
-                <li><a class="category-link" onclick="filterCategory('obs', this)">OBS Overlay</a></li>
-                <li><a class="category-link" onclick="filterCategory('twitch', this)">Twitch</a></li>
-                <li><a class="category-link" onclick="filterCategory('utility', this)">Utility</a></li>
-                <li><a class="category-link" onclick="filterCategory('game', this)">Game</a></li>
-            </ul>
-            <div class="search-wrapper">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" class="search-input" placeholder="Search tools..." oninput="filterTools()">
+        <!-- Tab Navigation -->
+        <div class="tab-nav-container">
+            <div class="tab-nav">
+                <button class="tab-trigger active" onclick="switchTab('collection', this)">Collection</button>
+                <button class="tab-trigger" onclick="switchTab('about', this)">About</button>
             </div>
         </div>
 
-        <!-- Works Grid -->
-        <div class="works-grid" id="tools-container">
-            
-            <!-- Card 1: OBS Asset Manager -->
-            <div class="work-card" data-tags="obs utility" data-title="OBSアセットマネージャー">
-                <div class="card-thumbnail thumb-color-1">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <div class="card-thumbnail-title">OBS Asset Manager</div>
+        <!-- Works Grid (Collection Tab) -->
+        <section id="collection-tab" class="tab-content active">
+            <div class="works-grid" id="tools-container">
+                
+                <!-- Card 1: OBS Asset Manager -->
+                <div class="work-card" data-tags="obs utility" data-title="OBSアセットマネージャー">
+                    <div class="card-thumbnail thumb-color-1">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <div class="card-thumbnail-title">OBS Asset Manager</div>
+                    </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>OBS / Utility</span>
+                            <span>v1.0</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">OBS アセットマネージャー</h3>
+                            <p class="overlay-desc">配信用の画像、動画、BGMなどのアセットやソース配置情報を整理し、効率的に一括管理するためのダッシュボードツール。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/OBS_AssetManager_damo.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                            <span class="booth-btn" style="cursor: not-allowed; opacity: 0.65;" title="開発中"><i class="fa-solid fa-hourglass-half"></i> 開発中</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>OBS / Utility</span>
-                        <span>v1.0</span>
+
+                <!-- Card 2: Twitch Image Resizer -->
+                <div class="work-card" data-tags="twitch utility" data-title="Twitch画像リサイザー">
+                    <div class="card-thumbnail thumb-color-2">
+                        <i class="fa-solid fa-images"></i>
+                        <div class="card-thumbnail-title">Twitch Image Resizer</div>
                     </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>Twitch / Utility</span>
+                            <span>v1.0</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">Twitch 画像リサイザー</h3>
+                            <p class="overlay-desc">Twitchのスタンプやバッジなどの画像を、簡単な操作で一括リサイズ・書き出しができるクリエイター向けツール。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/Twitch_Image_Resizer_02.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="https://shinya-oekaki.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: SVG Calendar Generator -->
+                <div class="work-card" data-tags="utility" data-title="SVGカレンダー生成ツール">
+                    <div class="card-thumbnail thumb-color-3">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <div class="card-thumbnail-title">SVG Calendar Generator</div>
+                    </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>Utility / Vector</span>
+                            <span>v1.0</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">SVG カレンダー生成ツール</h3>
+                            <p class="overlay-desc">配信スケジュールや壁紙に使える、カスタマイズ可能なSVGカレンダー画像を直感的な操作で生成するツール。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/SVGCalendarGenerator.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Twitch Panel Editor -->
+                <div class="work-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
+                    <div class="card-thumbnail thumb-color-5">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <div class="card-thumbnail-title">Twitch Panel Editor</div>
+                    </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>Twitch / Creator</span>
+                            <span>v1.5</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">Twitch パネルエディター</h3>
+                            <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネル画像を、テンプレートを元にブラウザ上で直感的にデザイン・書き出し。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/Twitch_Panel_Editor.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="https://toumei2suisai.booth.pm/items/8415575" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5: Title Manager -->
+                <div class="work-card" data-tags="obs twitch utility" data-title="タイトルマネージャー">
+                    <div class="card-thumbnail thumb-color-6">
+                        <i class="fa-solid fa-heading"></i>
+                        <div class="card-thumbnail-title">Title Manager</div>
+                    </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>OBS / Twitch / Utility</span>
+                            <span>v3.2</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">タイトルマネージャー</h3>
+                            <p class="overlay-desc">配信のセットアップ時に毎回使用する配信タイトルや各種メタデータ（告知文・シャウトアウト先など）をまとめて一時保存・管理・連携するツール。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/Title_manager_localize_Ver3.2.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- About Tab (Profile & SNS Links) -->
+        <section id="about-tab" class="tab-content">
+            <div class="about-section">
+                <!-- Profile Box -->
+                <div class="profile-container">
+                    <div class="profile-image-wrapper">
+                        <img src="./images/hyoko.png" alt="初狐羽鹿">
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">初狐羽鹿（ういこうか）<span>ここはういこの生存圏</span></h2>
+                        <p class="profile-bio" style="white-space: pre-line; line-height: 1.8; color: var(--text-secondary); font-size: 0.95rem;">
+                            たゆいぞ！ ういこです。
+                            ここに載せていない場所には生息確認できておりません！
+
+                            指定イラストのご依頼受付はしておりません。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 三面図画像 -->
+                <div style="width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);">
+                    <img src="./images/sanmenzu_kari.png" style="width: 100%; height: auto; display: block;" alt="三面図">
+                </div>
+
+                <!-- Links Grid Grouped -->
+                <div style="display: flex; flex-direction: column; gap: 3rem;">
+                    
+                    <!-- Group 1: SNS & Streaming -->
                     <div>
-                        <h3 class="overlay-title">OBS アセットマネージャー</h3>
-                        <p class="overlay-desc">配信用の画像、動画、BGMなどのアセットやソース配置情報を整理し、効率的に一括管理するためのダッシュボードツール。</p>
+                        <h3 class="about-links-title">SNS & Streaming</h3>
+                        <div class="about-links-grid">
+                            <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-brands fa-twitch"></i></div>
+                                <div class="link-details"><span class="link-title">Twitch</span><span class="link-sub">メイン配信チャンネル</span></div>
+                            </a>
+                            <a href="https://x.com/uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-brands fa-x-twitter"></i></div>
+                                <div class="link-details"><span class="link-title">X (Twitter)</span><span class="link-sub">告知・日常・開発進捗</span></div>
+                            </a>
+                            <a href="https://www.youtube.com/@uiko_uka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-brands fa-youtube"></i></div>
+                                <div class="link-details"><span class="link-title">YouTube</span><span class="link-sub">アーカイブ・動画倉庫</span></div>
+                            </a>
+                            <a href="https://twitcasting.tv/uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-bullhorn"></i></div>
+                                <div class="link-details"><span class="link-title">ツイキャス</span><span class="link-sub">ゲリラ配信・雑談用</span></div>
+                            </a>
+                            <a href="https://bsky.app/profile/uikouka.bsky.social" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-brands fa-bluesky"></i></div>
+                                <div class="link-details"><span class="link-title">Bluesky</span><span class="link-sub">分散型SNSアカウント</span></div>
+                            </a>
+                            <a href="https://mixi.social/invitations/@uikouka/MbbQ6awrrSRKKsmKW6eNfL" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-comments"></i></div>
+                                <div class="link-details"><span class="link-title">mixi2</span><span class="link-sub">招待用リンク</span></div>
+                            </a>
+                            <a href="https://discord.gg/Z4J7EtQFce" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-brands fa-discord"></i></div>
+                                <div class="link-details"><span class="link-title">Discord (交流鯖)</span><span class="link-sub">視聴者・クリエイターコミュニティ</span></div>
+                            </a>
+                            <a href="https://wick-sns.com/sns/profile/ea2aee08-6d68-43d9-9295-bf997f352bc5" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-w wick-w"></i></div>
+                                <div class="link-details"><span class="link-title">Wick</span><span class="link-sub">新しいSNSアカウント</span></div>
+                            </a>
+                        </div>
                     </div>
-                    <div class="overlay-footer">
-                        <a href="tools/OBS_AssetManager_damo.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <span class="booth-btn" style="cursor: not-allowed; opacity: 0.65;" title="開発中"><i class="fa-solid fa-hourglass-half"></i> 開発中</span>
+
+                    <!-- Group 2: Portfolio & Commission -->
+                    <div>
+                        <h3 class="about-links-title">Portfolio & Commission</h3>
+                        <div class="about-links-grid">
+                            <a href="https://xfolio.jp/portfolio/uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-palette"></i></div>
+                                <div class="link-details"><span class="link-title">ポートフォリオ (xfolio)</span><span class="link-sub">イラスト・作品集の掲載</span></div>
+                            </a>
+                            <a href="https://skeb.jp/@uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-heart"></i></div>
+                                <div class="link-details"><span class="link-title">Skeb</span><span class="link-sub">イラストコミッション受付</span></div>
+                            </a>
+                            <a href="https://skima.jp/profile?id=485983&sh=xbfWKQR" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-pen-nib"></i></div>
+                                <div class="link-details"><span class="link-title">SKIMA</span><span class="link-sub">イラストの個人依頼はこちら</span></div>
+                            </a>
+                            <a href="https://uikouka.fanbox.cc/" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-box-open"></i></div>
+                                <div class="link-details"><span class="link-title">pixivFANBOX</span><span class="link-sub">支援者向け日記・限定コンテンツ</span></div>
+                            </a>
+                            <a href="https://note.com/konpeito_fox" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-book-open"></i></div>
+                                <div class="link-details"><span class="link-title">note</span><span class="link-sub">制作秘話や思考ログ</span></div>
+                            </a>
+                            <a href="https://tsunagu.cloud/users/uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-pen-nib"></i></div>
+                                <div class="link-details"><span class="link-title">つなぐ</span><span class="link-sub">ご依頼・コミッション窓口</span></div>
+                            </a>
+                        </div>
                     </div>
+
+                    <!-- Group 3: Goods & Shop -->
+                    <div>
+                        <h3 class="about-links-title">Goods & Shop</h3>
+                        <div class="about-links-grid">
+                            <a href="https://suzuri.jp/UikoUka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-shirt"></i></div>
+                                <div class="link-details"><span class="link-title">SUZURI</span><span class="link-sub">オリジナルグッズ・アパレル</span></div>
+                            </a>
+                            <a href="https://store.line.me/emojishop/author/3948103/ja" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-face-smile"></i></div>
+                                <div class="link-details"><span class="link-title">LINE STORE</span><span class="link-sub">オリジナルスタンプ・絵文字</span></div>
+                            </a>
+                            <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-shop"></i></div>
+                                <div class="link-details"><span class="link-title">booth</span><span class="link-sub">オリジナルグッズ・素材ショップ</span></div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Group 4: Support & Other -->
+                    <div>
+                        <h3 class="about-links-title">Support & Other</h3>
+                        <div class="about-links-grid">
+                            <a href="https://mond.how/ja/uikouka" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-regular fa-comment-dots"></i></div>
+                                <div class="link-details"><span class="link-title">質問箱 (mond)</span><span class="link-sub">匿名メッセージ・質問受付</span></div>
+                            </a>
+                            <a href="https://gi-pt.com/main/wishlist/fan-view/3a1288d9-6396-61c1-2e91-aedde6816c50" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-solid fa-gift"></i></div>
+                                <div class="link-details"><span class="link-title">ほしい物 (⭐️🍠)</span><span class="link-sub">gi-pt ほしい物リスト</span></div>
+                            </a>
+                            <a href="https://amzn.to/41wRu14" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-icon-box"><i class="fa-brands fa-amazon"></i></div>
+                                <div class="link-details"><span class="link-title">きつねうDON AD</span><span class="link-sub">Amazonおすすめリンク</span></div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Group 5: Videos & Highlights -->
+                    <div>
+                        <h3 class="about-links-title">Videos & Highlights</h3>
+                        <div class="about-links-grid">
+                            <a href="https://www.youtube.com/watch?v=l2ht4rWQtdg" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-image-box">
+                                    <img src="https://img.youtube.com/vi/l2ht4rWQtdg/mqdefault.jpg" alt="YouTube動画">
+                                </div>
+                                <div class="link-details"><span class="link-title">YouTube動画</span><span class="link-sub">外部サイトで再生する</span></div>
+                            </a>
+                            <a href="https://www.twitch.tv/videos/2365936619" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-image-box">
+                                    <img src="./images/twitch_play_placeholder.png" alt="夢としゃべる">
+                                </div>
+                                <div class="link-details"><span class="link-title">夢としゃべる</span><span class="link-sub">Twitchアーカイブ動画</span></div>
+                            </a>
+                            <a href="https://www.twitch.tv/videos/2352032410" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-image-box">
+                                    <img src="./images/twitch_play_placeholder.png" alt="もう黙れ">
+                                </div>
+                                <div class="link-details"><span class="link-title">もう黙れ</span><span class="link-sub">Twitchアーカイブ動画</span></div>
+                            </a>
+                            <a href="https://www.twitch.tv/videos/2352032376" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-image-box">
+                                    <img src="./images/twitch_play_placeholder.png" alt="英語？日本語？">
+                                </div>
+                                <div class="link-details"><span class="link-title">英語？日本語？</span><span class="link-sub">Twitchアーカイブ動画</span></div>
+                            </a>
+                            <a href="https://www.twitch.tv/videos/2342155990" target="_blank" rel="noopener noreferrer" class="link-card">
+                                <div class="link-image-box">
+                                    <img src="./images/twitch_play_placeholder.png" alt="黙れﾐﾄﾞﾘﾉ">
+                                </div>
+                                <div class="link-details"><span class="link-title">黙れﾐﾄﾞﾘﾉ</span><span class="link-sub">Twitchアーカイブ動画</span></div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
-            <!-- Card 2: Twitch Image Resizer -->
-            <div class="work-card" data-tags="twitch utility" data-title="Twitch画像リサイザー">
-                <div class="card-thumbnail thumb-color-2">
-                    <i class="fa-solid fa-images"></i>
-                    <div class="card-thumbnail-title">Twitch Image Resizer</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>Twitch / Utility</span>
-                        <span>v1.0</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">Twitch 画像リサイザー</h3>
-                        <p class="overlay-desc">Twitchのスタンプやバッジなどの画像を、簡単な操作で一括リサイズ・書き出しができるクリエイター向けツール。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="tools/Twitch_Image_Resizer_02.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://shinya-oekaki.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3: SVG Calendar Generator -->
-            <div class="work-card" data-tags="utility" data-title="SVGカレンダー生成ツール">
-                <div class="card-thumbnail thumb-color-3">
-                    <i class="fa-regular fa-calendar-days"></i>
-                    <div class="card-thumbnail-title">SVG Calendar Generator</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>Utility / Vector</span>
-                        <span>v1.0</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">SVG カレンダー生成ツール</h3>
-                        <p class="overlay-desc">配信スケジュールや壁紙に使える、カスタマイズ可能なSVGカレンダー画像を直感的な操作で生成するツール。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="tools/SVGCalendarGenerator.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4: Twitch Panel Editor -->
-            <div class="work-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
-                <div class="card-thumbnail thumb-color-5">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <div class="card-thumbnail-title">Twitch Panel Editor</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>Twitch / Creator</span>
-                        <span>v1.5</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">Twitch パネルエディター</h3>
-                        <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネル画像を、テンプレートを元にブラウザ上で直感的にデザイン・書き出し。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="tools/Twitch_Panel_Editor.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://toumei2suisai.booth.pm/items/8415575" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 5: Title Manager -->
-            <div class="work-card" data-tags="obs twitch utility" data-title="タイトルマネージャー">
-                <div class="card-thumbnail thumb-color-6">
-                    <i class="fa-solid fa-heading"></i>
-                    <div class="card-thumbnail-title">Title Manager</div>
-                </div>
-                <div class="card-overlay">
-                    <div class="overlay-meta">
-                        <span>OBS / Twitch / Utility</span>
-                        <span>v3.2</span>
-                    </div>
-                    <div>
-                        <h3 class="overlay-title">タイトルマネージャー</h3>
-                        <p class="overlay-desc">配信のセットアップ時に毎回使用する配信タイトルや各種メタデータ（告知文・シャウトアウト先など）をまとめて一時保存・管理・連携するツール。</p>
-                    </div>
-                    <div class="overlay-footer">
-                        <a href="tools/Title_manager_localize_Ver3.2.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+        </section>
     </div>
 
     <!-- Footer -->
@@ -603,53 +954,48 @@
 
     <!-- JS Logic for Search and Filtering -->
     <script>
-        let currentCategory = 'all';
-
-        function filterTools() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.work-card');
-
-            cards.forEach(card => {
-                const title = card.getAttribute('data-title').toLowerCase();
-                const tags = card.getAttribute('data-tags');
-                const desc = card.querySelector('.overlay-desc').textContent.toLowerCase();
-                
-                const matchesSearch = title.includes(query) || desc.includes(query);
-                const matchesCategory = currentCategory === 'all' || tags.includes(currentCategory);
-
-                if (matchesSearch && matchesCategory) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        function filterCategory(category, element) {
-            currentCategory = category;
-            
-            // Toggle active category styling
-            document.querySelectorAll('.category-nav a').forEach(link => {
-                link.classList.remove('active');
+        function switchTab(tabId, element) {
+            // タブのアクティブクラスの切り替え
+            document.querySelectorAll('.tab-trigger').forEach(trigger => {
+                trigger.classList.remove('active');
             });
             element.classList.add('active');
 
-            filterTools();
+            // コンテンツのアクティブクラスの切り替え
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const targetContent = document.getElementById(tabId + '-tab');
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // ヘッダーテキストの動的切り替え
+            const collectionHeader = document.getElementById('collection-header-text');
+            const aboutHeader = document.getElementById('about-header-text');
+            if (collectionHeader && aboutHeader) {
+                if (tabId === 'collection') {
+                    collectionHeader.style.display = 'block';
+                    aboutHeader.style.display = 'none';
+                } else {
+                    collectionHeader.style.display = 'none';
+                    aboutHeader.style.display = 'block';
+                }
+            }
         }
 
-        // Handle touch/click toggle for mobile responsiveness
+        // モバイルタッチ対応用のホバーエフェクト切り替え
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.work-card').forEach(card => {
                 card.addEventListener('click', (e) => {
-                    // If click/touch is on a link button, let normal navigation happen
+                    // リンクボタンをクリックした場合は通常の遷移を行う
                     if (e.target.closest('a')) {
                         return;
                     }
                     
-                    // Otherwise, toggle the active class to show/hide overlay on touch
                     const isActive = card.classList.contains('active');
                     
-                    // Clear active state on all cards first
                     document.querySelectorAll('.work-card').forEach(c => {
                         c.classList.remove('active');
                     });
@@ -660,7 +1006,7 @@
                 });
             });
 
-            // Tap outside cards to close overlays
+            // カード外のクリックでホバーを閉じる
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.work-card')) {
                     document.querySelectorAll('.work-card').forEach(c => {
