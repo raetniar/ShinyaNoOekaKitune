@@ -143,3 +143,84 @@
         injectFooter();
     }
 })();
+
+// === Warning injection based on script attribute ===
+(function() {
+  // currentScript は実行時に即キャプチャ（コールバック内では null になるため）
+  var _script = document.currentScript;
+
+  function insertWarning() {
+    // フラグ確認
+    var showWarning = _script && _script.getAttribute('data-show-warning') === 'true';
+    if (!showWarning) return;
+
+    // 重複挿入防止
+    if (document.getElementById('tool-warning-banner')) return;
+
+    // --- スタイル注入 ---
+    var styleId = 'common-warning-styles';
+    if (!document.getElementById(styleId)) {
+      var style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = [
+        '#tool-warning-banner {',
+        '  position: fixed;',
+        '  top: 0;',
+        '  left: 0;',
+        '  right: 0;',
+        '  z-index: 10001;',
+        '  box-sizing: border-box;',
+        '  width: 100%;',
+        '  background: rgba(255,251,200,0.97);',
+        '  color: #3d3000;',
+        '  font-size: clamp(0.65rem, 1.2vw, 0.78rem);',
+        '  font-weight: 500;',
+        '  padding: 5px 16px;',
+        '  text-align: center;',
+        '  border-bottom: 1px solid rgba(200,180,0,0.5);',
+        '  letter-spacing: 0.01em;',
+        '  line-height: 1.5;',
+        '  white-space: normal;',
+        '  word-break: break-all;',
+        '  overflow-wrap: break-word;',
+        '}',
+        'body.dark-mode #tool-warning-banner {',
+        '  background: rgba(50,45,10,0.97);',
+        '  color: #e8d87a;',
+        '  border-bottom-color: rgba(180,160,0,0.5);',
+        '}'
+      ].join('\n');
+      document.head.appendChild(style);
+    }
+
+    // --- バナー要素作成・挿入 ---
+    var warningDiv = document.createElement('div');
+    warningDiv.id = 'tool-warning-banner';
+    warningDiv.textContent = '当サイト上のツールは、データを取得することはありませんが動作確認用にのみ使用し、個人情報は記載しないようにお願いいたします。ツール自体はBoothにて無料配布して居ります';
+    // body の先頭に fixed で追加
+    document.body.insertBefore(warningDiv, document.body.firstChild);
+
+    // --- tool-header-bar の top をバナー高さ分ずらす ---
+    function adjustHeaderTop() {
+      var banner = document.getElementById('tool-warning-banner');
+      var header = document.querySelector('.tool-header-bar');
+      if (!banner || !header) return;
+      var bannerH = banner.offsetHeight;
+      header.style.top = bannerH + 'px';
+    }
+
+    // 描画確定後に初回調整（offsetHeight がレイアウト後に確定するため rAF 2重がけ）
+    requestAnimationFrame(function() {
+      requestAnimationFrame(adjustHeaderTop);
+    });
+
+    // ウィンドウリサイズ時にも再調整
+    window.addEventListener('resize', adjustHeaderTop);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', insertWarning);
+  } else {
+    insertWarning();
+  }
+})();
