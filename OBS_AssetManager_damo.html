@@ -1,0 +1,2788 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Obs_Asset_Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Google Fonts & FontAwesome from index.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ok: #51cf66;
+            --red: #ff6b6b;
+            --blur: 12px;
+            --main-font: 'Outfit', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+        }
+
+        body.light-mode {
+            --bg: #f3f4f6;
+            --card: rgba(255, 255, 255, 0.95);
+            --bd: rgba(0, 0, 0, 0.08);
+            --tx: #1f2937;
+            --ok: #10b981;
+            --red: #ef4444;
+            --grad-top: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --tab-container-bg: rgba(0, 0, 0, 0.06);
+            --tab-btn-inactive: #6b7280;
+            --tab-btn-inactive-bg: transparent;
+            --search-bg: rgba(255, 255, 255, 0.9);
+            --search-text: #1f2937;
+            --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+        }
+
+        body.dark-mode, body:not(.light-mode) {
+            --bg: #0c0d0f;
+            --card: rgba(28, 32, 38, 0.7);
+            --bd: rgba(255, 255, 255, 0.1);
+            --tx: #f0f3f5;
+            --ok: #51cf66;
+            --red: #ff6b6b;
+            --grad-top: #1a202c;
+            --header-bg: rgba(0, 0, 0, 0.5);
+            --tab-container-bg: rgba(0, 0, 0, 0.3);
+            --tab-btn-inactive: #888888;
+            --tab-btn-inactive-bg: transparent;
+            --search-bg: rgba(0, 0, 0, 0.3);
+            --search-text: #ffffff;
+            --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Tabs themed colors inside Light Mode */
+        body.light-mode.theme-text { --ac: #1a73e8; --btn: #1a73e8; }
+        body.light-mode.theme-browser { --ac: #28a745; --btn: #28a745; }
+        body.light-mode.theme-files { --ac: #8a2be2; --btn: #8a2be2; }
+        body.light-mode.theme-captures { --ac: #ff8c00; --btn: #ff8c00; }
+        body.light-mode.theme-groups { --ac: #6c757d; --btn: #6c757d; }
+
+        /* Tabs themed colors inside Dark Mode */
+        body.dark-mode.theme-text, body:not(.light-mode).theme-text { --ac: #4dabf7; --btn: #339af0; }
+        body.dark-mode.theme-browser, body:not(.light-mode).theme-browser { --ac: #51cf66; --btn: #2f9e44; }
+        body.dark-mode.theme-files, body:not(.light-mode).theme-files { --ac: #ae3ec9; --btn: #9c36b5; }
+        body.dark-mode.theme-captures, body:not(.light-mode).theme-captures { --ac: #fcc419; --btn: #f08c00; }
+        body.dark-mode.theme-groups, body:not(.light-mode).theme-groups { --ac: #adb5bd; --btn: #868e96; }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, var(--grad-top) 0%, var(--bg) 100%);
+            color: var(--tx);
+            font-family: var(--main-font);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--ac);
+            box-shadow: 0 0 5px var(--ac);
+        }
+
+        #main-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .header,
+        .footer {
+            background: var(--header-bg);
+            backdrop-filter: blur(10px);
+            border-style: solid;
+            border-color: var(--bd);
+            padding: 8px 12px;
+            z-index: 1000;
+        }
+
+        .header {
+            border-width: 0 0 1px;
+        }
+
+        .footer {
+            position: static !important;
+            flex-shrink: 0;
+            border-width: 1px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tab-container {
+            display: flex;
+            background: var(--tab-container-bg);
+            padding: 3px;
+            border-radius: 12px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: var(--tab-btn-inactive-bg);
+            border: 0;
+            color: var(--tab-btn-inactive);
+            padding: 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--ac);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .view-section {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px 8px 12px;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--header-bg);
+            backdrop-filter: blur(8px);
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--search-bg);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            min-width: 0;
+        }
+
+        .asset-search {
+            width: 100%;
+            flex: 1;
+            background: 0;
+            border: 0;
+            color: var(--search-text);
+            padding: 8px 10px;
+            font-size: 12px;
+            outline: 0;
+            min-width: 0;
+        }
+
+        .color-filter-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 6px;
+            padding: 4px 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .filter-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.4;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .filter-dot.active {
+            opacity: 1;
+            transform: scale(1.1);
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .tag-red {
+            background: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .tag-blue {
+            background: #339af0;
+            color: #339af0;
+        }
+
+        .tag-yellow {
+            background: #fcc419;
+            color: #fcc419;
+        }
+
+        .tag-green {
+            background: #51cf66;
+            color: #51cf66;
+        }
+
+        .tag-white {
+            background: #fff;
+            color: #fff;
+        }
+
+        .header-scene-toggle {
+            display: flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #888;
+            flex-shrink: 0;
+            white-space: nowrap;
+            margin-right: 4px;
+        }
+
+        .source-grid,
+        .asset-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 15px;
+            justify-content: center;
+        }
+
+        .control-group,
+        .asset-card,
+        .mini-card {
+            background: var(--card);
+            backdrop-filter: blur(var(--blur));
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: 0.2s;
+        }
+
+        .control-group {
+            flex: 0 0 200px;
+            height: 240px;
+        }
+
+        .asset-card {
+            flex: 0 0 180px;
+            height: 260px;
+        }
+
+        .mini-card {
+            flex: 0 0 140px;
+            min-height: 120px;
+        }
+
+        .is-live {
+            border-color: #4dabf7 !important;
+            box-shadow: 0 0 12px rgba(77, 171, 247, 0.5) !important;
+        }
+
+        .icon {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-lg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .filter-icon-btn {
+            cursor: pointer;
+            color: #888;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-right: 4px;
+        }
+
+        .filter-icon-btn:hover {
+            color: var(--ac);
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+
+        .close-icon-btn {
+            cursor: pointer;
+            color: #888;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-icon-btn:hover {
+            color: var(--red);
+            transform: scale(1.2) rotate(90deg);
+        }
+
+        .settings-icon-btn {
+            cursor: pointer;
+            color: #888;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+        }
+
+        .settings-icon-btn:hover {
+            color: var(--tx);
+            transform: rotate(90deg);
+        }
+
+        .card-header-right {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 60px;
+            justify-content: flex-end;
+            padding-right: 10px;
+        }
+
+        .card-delete-btn {
+            display: none;
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--red);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            line-height: 21px;
+            text-align: center;
+            border-radius: 50%;
+            z-index: 100;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid var(--bg);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: 0.2s;
+        }
+
+        .card-delete-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        body.delete-mode-active .card-delete-btn {
+            display: block;
+        }
+
+        .filters-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .filter-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+        }
+
+        .filter-item-name {
+            font-size: 11px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90px;
+        }
+
+        .source-name-edit {
+            font-size: 13px;
+            min-height: 28px;
+            color: var(--ac);
+            font-weight: bold;
+            border-bottom: 1px dashed var(--bd);
+            margin-bottom: 4px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            cursor: text;
+            transition: 0.2s;
+        }
+
+        .source-name-edit:hover {
+            color: #fff;
+            text-decoration: underline dashed;
+        }
+
+        .scene-pills-wrapper {
+            position: relative;
+            height: 26px;
+            margin: 8px 0;
+            z-index: 20;
+        }
+
+        .scene-pills {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 26px;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out, background 0.2s;
+            border-radius: 4px;
+        }
+
+        .control-group:hover .scene-pills,
+        .asset-card:hover .scene-pills {
+            max-height: 160px;
+            overflow-y: auto;
+            background: rgba(12, 13, 15, 0.95);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.8);
+            padding-bottom: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 30;
+        }
+
+        .scene-pills::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scene-item {
+            width: 100%;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #ccc;
+            word-break: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+        }
+
+        .scene-item.is-current {
+            color: #fff;
+            font-weight: bold;
+            background: var(--ac);
+            border-color: var(--ac);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        textarea {
+            width: 100%;
+            flex: 1;
+            min-height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            resize: none;
+            font-size: 13px;
+            padding: 10px;
+            outline: 0;
+            line-height: 1.5;
+            transition: 0.2s;
+        }
+
+        textarea.is-dirty {
+            border-color: var(--red);
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .btn-row {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .update-btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 0;
+            background: var(--btn);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .update-btn.is-dirty {
+            background: var(--red);
+            animation: pulse 1.5s infinite;
+        }
+
+        .update-btn.done {
+            background: var(--ok);
+            color: #000;
+        }
+
+        .update-btn:hover {
+            filter: brightness(1.2);
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .asset-thumb {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .asset-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .asset-thumb:hover {
+            border-color: var(--ac);
+            box-shadow: 0 0 10px rgba(77, 171, 247, 0.2);
+        }
+
+        .asset-thumb:active {
+            opacity: 0.7;
+            transform: scale(0.98);
+        }
+
+        .switch {
+            position: relative;
+            width: 28px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: #333;
+            transition: .2s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 10px;
+            width: 10px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background: var(--ac);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(12px);
+        }
+
+        input:checked+.slider.red {
+            background: var(--red);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #444;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .connected .status-dot {
+            background: var(--ok);
+            box-shadow: 0 0 8px var(--ok);
+        }
+
+        .control-group.not-in-scene,
+        .asset-card.not-in-scene {
+            opacity: 0.4;
+            filter: grayscale(0.6);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .control-group.is-broken,
+        .asset-card.is-broken {
+            opacity: 1 !important;
+            filter: grayscale(0) !important;
+            border-color: var(--red) !important;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+            background: rgba(255, 107, 107, 0.08);
+        }
+
+        .control-group.is-broken .source-name-edit,
+        .asset-card.is-broken .source-name-edit {
+            color: var(--red);
+        }
+
+        body.expand-scenes-mode .scene-pills {
+            max-height: none !important;
+            overflow-y: visible !important;
+        }
+
+        #view-text .control-group,
+        #view-browser .control-group {
+            flex: 0 0 100%;
+            max-width: 100%;
+            height: auto;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+        }
+
+        #view-groups .control-group {
+            flex: 0 0 100%;
+            max-width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        #view-text .control-group textarea,
+        #view-browser .control-group textarea {
+            width: 100%;
+            min-height: 100px;
+            font-size: 14px;
+            margin: 8px 0;
+            flex: none;
+        }
+
+        /* Help Styles */
+        .help-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--bd);
+            background: rgba(255,255,255,0.05);
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.2s;
+            margin-left: 12px;
+        }
+        .help-btn:hover { border-color: var(--ac); color: var(--ac); background: rgba(77, 171, 247, 0.1); }
+
+        .help-content h3 { color: var(--ac); border-bottom: 1px solid var(--bd); padding-bottom: 8px; margin-top: 20px; font-size: 14px; }
+        .help-content h3:first-child { margin-top: 0; }
+        .help-content p { font-size: 11px; line-height: 1.6; color: #ccc; margin: 8px 0; }
+        .help-content ul { padding-left: 18px; margin: 8px 0; }
+        .help-content li { font-size: 11px; color: #ccc; margin-bottom: 4px; }
+        .help-content b { color: #fff; }
+
+        .help-close-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 32px;
+            height: 32px;
+            background: #f0f3f5;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 100;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 2px solid #1a1a1a;
+        }
+        .help-close-btn:hover {
+            background: var(--red);
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        /* Tool Header & Back Button (aligned to index.html design) */
+        .tool-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--bd);
+            flex-shrink: 0;
+            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+        }
+        .tool-title-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .tool-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+        /* Light Mode Back Button */
+        body.light-mode .back-home-btn {
+            color: #111111;
+            background-color: #f8f9fa;
+            border: 1px solid #d1d5db;
+        }
+        body.light-mode .back-home-btn:hover {
+            color: #ffffff;
+            background-color: #111111;
+            border-color: #111111;
+        }
+        /* Dark Mode Back Button */
+        body.dark-mode .back-home-btn, body:not(.light-mode) .back-home-btn {
+            color: #efeff1;
+            background-color: #18181b;
+            border: 1px solid #3a3a3d;
+        }
+        body.dark-mode .back-home-btn:hover, body:not(.light-mode) .back-home-btn:hover {
+            color: #111111;
+            background-color: #ffffff;
+            border-color: #ffffff;
+        }
+        .tool-name-heading {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--tx);
+            margin: 0;
+            line-height: 1.2;
+        }
+        .tool-description-sub {
+            font-size: 0.8rem;
+            color: var(--tx);
+            opacity: 0.7;
+            font-weight: 300;
+            margin: 0;
+            line-height: 1.3;
+        }
+        .tool-safety-note {
+            font-size: 0.7rem;
+            color: var(--tx);
+            opacity: 0.8;
+            font-weight: 400;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            cursor: help;
+        }
+        .tool-safety-text {
+            display: inline;
+        }
+        .tool-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-theme-toggle {
+            background: none;
+            border: 1px solid var(--bd);
+            color: var(--tx);
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        body.light-mode .header-theme-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .header-booth-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+        /* Light Mode BOOTH */
+        body.light-mode .header-booth-btn {
+            color: #111111;
+            background-color: #ffffff;
+            border: 1px solid #111111;
+        }
+        body.light-mode .header-booth-btn:hover {
+            color: #ffffff;
+            background-color: #111111;
+        }
+        /* Dark Mode BOOTH */
+        body.dark-mode .header-booth-btn, body:not(.light-mode) .header-booth-btn {
+            color: #ffffff;
+            background-color: #111111;
+            border: 1px solid #ffffff;
+        }
+        body.dark-mode .header-booth-btn:hover, body:not(.light-mode) .header-booth-btn:hover {
+            color: #111111;
+            background-color: #ffffff;
+        }
+        .tool-header-bar * {
+            white-space: nowrap;
+        }
+
+        /* Responsive Constraints */
+        @media (max-width: 1024px) {
+            .tool-safety-text {
+                display: none;
+            }
+            .tool-safety-note {
+                margin-left: 4px;
+            }
+            .tool-safety-note::after {
+                content: "編集データはブラウザのキャッシュ（localStorage）にのみ保存され、サーバーへ送信されることはありません";
+                position: absolute;
+                left: 0;
+                top: 25px;
+                background: #111111;
+                color: #ffffff;
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 0.7rem;
+                z-index: 999;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                border: 1px solid #333333;
+            }
+            body.light-mode .tool-safety-note::after {
+                background: #ffffff;
+                color: #111111;
+                border: 1px solid #d1d5db;
+            }
+            .tool-safety-note:hover::after {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+        @media (max-width: 600px) {
+            .tool-header-actions .btn-text {
+                display: none;
+            }
+            .tool-header-bar {
+                padding: 10px 10px;
+            }
+            .tool-header-actions {
+                gap: 6px;
+            }
+        }
+
+        /* 共通フッター共存用の調整（フレックスアイテム化とデザイン統一） */
+        body {
+            padding-bottom: 0 !important;
+        }
+        body #common-app-footer.app-footer {
+            position: static !important;
+            flex-shrink: 0;
+            z-index: 1000;
+            background: var(--header-bg) !important;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--bd) !important;
+            padding: 10px 0 !important;
+        }
+        body #common-app-footer.app-footer .ad-link {
+            color: var(--tx) !important;
+        }
+        body #common-app-footer.app-footer .twitch-link {
+            color: var(--tx) !important;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body id="mainBody" class="light-mode theme-text">
+
+    <header class="tool-header-bar">
+        <div class="tool-title-area">
+            <div class="tool-title-row">
+                <h1 class="tool-name-heading">OBS Asset Manager</h1>
+                <span class="tool-safety-note" title="安全性の詳細">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="tool-safety-text">編集データはブラウザのキャッシュ（localStorage）にのみ保存され、サーバーへ送信されることはありません</span>
+                </span>
+            </div>
+            <span class="tool-description-sub">OBSのソース・アセット総合管理ツール（デモ版）</span>
+        </div>
+        <div class="tool-header-actions">
+            <button id="header-theme-toggle" class="header-theme-toggle" title="テーマ切り替え">
+                <i class="fa-solid fa-sun" id="header-theme-icon"></i>
+                <span id="header-theme-text" class="btn-text">ライトモード</span>
+            </button>
+            <span class="header-booth-btn" style="cursor: not-allowed; opacity: 0.65;" title="開発中">
+                <i class="fa-solid fa-hourglass-half"></i> <span class="btn-text">開発中</span>
+            </span>
+            <a href="../index.html" class="back-home-btn">
+                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="tab-container" style="flex:1; max-width:400px;">
+            <button id="tab-btn-text" class="tab-btn active" onclick="switchTab('text')">TXT</button>
+            <button id="tab-btn-browser" class="tab-btn" onclick="switchTab('browser')">WEB</button>
+            <button id="tab-btn-files" class="tab-btn" onclick="switchTab('files')">FILE</button>
+            <button id="tab-btn-captures" class="tab-btn" onclick="switchTab('captures')">CAP</button>
+            <button id="tab-btn-groups" class="tab-btn" onclick="switchTab('groups')">GROUP</button>
+        </div>
+
+
+        <button id="broken-list-btn" class="update-btn" style="margin-left:12px; background:var(--red); min-width:100px; display:none;"
+            onclick="openBrokenListModal()">
+            ⚠️ リンク切れ: <span id="broken-count">0</span>
+        </button>
+        <div class="help-btn" onclick="openHelp()" title="使い方を確認">?</div>
+    </div>
+
+    <div
+        style="display:flex; align-items:center; padding:8px 12px; gap:12px; background:var(--header-bg); backdrop-filter:blur(10px); border-bottom:1px solid var(--bd); z-index:999;">
+        <div class="search-wrap">
+            <input type="text" id="globalSearch" class="asset-search" placeholder="Search..."
+                oninput="debouncedFilter()">
+            <div class="color-filter-group">
+                <div class="filter-dot tag-red" title="Alert" onclick="toggleColorFilter('red', this)"
+                    ondblclick="renameLabel('red')"></div>
+                <div class="filter-dot tag-blue" title="Base" onclick="toggleColorFilter('blue', this)"
+                    ondblclick="renameLabel('blue')"></div>
+                <div class="filter-dot tag-yellow" title="BGM" onclick="toggleColorFilter('yellow', this)"
+                    ondblclick="renameLabel('yellow')"></div>
+                <div class="filter-dot tag-green" title="Overlay" onclick="toggleColorFilter('green', this)"
+                    ondblclick="renameLabel('green')"></div>
+                <div class="filter-dot tag-white" title="Misc" onclick="toggleColorFilter('white', this)"
+                    ondblclick="renameLabel('white')"></div>
+            </div>
+        </div>
+        <div class="header-scene-toggle" style="margin-left:12px; color:var(--red);">BROKEN
+            <label class="switch" style="margin-left:6px;">
+                <input type="checkbox" id="globalBrokenFilter" onchange="applyFilters()">
+                <span class="slider red"></span>
+            </label>
+        </div>
+        <div class="header-scene-toggle">SCENE
+            <label class="switch" style="margin-left:6px;">
+                <input type="checkbox" id="globalSceneFilter" onchange="applyFilters()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    <div id="main-scroll-area">
+        <div id="view-text" class="view-section active">
+            <div id="control-container" class="source-grid"></div>
+        </div>
+
+        <div id="view-browser" class="view-section">
+            <div id="browser-container" class="source-grid"></div>
+        </div>
+
+        <div id="view-files" class="view-section">
+            <div id="files-container" class="asset-grid"></div>
+        </div>
+
+        <div id="view-captures" class="view-section">
+            <div id="captures-container" class="source-grid"></div>
+        </div>
+
+        <div id="view-groups" class="view-section">
+            <div id="groups-container" class="source-grid"></div>
+        </div>
+    </div>
+
+    <div class="footer" id="connFooter">
+        <div style="display:flex; align-items:center; gap:20px;">
+            <label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
+                <div class="switch"><input type="checkbox" id="globalDeleteMode" onchange="toggleDeleteMode()"><span
+                        class="slider red"></span></div>
+                <span style="color:var(--red); font-size:11px; font-weight:bold;" data-i18n="deleteModeLabel">DELETE</span>
+            </label>
+
+            <button class="update-btn"
+                style="font-size:10px; padding:5px 12px; background:var(--ac); color:#fff; border:0; border-radius:6px; cursor:pointer; font-weight:bold;"
+                onclick="openBatchReplace()" data-i18n-title="filterReplace" data-i18n="batchReplaceBtn">
+                パス一括置換
+            </button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center;"><span class="status-dot"></span><span id="statusText"
+                    style="font-weight:bold; font-size:10px;" data-i18n="statusOffline">OFFLINE</span></div>
+            <div class="settings-icon-btn" onclick="document.getElementById('settings-overlay').style.display='flex'"
+                style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#888; transition:0.2s; border-radius:6px; border: 1px solid transparent;"
+                data-i18n-title="settingsIconTitle">
+                <svg style="width:20px; height:20px; fill:currentColor; transition:0.6s cubic-bezier(0.4, 0, 0.2, 1);" viewBox="0 0 24 24">
+                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                </svg>
+            </div>
+            <style>
+                .settings-icon-btn:hover { 
+                    color: var(--ac); 
+                    background: rgba(77, 171, 247, 0.1); 
+                    border-color: rgba(77, 171, 247, 0.2);
+                }
+                .settings-icon-btn:hover svg { transform: rotate(90deg); }
+            </style>
+        </div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div id="settings-overlay" onclick="if(event.target === this) this.style.display='none'"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2000; display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+        <div style="background:#1a1a1a; padding:24px; border-radius:16px; width:280px; border:1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h3 style="margin:0 0 20px 0; color:var(--ac); text-align:center;" data-i18n="settingsTitle">OBS 接続設定</h3>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:10px; color:#888;" data-i18n="langLabel">Language</label>
+                <select id="ui-lang" onchange="changeLanguage(this.value)" style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:6px; border-radius:4px; font-size:11px; outline:none; margin-top:4px;">
+                    <option value="ja">日本語 (Japanese)</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <input type="text" id="obs-host" placeholder="localhost:4455"
+                style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:12px; border-radius:8px; outline:none;">
+            <input type="password" id="obs-pw" placeholder="Password"
+                style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:12px; border-radius:8px; outline:none;">
+            <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px; cursor:pointer; color:#888; font-size:11px;">
+                <input type="checkbox" id="save-pw-toggle" checked style="width:auto; margin:0;">
+                <span data-i18n="savePwLabel">パスワードをブラウザに保存する</span>
+            </label>
+            <button onclick="saveSettings()"
+                style="width:100%; padding:12px; background:var(--ac); border:0; color:#fff; border-radius:8px; font-weight:bold; cursor:pointer;" data-i18n="saveConnectBtn">保存して接続</button>
+            
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <button onclick="copySettingsToClipboard()"
+                        onmouseenter="updateTip('copyTip')"
+                        onmouseleave="updateTip('')"
+                        style="flex: 1; padding:6px; background:#333; border:0; color:#fff; border-radius:4px; font-size:10px; cursor:pointer;">Copy</button>
+                    <button onclick="importSettingsFromClipboard()"
+                        onmouseenter="updateTip('pasteTip')"
+                        onmouseleave="updateTip('')"
+                        style="flex: 1; padding:6px; background:#333; border:0; color:#fff; border-radius:4px; font-size:10px; cursor:pointer;">Paste</button>
+                </div>
+                <div id="settings-tip" style="height:14px; font-size:9px; color:#666; text-align:center; margin-bottom:8px;"></div>
+                <p style="font-size:9px; color:#aaa; margin:4px 0 10px; line-height:1.4; text-align:center; background:rgba(0,0,0,0.3); padding:6px; border-radius:6px;">
+                    💡 OBS再起動時の自動接続には、ドックURL末尾に <code>?pw=パスワード</code> を追加するのが最も確実です。
+                </p>
+                <button onclick="resetAllSettings()"
+                    style="width:100%; padding:6px; background:transparent; border:1px solid var(--red); color:var(--red); border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;" data-i18n="resetBtn">設定をリセット（初期化）</button>
+            </div>
+            <button onclick="document.getElementById('settings-overlay').style.display='none'"
+                style="width:100%; margin-top:10px; background:transparent; border:0; color:#888; font-size:11px; cursor:pointer;" data-i18n="cancelBtn">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- Replace Overlay -->
+    <div id="replace-overlay" onclick="if(event.target === this) this.style.display='none'"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2001; display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+        <div style="background:#1a1a1a; padding:24px; border-radius:16px; width:320px; border:1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h3 style="margin:0 0 15px 0; color:var(--ac); text-align:center;">パス一括置換</h3>
+            <p style="font-size:11px; color:#aaa; margin-bottom:15px; line-height:1.4;">
+                ※現在画面に<b>表示されている（絞り込まれた）</b>アセットのみが置換対象になります。
+            </p>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:10px; color:#888;">旧パス (置換される文字列)</label>
+                <input type="text" id="replace-old" placeholder="C:\Users\OldPc\Desktop"
+                    style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:8px; margin-top:4px; border-radius:6px; outline:none; font-size:12px;">
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="font-size:10px; color:#888;">新パス (新しい文字列)</label>
+                <input type="text" id="replace-new" placeholder="D:\NewStreamAssets"
+                    style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:8px; margin-top:4px; border-radius:6px; outline:none; font-size:12px;">
+            </div>
+            <button onclick="executeBatchReplace()"
+                style="width:100%; padding:10px; background:var(--ac); border:0; color:#fff; border-radius:8px; font-weight:bold; cursor:pointer;">置換を実行する</button>
+            <button onclick="document.getElementById('replace-overlay').style.display='none'"
+                style="width:100%; margin-top:10px; background:transparent; border:0; color:#888; font-size:11px; cursor:pointer;">キャンセル</button>
+        </div>
+    </div>
+    <div id="help-overlay" onclick="if(event.target === this) this.style.display='none'"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; display:none; align-items:center; justify-content:center; backdrop-filter: blur(8px);">
+        <div id="help-content-body" style="background:#1a1a1a; padding:30px; border-radius:20px; width:450px; max-height:85vh; border:1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position:relative; display: flex; flex-direction: column;">
+            <div class="help-close-btn" onclick="closeHelp()">×</div>
+            <div style="overflow-y: auto; padding-right: 10px;">
+                <h2 style="margin:0 0 25px 0; color:#fff; text-align:center; font-size:18px; letter-spacing:1px;">OBS Asset Manager <span style="color:var(--ac); font-size:12px;">HOW TO USE</span></h2>
+                <div class="help-content">
+                    <h3>各タブの機能</h3>
+                    <ul>
+                        <li><b>TXT</b>: テキストソースを直接編集。入力して「保存」でOBSに即反映。</li>
+                        <li><b>WEB</b>: ブラウザソースのURLを管理。パスの変更も可能。</li>
+                        <li><b>FILE</b>: 画像・動画・スライドショーを管理。<b>ダブルクリック</b>でファイルの読み込みもとの場所を変更。</li>
+                        <li><b>CAP</b>: 画面キャプチャ等をリスト表示。プレビューで中身を確認。</li>
+                        <li><b>GROUP</b>: OBSの「グループ」を管理。中のソースを一括確認（名前のみ）。</li>
+                    </ul>
+
+                    <h3>便利な管理機能</h3>
+                    <ul>
+                        <li><b>カラータグ</b>: カードを右クリック（または点ボタン）で色分け。タグ名も変更可能。</li>
+                        <li><b>SCENE絞り込み</b>: ONにすると、今OBSで開いているシーンの素材だけを表示。</li>
+                        <li><b>DELETEモード</b>: フッター左下のスイッチをONにすると、素材をOBSから直接削除可能。</li>
+                        <li><b>パス一括置換</b>: PC移行時など、素材のパスを一気に書き換えたい時に。</li>
+                    </ul>
+
+                    <h3>基本操作</h3>
+                    <p>・<b>LIVE表示</b>: 強調表示（明るい枠線）のカードは現在配信/録画画面に出ている素材です。<br>
+                       ・<b>リンク切れ</b>: ⚠️マークは、ファイルが見つからない素材です。パスを修正してください。<br>
+                       ・<b>設定の移行 (Copy/Paste)</b>: <br>
+                       <span style="display:block; padding-left:1em; font-size:10px; color:#aaa;">
+                        <b>Copy</b>: 現在のホスト名やパスワードをコピーします。<br>
+                        <b>Paste</b>: コピーした設定を他のPCやブラウザで一瞬で読み込めます。
+                       </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Broken Links Overlay -->
+    <div id="broken-overlay" onclick="if(event.target === this) this.style.display='none'"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2500; display:none; align-items:center; justify-content:center; backdrop-filter: blur(8px);">
+        <div style="background:#1a1a1a; padding:30px; border-radius:20px; width:650px; max-height:80vh; border:1px solid var(--red); box-shadow: 0 20px 50px rgba(255, 107, 107, 0.2); position:relative; display: flex; flex-direction: column;">
+            <div class="help-close-btn" onclick="document.getElementById('broken-overlay').style.display='none'">×</div>
+            <h2 style="margin:0 0 20px 0; color:var(--red); text-align:center; font-size:18px; letter-spacing:1px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                ⚠️ リンク切れアセット一覧
+            </h2>
+            <div style="overflow-y: auto; flex: 1; padding-right: 5px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; color: #ccc;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333; color: #fff;">
+                            <th style="padding: 8px;">アセット名</th>
+                            <th style="padding: 8px;">種類</th>
+                            <th style="padding: 8px;">現在のパス (リンク切れ)</th>
+                            <th style="padding: 8px; text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="broken-list-tbody">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: right;">
+                <button onclick="document.getElementById('broken-overlay').style.display='none'"
+                    style="padding: 8px 20px; background: #333; color: #fff; border: 0; border-radius: 6px; cursor: pointer; font-weight: bold;">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG_KEY = 'obs_asset_config_v14_pro';
+        const PW_KEY = 'obs_dashboard_pw_v14_pro';
+        const SAVE_PW_KEY = 'obs_dashboard_save_pw_v14_pro';
+        const COLOR_KEY = 'obs_dashboard_colors_v14_pro';
+        const LABEL_KEY = 'obs_custom_labels_v14_pro';
+        const TAB_KEY = 'obs_asset_active_tab_v1';
+        const SCENE_VIEW_KEY = 'obs_scene_view_v1';
+        const LANG_KEY = 'obs_am_lang_pro';
+        const THEME_KEY = 'obs_asset_manager_theme_v2';
+        let currentTheme = 'light';
+
+        const i18n = {
+            ja: {
+                searchPlaceholder: "アセットを検索...",
+                settingsTitle: "OBS 接続設定",
+                langLabel: "言語 (Language)",
+                savePwLabel: "パスワードをブラウザに保存する",
+                saveConnectBtn: "保存して接続",
+                resetBtn: "設定をリセット（初期化）",
+                cancelBtn: "キャンセル",
+                copyTip: "現在の接続設定をコピーします",
+                pasteTip: "コピーした設定を貼り付けて読み込みます",
+                authFailed: "認証失敗。パスワードを確認してください。",
+                resetConfirm: "全ての設定、パスワード、キャッシュを完全に消去して初期化しますか？",
+                resetDone: "全てのデータを削除しました。ページを再読み込みします。",
+                copyDone: "設定をクリップボードにコピーしました。",
+                importDone: "設定を読み込みました。",
+                invalidFormat: "不正な形式です。",
+                deleteConfirm: (n) => `ソース「${n}」をOBSから削除しますか？`,
+                saveDone: "保存完了！",
+                saveBtn: "保存する",
+                helpTabTitle: "各タブの説明",
+                helpTabs: "<li><b>TXT</b>: テキストソースの編集（自由入力）。</li><li><b>WEB</b>: ブラウザソースのURL変更。</li><li><b>FILE</b>: 画像・動画・スライドショー等のパス変更。</li><li><b>CAP</b>: 画面・ウィンドウキャプチャ等のリスト表示。</li><li><b>GROUP</b>: OBSの「グループ」内ソースを名前のみ確認。</li>",
+                helpBasicTitle: "基本操作",
+                helpBasics: "・<b>LIVE表示</b>: 強調表示（明るい枠線）のカードは現在配信/録画画面に出ている素材です。<br>・<b>リンク切れ</b>: ⚠️マークは、ファイルが見つからない素材です。パスを修正してください。<br>・<b>設定の移行 (Copy/Paste)</b>: <br><span style='display:block; padding-left:1em; font-size:10px; color:#aaa;'><b>Copy</b>: 現在のホスト名やパスワードをコピーします。<br><b>Paste</b>: コピーした設定を他のPCやブラウザで一瞬で読み込めます。</span>",
+                filterTitle: "表示フィルター / 管理",
+                filterTags: "カラータグで絞り込み",
+                filterReplace: "パスの一括置換（ファイルが見つからない場合に便利）",
+                filterReplaceHint: "※現在表示中のFILEアセット全てに適用されます",
+                filterReplaceBtn: "一括置換を実行",
+                filterReplaceConfirm: (s, r) => `表示中の全FILEアセットに対し、\n「${s}」を「${r}」に置換しますか？`,
+                helpIconTitle: "ヘルプを表示",
+                settingsIconTitle: "設定を開く",
+                boothLink: "BOOTH (サポート)",
+                statusOnline: "ONLINE",
+                statusOffline: "OFFLINE",
+                deleteModeLabel: "DELETE",
+                batchReplaceBtn: "パス一括置換",
+                deleteFailed: "削除に失敗しました。",
+                macroStop: (n) => `「${n}」の順次出しを停止しました。`,
+                macroPromptText: (o) => `順次表示するテキストをカンマ( , )区切りで入力してください。\n※今のテキスト「${o}」を残したい場合は、最初に入力してください。`,
+                macroPromptInterval: "切り替え間隔（秒）を入力してください:",
+                macroStatusRunning: (c, t) => `🔁 順次出し実行中 (${c}/${t})`,
+                macroStatusNow: "現在",
+                macroStatusNext: (n, s) => `次: ${n} (${s}秒後)`,
+                previewNoImage: "プレビューなし",
+                previewAudio: "(音声・待機中)",
+                previewBroken: "⚠️ リンク切れ",
+                previewOffline: "OFFLINE",
+                previewNotPossible: "プレビュー不可",
+                previewOtherScene: "(別シーン/非表示)",
+                sceneLabel: "シーン",
+                sceneViewAll: "全表示",
+                sceneViewSingle: "1行",
+                tagRenamePrompt: (c) => `このカラータグ(${c})の新しい名前を入力してください:`,
+                tagRenameDone: "タグの名前を更新しました。一度再読み込みすると完全に反映されます。"
+            },
+            en: {
+                searchPlaceholder: "Search assets...",
+                settingsTitle: "OBS Connection Settings",
+                langLabel: "Language",
+                savePwLabel: "Save password to browser",
+                saveConnectBtn: "Save & Connect",
+                resetBtn: "Reset All Settings (Initialize)",
+                cancelBtn: "Cancel",
+                copyTip: "Copy current connection settings",
+                pasteTip: "Paste and load settings from clipboard",
+                authFailed: "Authentication failed. Please check your password.",
+                resetConfirm: "Completely clear all settings, passwords, and cache?",
+                resetDone: "All data cleared. Reloading page...",
+                copyDone: "Settings copied to clipboard.",
+                importDone: "Settings imported successfully.",
+                invalidFormat: "Invalid format.",
+                deleteConfirm: (n) => `Delete source "${n}" from OBS?`,
+                saveDone: "Saved!",
+                saveBtn: "Save",
+                helpTabTitle: "Tab Descriptions",
+                helpTabs: "<li><b>TXT</b>: Edit text sources freely.</li><li><b>WEB</b>: Change Browser source URLs.</li><li><b>FILE</b>: Edit paths for images, videos, and slideshows.</li><li><b>CAP</b>: List and manage capture sources.</li><li><b>GROUP</b>: View sources within OBS Groups.</li>",
+                helpBasicTitle: "Basics",
+                helpBasics: "・<b>LIVE Indicator</b>: Cards with bright borders are active in program output.<br>・<b>Broken Links</b>: ⚠️ indicates missing files. Please fix the path.<br>・<b>Transfer Settings (Copy/Paste)</b>: <br><span style='display:block; padding-left:1em; font-size:10px; color:#aaa;'><b>Copy</b>: Export settings as text.<br><b>Paste</b>: Import settings instantly.</span>",
+                filterTitle: "Filters / Management",
+                filterTags: "Filter by Color Tags",
+                filterReplace: "Batch Path Replace (Useful for missing files)",
+                filterReplaceHint: "* Applies to all currently visible FILE assets",
+                filterReplaceBtn: "Execute Batch Replace",
+                filterReplaceConfirm: (s, r) => `Replace "${s}" with "${r}" for all visible FILE assets?`,
+                helpIconTitle: "Show Help",
+                settingsIconTitle: "Open Settings",
+                boothLink: "BOOTH (Support)",
+                statusOnline: "ONLINE",
+                statusOffline: "OFFLINE",
+                deleteModeLabel: "DELETE",
+                batchReplaceBtn: "Batch Path Replace",
+                deleteFailed: "Delete failed.",
+                macroStop: (n) => `Stopped sequential display for "${n}".`,
+                macroPromptText: (o) => `Enter texts for sequential display separated by commas (,).\n* If you want to keep the current text "${o}", enter it first.`,
+                macroPromptInterval: "Enter switching interval (seconds):",
+                macroStatusRunning: (c, t) => `🔁 Running sequence (${c}/${t})`,
+                macroStatusNow: "Now",
+                macroStatusNext: (n, s) => `Next: ${n} (${s}s later)`,
+                previewNoImage: "No Preview",
+                previewAudio: "(Audio/Waiting)",
+                previewBroken: "⚠️ Broken Link",
+                previewOffline: "OFFLINE",
+                previewNotPossible: "Not Possible",
+                previewOtherScene: "(Other Scene/Hidden)",
+                sceneLabel: "Scene",
+                sceneViewAll: "Show All",
+                sceneViewSingle: "1 Line",
+                tagRenamePrompt: (c) => `Enter new name for this color tag (${c}):`,
+                tagRenameDone: "Tag name updated. Reload to apply changes."
+            }
+        };
+
+        const currentLang = localStorage.getItem(LANG_KEY) || (navigator.language.startsWith('ja') ? 'ja' : 'en');
+        const t = (key) => i18n[currentLang][key] || key;
+
+        function applyLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (key) el.innerText = t(key);
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if (key) el.title = t(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (key) el.placeholder = t(key);
+            });
+            const langSelect = document.getElementById('ui-lang');
+            if (langSelect) langSelect.value = currentLang;
+
+            const helpBody = document.getElementById('help-content-body');
+            if (helpBody) {
+                helpBody.innerHTML = `
+                    <div class="help-close-btn" onclick="closeHelp()">×</div>
+                    <div style="overflow-y: auto; padding-right: 10px;">
+                        <h2 style="margin:0 0 25px 0; color:#fff; text-align:center; font-size:18px; letter-spacing:1px;">Obs_Asset_Manager</h2>
+                        <div class="help-content">
+                            <h3>${t('helpTabTitle')}</h3><ul>${t('helpTabs')}</ul>
+                            <h3>${t('helpBasicTitle')}</h3><p>${t('helpBasics')}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem(LANG_KEY, lang);
+            location.reload();
+        }
+
+        function updateTip(key) {
+            const tipEl = document.getElementById('settings-tip');
+            if (tipEl) tipEl.innerText = t(key) || '';
+        }
+
+        const b64e = (str) => btoa(encodeURIComponent(str));
+        const b64d = (str) => { try { return decodeURIComponent(atob(str)); } catch(e) { return str; } };
+
+        let isSceneExpanded = false;
+        let isUserInteracting = false;
+        let reconnectAttempts = 0;
+        let activeMacros = {};
+
+        function openHelp() { document.getElementById('help-overlay').style.display = 'flex'; }
+        function closeHelp() { document.getElementById('help-overlay').style.display = 'none'; }
+
+        const escapeHTML = (s) => String(s).replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t]));
+        const safeEncode = (s) => {
+            try {
+                return Array.from(new TextEncoder().encode(s)).map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                console.error("Encode Error:", e);
+                return 'id-' + Math.random().toString(36).slice(2, 9);
+            }
+        };
+
+        function toggleTextMacro(encName) {
+            const sourceName = safeDecode(encName);
+            const card = document.querySelector(`[data-enc="${encName}"]`);
+            const tx = card.querySelector('textarea');
+
+            if (activeMacros[encName]) {
+                clearInterval(activeMacros[encName].timer);
+                delete activeMacros[encName];
+                if (card.querySelector('.macro-status-area')) {
+                    card.querySelector('.macro-status-area').remove();
+                }
+                alert(t('macroStop')(sourceName));
+                return;
+            }
+
+            const originalText = tx ? tx.value : "";
+            const inputTexts = prompt(t('macroPromptText')(originalText), originalText);
+
+            if (!inputTexts) return;
+
+            const intervalStr = prompt(t('macroPromptInterval'), "10");
+            const intervalSec = parseInt(intervalStr, 10);
+
+            if (isNaN(intervalSec) || intervalSec <= 0) return;
+
+            const textArray = inputTexts.split(',').map(t => t.trim()).filter(t => t);
+            let currentIndex = 0;
+            let statusArea = card.querySelector('.macro-status-area');
+
+            if (!statusArea) {
+                statusArea = document.createElement('div');
+                statusArea.className = 'macro-status-area';
+                card.querySelector('.btn-row').before(statusArea);
+            }
+
+            const updateFunc = async () => {
+                const nextText = textArray[currentIndex];
+                const res = await sendRequest("SetInputSettings", { inputName: sourceName, inputSettings: { text: nextText } });
+                if (res) {
+                    statusArea.innerHTML = `<div style="color:var(--ac); font-weight:bold;">${t('macroStatusRunning')(currentIndex + 1, textArray.length)}</div><div style="font-size:10px; color:#aaa;">${t('macroStatusNow')}: ${escapeHTML(nextText)}</div><div style="font-size:10px; color:var(--ac);">${t('macroStatusNext')(escapeHTML(textArray[(currentIndex + 1) % textArray.length]), intervalSec)}</div>`;
+                    if (tx) tx.value = nextText;
+                }
+                currentIndex = (currentIndex + 1) % textArray.length;
+            };
+
+            updateFunc();
+            activeMacros[encName] = { timer: setInterval(updateFunc, intervalSec * 1000), originalText: originalText };
+        }
+
+        const safeDecode = (s) => {
+            try {
+                if (!s || typeof s !== 'string') return s;
+                const matches = s.match(/.{1,2}/g);
+                if (!matches) return s;
+                const bytes = new Uint8Array(matches.map(byte => parseInt(byte, 16)));
+                return new TextDecoder().decode(bytes);
+            } catch (e) {
+                console.error("Decode Error for:", s, e);
+                return "Decoding_Error";
+            }
+        };
+
+        let customLabels = JSON.parse(localStorage.getItem(LABEL_KEY)) || { red: 'Alert', blue: 'Base', yellow: 'BGM', green: 'Overlay', white: 'Misc' };
+
+        if (localStorage.getItem(CONFIG_KEY) && localStorage.getItem(CONFIG_KEY).includes('pw')) {
+            localStorage.removeItem(CONFIG_KEY);
+        }
+
+        let config = { 
+            host: localStorage.getItem(CONFIG_KEY) || '127.0.0.1:4455', 
+            pw: (localStorage.getItem(SAVE_PW_KEY) === 'false') ? '' : b64d(localStorage.getItem(PW_KEY) || '')
+        };
+        let socket = null, currentScene = "", isTyping = false, isRefreshing = false, refreshTimer = null;
+        let appState = { text: {}, browser: {}, captures: {}, files: {}, groups: {} };
+        let activeGlobalColorFilters = new Set();
+        let colorMemory = JSON.parse(localStorage.getItem(COLOR_KEY)) || {};
+        const thumbnailCache = {};
+        let isFiltering = false;
+        let searchTimeout = null;
+
+        function updateThemeUI(theme) {
+            localStorage.setItem(THEME_KEY, theme);
+            currentTheme = theme;
+            
+            const iconEl = document.getElementById('header-theme-icon');
+            const textEl = document.getElementById('header-theme-text');
+            
+            const activeBtn = document.querySelector('.tab-btn.active');
+            const tabName = activeBtn ? activeBtn.id.replace('tab-btn-', '') : 'text';
+            
+            if (theme === 'dark') {
+                document.getElementById('mainBody').className = 'theme-' + tabName + ' dark-mode';
+                if (iconEl) iconEl.className = 'fa-solid fa-moon';
+                if (textEl) textEl.textContent = 'ダークモード';
+            } else {
+                document.getElementById('mainBody').className = 'theme-' + tabName + ' light-mode';
+                if (iconEl) iconEl.className = 'fa-solid fa-sun';
+                if (textEl) textEl.textContent = 'ライトモード';
+            }
+        }
+
+        function setupTheme() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+                updateThemeUI(savedTheme);
+            } catch(e) {
+                updateThemeUI('light');
+            }
+        }
+
+        function toggleTheme() {
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            updateThemeUI(newTheme);
+        }
+
+        let thumbObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const pid = el.id;
+                    const encName = el.dataset.enc;
+                    const isEnabled = el.dataset.enabled === 'true';
+                    const isActive = el.dataset.active === 'true';
+                    const isBroken = el.dataset.broken === 'true';
+                    if (encName) {
+                        queueThumbnail(safeDecode(encName), pid, isEnabled, isActive, isBroken);
+                    }
+                    observer.unobserve(el);
+                }
+            });
+        }, { root: document.getElementById('main-scroll-area'), rootMargin: '200px 0px' });
+
+        let thumbQueue = [];
+        let isProcessingThumbs = false;
+
+        function queueThumbnail(name, pid, isEnabled, isActive, isBroken) {
+            thumbQueue.push({ name, pid, isEnabled, isActive, isBroken });
+            processThumbQueue();
+        }
+
+        async function processThumbQueue() {
+            if (isProcessingThumbs) return;
+            isProcessingThumbs = true;
+            const BATCH_SIZE = 3;
+            while (thumbQueue.length > 0) {
+                const batch = thumbQueue.splice(0, BATCH_SIZE);
+                await Promise.all(batch.map(async ({ name, pid, isEnabled, isActive, isBroken }) => {
+                    const el = document.getElementById(pid);
+                    if (!el) return;
+                    const cached = thumbnailCache[name];
+                    if (cached === "failed") {
+                        el.innerHTML = `<div style="color:var(--red); font-size:11px; font-weight:bold; text-align:center;">${t('previewBroken')}<br><span style="font-size:9px;">${t('previewOffline')}</span></div>`;
+                        const card = el.closest('.control-group, .asset-card');
+                        if (card) card.classList.add('is-broken');
+                        return;
+                    }
+                    if (cached === "audio") {
+                        const brokenStatus = isBroken
+                            ? `<div style="color:var(--red); font-size:11px; font-weight:bold; text-align:center;">${t('previewBroken')}<br><span style="font-size:9px;">${t('previewOffline')}</span></div>`
+                            : `<span style="font-size: 32px; color: var(--ac); filter: drop-shadow(0 0 8px var(--ac)); font-family: inherit;">🎵</span>`;
+                        el.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">${brokenStatus}</div>`;
+                        return;
+                    }
+                    if (cached === "no_preview") {
+                        if (!isActive) {
+                            el.innerHTML = `<div style="color:#888; font-size:10px; text-align:center; padding-top:10px;">${t('previewNotPossible')}<br><span style="font-size:9px;">${t('previewOtherScene')}</span></div>`;
+                            return;
+                        }
+                    } else if (cached === "audio_or_empty") {
+                        el.innerHTML = `<div style="color:#888; font-size:10px; text-align:center; padding-top:10px;">${t('previewNoImage')}<br><span style="font-size:9px;">${t('previewAudio')}</span></div>`;
+                        return;
+                    } else if (cached) {
+                        if (cached.startsWith("file:///")) {
+                            el.innerHTML = `<img src="${cached}" style="width:100%;height:100%;object-fit:contain;" onerror="this.onerror=null; fallbackScreenshot('${safeEncode(name)}', '${pid}');">`;
+                        } else {
+                            el.innerHTML = `<img src="${cached}" style="width:100%;height:100%;object-fit:contain;">`;
+                        }
+                        return;
+                    }
+
+                    try {
+                        const res = await sendRequest("GetSourceScreenshot", { sourceName: name, imageFormat: "jpg", imageWidth: 300, imageCompressionQuality: 50 });
+                        if (res && res.imageData) {
+                            thumbnailCache[name] = res.imageData;
+                            el.innerHTML = `<img src="${res.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
+                            const card = el.closest('.control-group, .asset-card');
+                            if (card) card.classList.remove('is-broken');
+                        } else {
+                            const isCapture = el.closest('#captures-container') !== null;
+                            if (isActive && isEnabled) {
+                                if (isCapture) {
+                                    thumbnailCache[name] = "audio_or_empty";
+                                    el.innerHTML = `<div style="color:#888; font-size:10px; text-align:center; padding-top:10px;">${t('previewNoImage')}<br><span style="font-size:9px;">${t('previewAudio')}</span></div>`;
+                                } else {
+                                    thumbnailCache[name] = "failed";
+                                    el.innerHTML = `<div style="color:var(--red); font-size:11px; font-weight:bold; text-align:center;">${t('previewBroken')}<br><span style="font-size:9px;">${t('previewOffline')}</span></div>`;
+                                    const card = el.closest('.control-group, .asset-card');
+                                    if (card) card.classList.add('is-broken');
+                                }
+                            } else {
+                                thumbnailCache[name] = "no_preview";
+                                el.innerHTML = `<div style="color:#888; font-size:10px; text-align:center; padding-top:10px;">${t('previewNotPossible')}<br><span style="font-size:9px;">${t('previewOtherScene')}</span></div>`;
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Screenshot error:", err);
+                    }
+                }));
+                await new Promise(r => setTimeout(r, 100));
+            }
+            isProcessingThumbs = false;
+        }
+
+        async function fallbackScreenshot(encName, pid) {
+            const name = safeDecode(encName);
+            const el = document.getElementById(pid);
+            if (!el) return;
+            try {
+                const res = await sendRequest("GetSourceScreenshot", { sourceName: name, imageFormat: "jpg", imageWidth: 300, imageCompressionQuality: 50 });
+                if (res && res.imageData) {
+                    thumbnailCache[name] = res.imageData;
+                    el.innerHTML = `<img src="${res.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
+                    const card = el.closest('.control-group, .asset-card');
+                    if (card) card.classList.remove('is-broken');
+                } else {
+                    thumbnailCache[name] = "failed";
+                    el.innerHTML = `<div style="color:var(--red); font-size:11px; font-weight:bold; text-align:center;">${t('previewBroken')}<br><span style="font-size:9px;">${t('previewOffline')}</span></div>`;
+                    const card = el.closest('.control-group, .asset-card');
+                    if (card) card.classList.add('is-broken');
+                }
+            } catch (err) {
+                console.error("Fallback screenshot error:", err);
+            }
+        }
+
+        function debouncedRender() {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(renderActiveTab, 300);
+        }
+
+        const getBgColor = (c) => ({ red: 'rgba(255, 107, 107, 0.15)', blue: 'rgba(77, 171, 247, 0.15)', yellow: 'rgba(252, 196, 25, 0.15)', green: 'rgba(81, 207, 102, 0.15)', white: 'rgba(255, 255, 255, 0.08)' }[c] || 'var(--card)');
+
+        async function sendRequest(type, data = {}) {
+            return new Promise((resolve) => {
+                console.log("Mock OBS Request:", type, data);
+                if (type === "SetInputSettings") {
+                    const n = data.inputName;
+                    if (appState.text[n]) {
+                        appState.text[n].text = data.inputSettings.text || data.inputSettings.text_val || "";
+                    } else if (appState.browser[n]) {
+                        if (data.inputSettings.local_file) {
+                            appState.browser[n].url = data.inputSettings.local_file;
+                        } else if (data.inputSettings.url) {
+                            appState.browser[n].url = data.inputSettings.url;
+                        }
+                    } else if (appState.files[n]) {
+                        const newPath = getPathFromSettings(data.inputSettings);
+                        if (newPath) {
+                            appState.files[n].path = newPath;
+                            appState.files[n].isBroken = false;
+                        }
+                    }
+                    resolve({ _success: true });
+                } else if (type === "SetInputName") {
+                    const oldN = data.inputName;
+                    const newN = data.newInputName;
+                    for (const category of ['text', 'browser', 'files', 'captures', 'groups']) {
+                        if (appState[category][oldN]) {
+                            appState[category][newN] = appState[category][oldN];
+                            delete appState[category][oldN];
+                            break;
+                        }
+                    }
+                    resolve({ _success: true });
+                } else if (type === "RemoveInput") {
+                    const n = data.inputName;
+                    for (const category of ['text', 'browser', 'files', 'captures', 'groups']) {
+                        if (appState[category][n]) {
+                            delete appState[category][n];
+                            break;
+                        }
+                    }
+                    resolve({ _success: true });
+                } else if (type === "SetCurrentProgramScene") {
+                    currentScene = data.sceneName;
+                    renderActiveTab();
+                    resolve({ _success: true });
+                } else if (type === "SetSceneItemEnabled") {
+                    resolve({ _success: true });
+                } else if (type === "GetInputSettings") {
+                    const n = data.inputName;
+                    const item = appState.text[n] || appState.browser[n] || appState.files[n];
+                    if (item) {
+                        if (appState.text[n]) {
+                            resolve({ inputSettings: { text: item.text } });
+                        } else if (appState.browser[n]) {
+                            resolve({ inputSettings: { is_local_file: item.isLocal, local_file: item.url, url: item.url } });
+                        } else if (appState.files[n]) {
+                            resolve({ inputSettings: { file: item.path } });
+                        }
+                    }
+                    resolve(null);
+                } else {
+                    resolve(null);
+                }
+            });
+        }
+
+        function connect() {
+            const connFooter = document.getElementById('connFooter');
+            if (connFooter) connFooter.classList.add('connected');
+            const statusText = document.getElementById('statusText');
+            if (statusText) statusText.innerText = t('statusOnline');
+
+            currentScene = "雑談画面";
+            appState = {
+                text: {
+                    "配信タイトル": { text: "【雑談】金曜のお昼、まったり雑談配信 🍵 【初見さん大歓迎】", scenes: [{ name: "雑談画面", parent: "雑談画面", id: 1, enabled: true }, { name: "ゲーム画面", parent: "ゲーム画面", id: 1, enabled: false }, { name: "コラボ画面", parent: "コラボ画面", id: 1, enabled: true }, { name: "待機画面", parent: "待機画面", id: 1, enabled: false }] },
+                    "現在流れている曲名": { text: "No BGM (Free Asset Selection Vol. 2)", scenes: [{ name: "雑談画面", parent: "雑談画面", id: 2, enabled: true }, { name: "ゲーム画面", parent: "ゲーム画面", id: 2, enabled: true }, { name: "コラボ画面", parent: "コラボ画面", id: 2, enabled: false }] },
+                    "配信スケジュール": { text: "毎週 水・金・日 21:00〜 スタート！", scenes: [{ name: "オープニング", parent: "オープニング", id: 3, enabled: true }, { name: "待機画面", parent: "待機画面", id: 3, enabled: true }, { name: "エンディング", parent: "エンディング", id: 3, enabled: false }] },
+                    "告知メッセージ": { text: "来週月曜日はコラボ配信があります！お楽しみに！", scenes: [{ name: "エンディング", parent: "エンディング", id: 4, enabled: true }, { name: "雑談画面", parent: "雑談画面", id: 4, enabled: false }, { name: "待機画面", parent: "待機画面", id: 4, enabled: true }] }
+                },
+                browser: {
+                    "わんこめチャット": { url: "http://localhost:18671/chat/", scenes: [{ name: "雑談画面", parent: "雑談画面", id: 5, enabled: true }, { name: "コラボ画面", parent: "コラボ画面", id: 5, enabled: true }] },
+                    "目標ゲージ": { url: "https://example.com/gauge", scenes: [{ name: "ゲーム画面", parent: "ゲーム画面", id: 6, enabled: true }, { name: "コラボ画面", parent: "コラボ画面", id: 6, enabled: true }] },
+                    "配信時計": { url: "https://example.com/clock", scenes: [{ name: "オープニング", parent: "オープニング", id: 7, enabled: true }, { name: "待機画面", parent: "待機画面", id: 7, enabled: true }] }
+                },
+                files: {
+                    "背景画像.png": { path: "G:\\マイドライブ\\【04_素材・ツールライブラリ】\\assets\\background.png", isBGM: false, isBroken: false, scenes: [{ name: "雑談画面", parent: "雑談画面", id: 8, enabled: true }, { name: "ゲーム画面", parent: "ゲーム画面", id: 8, enabled: false }] },
+                    "ループ動画.mp4": { path: "G:\\マイドライブ\\【04_素材・ツールライブラリ】\\assets\\loop.mp4", isBGM: false, isBroken: false, scenes: [{ name: "オープニング", parent: "オープニング", id: 9, enabled: true }, { name: "待機画面", parent: "待機画面", id: 9, enabled: true }] },
+                    "オープニングBGM.mp3": { path: "G:\\マイドライブ\\【04_素材・ツールライブラリ】\\assets\\opening_bgm.mp3", isBGM: true, isBroken: false, scenes: [{ name: "オープニング", parent: "オープニング", id: 10, enabled: true }, { name: "待機画面", parent: "待機画面", id: 10, enabled: false }] },
+                    "リンク切れ画像.jpg": { path: "C:\\OldFolder\\missing_file.jpg", isBGM: false, isBroken: true, scenes: [{ name: "エンディング", parent: "エンディング", id: 11, enabled: true }, { name: "待機画面", parent: "待機画面", id: 11, enabled: true }] }
+                },
+                captures: {
+                    "ゲームキャプチャ": { scenes: [{ name: "ゲーム画面", parent: "ゲーム画面", id: 12, enabled: true }, { name: "コラボ画面", parent: "コラボ画面", id: 12, enabled: true }] },
+                    "ウェブカメラ映像": { scenes: [{ name: "雑談画面", parent: "雑談画面", id: 13, enabled: true }, { name: "コラボ画面", parent: "コラボ画面", id: 13, enabled: true }] }
+                },
+                groups: {
+                    "枠絵グループ": { children: ["枠絵背景", "枠絵フレーム", "枠絵ロゴ"], scenes: [{ name: "雑談画面", parent: "雑談画面", id: 14, enabled: true }, { name: "ゲーム画面", parent: "ゲーム画面", id: 14, enabled: true }] }
+                }
+            };
+
+            // Set up thumbnailCache for offline mode
+            Object.keys(appState.files).forEach(n => {
+                const item = appState.files[n];
+                if (item.isBroken) {
+                    thumbnailCache[n] = "failed";
+                } else if (item.isBGM) {
+                    thumbnailCache[n] = "audio";
+                } else {
+                    thumbnailCache[n] = "failed";
+                }
+            });
+
+            // Update broken links button count
+            let brokenCount = 0;
+            Object.keys(appState.files).forEach(n => {
+                if (appState.files[n].isBroken) brokenCount++;
+            });
+            Object.keys(appState.browser).forEach(n => {
+                if (appState.browser[n].isBroken) brokenCount++;
+            });
+            const brokenBtn = document.getElementById('broken-list-btn');
+            const countSpan = document.getElementById('broken-count');
+            if (brokenBtn && countSpan) {
+                countSpan.innerText = brokenCount;
+                brokenBtn.style.display = brokenCount > 0 ? 'flex' : 'none';
+            }
+
+            renderActiveTab();
+            applyFilters();
+        }
+
+        function getSettingsFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const host = params.get('host') || hashParams.get('host');
+            const pw = params.get('pw') || hashParams.get('pw');
+            return { host, pw };
+        }
+
+        function checkFileExists(path) {
+            return new Promise((resolve) => {
+                if (!path) return resolve(false);
+                const url = path.startsWith("file://") ? path : "file:///" + encodeURI(path.replace(/\\/g, '/'));
+                const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(path);
+                if (isImage) {
+                    const img = new Image();
+                    img.onload = () => resolve(true);
+                    img.onerror = () => resolve(false);
+                    img.src = url;
+                    setTimeout(() => {
+                        img.onload = null;
+                        img.onerror = null;
+                        resolve(false);
+                    }, 2000);
+                } else {
+                    fetch(url)
+                        .then(() => resolve(true))
+                        .catch(() => {
+                            const isVideo = /\.(mp4|webm|avi|mov|mkv|ogg|flv)$/i.test(path);
+                            if (isVideo) {
+                                const video = document.createElement('video');
+                                video.onloadedmetadata = () => resolve(true);
+                                video.onerror = () => resolve(false);
+                                video.src = url;
+                                setTimeout(() => {
+                                    video.onloadedmetadata = null;
+                                    video.onerror = null;
+                                    resolve(false);
+                                }, 2000);
+                            } else {
+                                resolve(false);
+                            }
+                        });
+                }
+            });
+        }
+
+        function openBrokenListModal() {
+            const tbody = document.getElementById('broken-list-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            const brokenItems = [];
+            Object.keys(appState.files).forEach(n => {
+                if (appState.files[n].isBroken) {
+                    brokenItems.push({ name: n, type: 'FILE', path: appState.files[n].path, enc: safeEncode(n) });
+                }
+            });
+            Object.keys(appState.browser).forEach(n => {
+                if (appState.browser[n].isBroken) {
+                    brokenItems.push({ name: n, type: 'WEB', path: appState.browser[n].url, enc: safeEncode(n) });
+                }
+            });
+            if (brokenItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color:#888;">リンク切れアセットはありません。</td></tr>`;
+            } else {
+                brokenItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.style.borderBottom = "1px solid #222";
+                    row.innerHTML = `
+                        <td style="padding: 10px; font-weight: bold; color: var(--ac); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHTML(item.name)}</td>
+                        <td style="padding: 10px; color: #888;">${item.type}</td>
+                        <td style="padding: 10px; color: var(--red); max-width: 250px; word-break: break-all; font-family: monospace;">${escapeHTML(item.path)}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <button onclick="changeImagePathFromList('${item.enc}')" style="padding: 4px 8px; background: var(--btn); color: #fff; border: 0; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold;">変更</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            document.getElementById('broken-overlay').style.display = 'flex';
+        }
+
+        async function changeImagePathFromList(encName) {
+            document.getElementById('broken-overlay').style.display = 'none';
+            await changeImagePath(encName);
+            setTimeout(openBrokenListModal, 500);
+        }
+
+        async function executeInBatches(tasks, batchSize = 5) {
+            const results = [];
+            for (let i = 0; i < tasks.length; i += batchSize) {
+                const batch = tasks.slice(i, i + batchSize);
+                results.push(...await Promise.all(batch.map(task => task())));
+            }
+            return results;
+        }
+
+        function getPathFromSettings(settings) {
+            if (!settings) return "";
+            if (settings.hasOwnProperty('file')) return settings.file || "";
+            if (settings.hasOwnProperty('local_file')) return settings.local_file || "";
+            if (settings.hasOwnProperty('url')) return settings.url || "";
+            if (Array.isArray(settings.playlist) && settings.playlist.length > 0) {
+                return settings.playlist[0].value || "";
+            }
+            if (Array.isArray(settings.files) && settings.files.length > 0) {
+                return settings.files[0].value || "";
+            }
+            return "";
+        }
+
+        function createUpdatedSettings(currentSettings, newPath) {
+            const settings = {};
+            if (currentSettings.hasOwnProperty('file')) {
+                settings.file = newPath;
+            } else if (currentSettings.hasOwnProperty('local_file')) {
+                settings.local_file = newPath;
+            } else if (currentSettings.hasOwnProperty('url')) {
+                settings.url = newPath;
+            } else if (Array.isArray(currentSettings.playlist)) {
+                const playlist = JSON.parse(JSON.stringify(currentSettings.playlist));
+                if (playlist.length > 0) {
+                    playlist[0].value = newPath;
+                } else {
+                    playlist.push({ value: newPath, id: 1 });
+                }
+                settings.playlist = playlist;
+            } else if (Array.isArray(currentSettings.files)) {
+                const files = JSON.parse(JSON.stringify(currentSettings.files));
+                if (files.length > 0) {
+                    files[0].value = newPath;
+                } else {
+                    files.push({ value: newPath });
+                }
+                settings.files = files;
+            } else {
+                settings.file = newPath;
+            }
+            return settings;
+        }
+
+        function performBatchReplaceInSettings(currentSettings, oldText, newText) {
+            let replaced = false;
+            const settings = {};
+            const keys = ['file', 'local_file', 'url'];
+            for (const key of keys) {
+                if (currentSettings.hasOwnProperty(key) && typeof currentSettings[key] === 'string') {
+                    const curValue = currentSettings[key];
+                    if (curValue.includes(oldText)) {
+                        settings[key] = curValue.split(oldText).join(newText);
+                        replaced = true;
+                    }
+                }
+            }
+            if (Array.isArray(currentSettings.playlist)) {
+                const playlist = JSON.parse(JSON.stringify(currentSettings.playlist));
+                let listReplaced = false;
+                for (const item of playlist) {
+                    if (item && typeof item.value === 'string' && item.value.includes(oldText)) {
+                        item.value = item.value.split(oldText).join(newText);
+                        listReplaced = true;
+                        replaced = true;
+                    }
+                }
+                if (listReplaced) {
+                    settings.playlist = playlist;
+                }
+            }
+            if (Array.isArray(currentSettings.files)) {
+                const files = JSON.parse(JSON.stringify(currentSettings.files));
+                let listReplaced = false;
+                for (const item of files) {
+                    if (item && typeof item.value === 'string' && item.value.includes(oldText)) {
+                        item.value = item.value.split(oldText).join(newText);
+                        listReplaced = true;
+                        replaced = true;
+                    }
+                }
+                if (listReplaced) {
+                    settings.files = files;
+                }
+            }
+            return { replaced, settings };
+        }
+
+        async function refreshData() {
+            if (isUserInteracting || isTyping || isRefreshing || isFiltering || !socket || socket.readyState !== 1) return;
+            isRefreshing = true;
+            try {
+                const [sceneRes, sceneListRes] = await Promise.all([sendRequest("GetCurrentProgramScene"), sendRequest("GetSceneList")]);
+                if (!sceneRes || !sceneListRes) return;
+
+                currentScene = sceneRes.currentProgramSceneName;
+                const temp = { text: {}, browser: {}, captures: {}, files: {}, groups: {} };
+                const settingsReqs = [];
+
+                const getAllScenes = async () => {
+                    const scenesWithItems = [];
+                    const fetchItems = async (rootScene, currentParent, isGroup) => {
+                        const reqType = isGroup ? "GetGroupSceneItemList" : "GetSceneItemList";
+                        const res = await sendRequest(reqType, { sceneName: currentParent });
+                        let items = [];
+                        if (res && res.sceneItems) {
+                            for (const item of res.sceneItems) {
+                                items.push({ ...item, _rootScene: rootScene, _parentScene: currentParent });
+                                if (item.isGroup) {
+                                    const groupItems = await fetchItems(rootScene, item.sourceName, true);
+                                    items = items.concat(groupItems);
+                                }
+                            }
+                        }
+                        return items;
+                    };
+                    const tasks = sceneListRes.scenes.map(s => async () => {
+                        const items = await fetchItems(s.sceneName, s.sceneName, false);
+                        scenesWithItems.push({ scene: s.sceneName, items: items });
+                    });
+                    await executeInBatches(tasks, 5);
+                    return scenesWithItems;
+                };
+                const allScenes = await getAllScenes();
+
+                for (const sData of allScenes) {
+                    for (const item of (sData.items || [])) {
+                        const { sourceName: n, inputKind: k, sceneItemId: id, sceneItemEnabled: en, _rootScene, _parentScene, isGroup } = item;
+                        const info = { name: _rootScene || sData.scene, parent: _parentScene || sData.scene, id, enabled: en };
+                        const kind = k || "";
+
+                        if (_parentScene && _parentScene !== (_rootScene || sData.scene)) {
+                            if (!temp.groups[_parentScene]) temp.groups[_parentScene] = { scenes: [], children: new Set() };
+                            temp.groups[_parentScene].children.add(n);
+                        }
+
+                        if (isGroup) {
+                            if (!temp.groups[n]) temp.groups[n] = { scenes: [], children: new Set() };
+                            temp.groups[n].scenes.push(info);
+                        } else if (kind.includes("text")) {
+                            if (!temp.text[n]) {
+                                temp.text[n] = { text: appState?.text?.[n]?.text || "", scenes: [] };
+                                if (!appState?.text?.[n]) {
+                                    settingsReqs.push(() => sendRequest("GetInputSettings", { inputName: n }).then(r => {
+                                        if (r && r.inputSettings) {
+                                            temp.text[n].text = r.inputSettings.text || r.inputSettings.text_val || "";
+                                        }
+                                    }));
+                                }
+                            }
+                            temp.text[n].scenes.push(info);
+                        } else if (kind.includes("browser")) {
+                            if (!temp.browser[n]) {
+                                temp.browser[n] = { url: appState?.browser?.[n]?.url || "", scenes: [], isBroken: appState?.browser?.[n]?.isBroken || false };
+                                if (!appState?.browser?.[n]) {
+                                    settingsReqs.push(() => sendRequest("GetInputSettings", { inputName: n }).then(async r => {
+                                        if (r && r.inputSettings) {
+                                            const s = r.inputSettings;
+                                            const isLocal = s.is_local_file;
+                                            const path = isLocal ? s.local_file : s.url || "";
+                                            temp.browser[n].url = path;
+                                            temp.browser[n].isLocal = isLocal;
+                                            if (isLocal && path) {
+                                                const exists = await checkFileExists(path);
+                                                temp.browser[n].isBroken = !exists;
+                                            } else {
+                                                temp.browser[n].isBroken = false;
+                                            }
+                                        }
+                                    }));
+                                }
+                            }
+                            temp.browser[n].scenes.push(info);
+                        } else if (kind.includes("ffmpeg") || kind.includes("vlc") || kind.includes("image") || kind.includes("slideshow")) {
+                            if (!temp.files[n]) {
+                                temp.files[n] = { 
+                                    scenes: [], 
+                                    path: appState?.files?.[n]?.path || "", 
+                                    isBroken: appState?.files?.[n]?.isBroken || false,
+                                    isBGM: appState?.files?.[n]?.isBGM || false
+                                };
+                                if (!appState?.files?.[n]) {
+                                    settingsReqs.push(() => sendRequest("GetInputSettings", { inputName: n }).then(async r => {
+                                        if (r && r.inputSettings) {
+                                            const s = r.inputSettings;
+                                            const path = getPathFromSettings(s);
+                                            temp.files[n].path = path;
+                                            
+                                            // BGM判定 (VLCソース、または動画ではない音声拡張子のファイルを検知)
+                                            const isBgmFile = /\.(mp3|wav|aac|flac|ogg|m4a|wma)$/i.test(path);
+                                            const isVlc = kind.includes("vlc");
+                                            const isFfmpegAudio = kind.includes("ffmpeg") && !/\.(mp4|webm|avi|mov|mkv|ogg|flv)$/i.test(path);
+                                            temp.files[n].isBGM = isBgmFile || isVlc || isFfmpegAudio;
+
+                                            if (path) {
+                                                const exists = await checkFileExists(path);
+                                                temp.files[n].isBroken = !exists;
+                                                if (!exists) {
+                                                    thumbnailCache[n] = "failed";
+                                                } else if (temp.files[n].isBGM) {
+                                                    thumbnailCache[n] = "audio";
+                                                } else if (kind.includes("image") || kind.includes("slideshow")) {
+                                                    const cleanPath = path.startsWith("file://") ? path : "file:///" + encodeURI(path.replace(/\\/g, '/'));
+                                                    thumbnailCache[n] = cleanPath;
+                                                }
+                                            } else {
+                                                temp.files[n].isBroken = false;
+                                                if (temp.files[n].isBGM) {
+                                                    thumbnailCache[n] = "audio";
+                                                }
+                                            }
+                                        }
+                                    }));
+                                }
+                            }
+                            temp.files[n].scenes.push(info);
+                        } else {
+                            if (!temp.captures[n]) temp.captures[n] = { scenes: [] };
+                            temp.captures[n].scenes.push(info);
+                        }
+                    }
+                }
+                await executeInBatches(settingsReqs, 5);
+
+                let brokenCount = 0;
+                Object.keys(temp.files).forEach(n => {
+                    if (temp.files[n].isBroken) brokenCount++;
+                });
+                Object.keys(temp.browser).forEach(n => {
+                    if (temp.browser[n].isBroken) brokenCount++;
+                });
+                
+                const brokenBtn = document.getElementById('broken-list-btn');
+                const countSpan = document.getElementById('broken-count');
+                if (brokenBtn && countSpan) {
+                    countSpan.innerText = brokenCount;
+                    brokenBtn.style.display = brokenCount > 0 ? 'flex' : 'none';
+                }
+
+                appState = temp;
+
+                Object.keys(activeMacros).forEach(encName => {
+                    const sourceName = safeDecode(encName);
+                    if (!appState.text[sourceName]) {
+                        clearInterval(activeMacros[encName].timer);
+                        delete activeMacros[encName];
+                    }
+                });
+
+                renderActiveTab();
+                applyFilters();
+            } catch (e) {
+                console.error("Error refreshing data:", e);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        let filterTimeout = null;
+        function debouncedFilter() {
+            if (filterTimeout) clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(applyFilters, 100);
+        }
+
+        function applyFilters() {
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if (!activeBtn) return;
+            const type = activeBtn.id.replace('tab-btn-', '');
+            const map = { text: 'control-container', browser: 'browser-container', files: 'files-container', captures: 'captures-container', groups: 'groups-container' };
+            const container = document.getElementById(map[type]);
+            if (!container) return;
+
+            const search = document.getElementById('globalSearch')?.value.toLowerCase() || "";
+            const onlyActive = document.getElementById('globalSceneFilter')?.checked || false;
+            const onlyBroken = document.getElementById('globalBrokenFilter')?.checked || false;
+
+            Array.from(container.children).forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const color = card.dataset.color;
+                const isLive = card.classList.contains('is-live');
+                let isVisible = true;
+
+                if (search && !name.includes(search)) isVisible = false;
+                if (onlyActive && !isLive) isVisible = false;
+                if (activeGlobalColorFilters.size > 0 && !activeGlobalColorFilters.has(color)) isVisible = false;
+                if (onlyBroken && !card.classList.contains('is-broken')) isVisible = false;
+
+                card.style.display = isVisible ? 'flex' : 'none';
+            });
+        }
+
+        function renderActiveTab() {
+            const scrollArea = document.getElementById('main-scroll-area');
+            if (!scrollArea) return;
+            const currentScroll = scrollArea.scrollTop;
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if (!activeBtn) return;
+
+            const type = activeBtn.id.replace('tab-btn-', '');
+            const map = { text: 'control-container', browser: 'browser-container', files: 'files-container', captures: 'captures-container', groups: 'groups-container' };
+            const container = document.getElementById(map[type]);
+            if (!container) return;
+
+            thumbObserver.disconnect();
+            thumbQueue = [];
+            container.innerHTML = "";
+
+            const data = Object.keys(appState[type]).map(n => ({ actualName: n, ...appState[type][n] }));
+            const frag = document.createDocumentFragment();
+
+            data.sort((a, b) => {
+                const aInScene = a.scenes.some(s => s.name === currentScene);
+                const bInScene = b.scenes.some(s => s.name === currentScene);
+                if (aInScene && !bInScene) return -1;
+                if (!aInScene && bInScene) return 1;
+                return a.actualName.localeCompare(b.actualName);
+            }).forEach(item => {
+                const n = item.actualName;
+                const encName = safeEncode(n);
+                const savedColor = colorMemory[n] || 'none';
+                const inCurrentScene = item.scenes.some(s => s.name === currentScene);
+                const isAnyEnabled = item.scenes.some(s => s.enabled);
+                const div = document.createElement('div');
+
+                div.className = (type === 'files' || type === 'captures') ? 'asset-card' : 'control-group';
+                if (inCurrentScene) {
+                    div.classList.add('is-live');
+                } else {
+                    div.classList.add('not-in-scene');
+                }
+                if (thumbnailCache[n] === "failed") {
+                    div.classList.add('is-broken');
+                }
+
+                div.style.backgroundColor = getBgColor(savedColor);
+                div.dataset.name = n;
+                div.dataset.color = savedColor;
+                div.dataset.enc = encName;
+
+                const folderNames = new Set();
+                item.scenes.forEach(s => {
+                    if (s.parent && s.parent !== s.name) folderNames.add(s.parent);
+                });
+
+                // シーン表示 (プルダウン形式で統一)
+                const hasCurrentScene = item.scenes.some(s => s.name === currentScene);
+                const activeDotColor = hasCurrentScene ? 'var(--ac)' : '#444';
+                const activeDotShadow = hasCurrentScene ? '0 0 6px var(--ac)' : 'none';
+                
+                let scenesHtml = `
+                <div class="scene-select-wrapper" style="margin: 6px 0; display: flex; align-items: center; gap: 6px; position: relative; z-index: 20;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: ${activeDotColor}; display: inline-block; box-shadow: ${activeDotShadow}; flex-shrink: 0;" title="${hasCurrentScene ? '現在のシーンに含まれています' : '現在のシーンには含まれていません'}"></span>
+                    <select onchange="changeOBSScene(this.value)" style="flex: 1; min-width: 0; background: var(--search-bg); border: 1px solid var(--bd); color: var(--tx); border-radius: 6px; padding: 4px; font-size: 11px; outline: none; cursor: pointer; font-family: inherit;">`;
+                
+                item.scenes.forEach(s => {
+                    const isSelected = s.name === currentScene ? 'selected' : '';
+                    scenesHtml += `<option value="${escapeHTML(s.name)}" ${isSelected}>${escapeHTML(s.name)}</option>`;
+                });
+                scenesHtml += `</select></div>`;
+
+                const folderBadge = folderNames.size > 0
+                    ? `<div style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.8); padding:3px 6px; border-radius:4px; font-size:10px; color:#ccc; z-index:10; border:1px solid rgba(255,255,255,0.2); pointer-events:none; box-shadow:0 2px 8px rgba(0,0,0,0.5);">📁 ${escapeHTML(Array.from(folderNames).join(', '))}</div>`
+                    : "";
+
+                let content = "";
+                let pid = "";
+                if (type === 'text' || type === 'browser') {
+                    content = `<div style="position:relative; display:flex; flex-direction:column; flex:1;">
+                <textarea onfocus="isTyping=true" onblur="isTyping=false" oninput="markDirty(this)" placeholder="Input ${type}...">${escapeHTML(item.text || item.url || "")}</textarea>
+                ${folderBadge}
+            </div>`;
+                } else if (type === 'files') {
+                    pid = `prev-${encName}`;
+                    content = `<div style="position:relative; display:flex; flex-direction:column; flex:1; min-height:0;">
+                <div class="asset-thumb" id="${pid}" data-enc="${encName}" data-enabled="${isAnyEnabled}" data-active="${inCurrentScene}" data-broken="${item.isBroken}" ondblclick="changeImagePath('${encName}')" title="ダブルクリックでパスを変更">
+                    <div style="color:#444; font-size:10px;">Loading...</div>
+                </div>
+                ${folderBadge}
+            </div>`;
+                } else if (type === 'captures') {
+                    content = `<div style="position:relative; display:flex; flex-direction:column; flex:1; min-height:0;">
+                <div class="asset-thumb" style="cursor:default;" title="${escapeHTML(n)}">
+                    <div style="color:#666; font-size:12px; font-weight:bold;">プレビュー非表示</div>
+                </div>
+                ${folderBadge}
+            </div>`;
+                } else if (type === 'groups') {
+                    const children = item.children ? Array.from(item.children) : [];
+                    content = children.length > 0 
+                        ? `<div style="margin-top: 10px; font-size: 11px; color: #888; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                             <div style="margin-bottom:4px; font-weight:bold; color:#aaa;">含まれるコンテンツ:</div>
+                             <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                                 ${children.map(c => `<span style="background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; border:1px solid rgba(255,255,255,0.1); color:#ccc;">${escapeHTML(c)}</span>`).join('')}
+                             </div>
+                           </div>`
+                        : `<div style="margin-top: 10px; font-size: 11px; color: #666; font-style:italic; padding: 0 4px;">(コンテンツなし)</div>`;
+                }
+
+                const eyeClosedIcon = (!inCurrentScene && !isAnyEnabled) ? `<svg class="icon" style="color:#888; margin-right:4px; vertical-align:middle; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>` : "";
+
+                // BGMかつリンク切れでない場合に「♬」を表示
+                const isBgmAsset = (type === 'files' && item.isBGM && !item.isBroken);
+                const bgmIcon = isBgmAsset ? `<span style="color:var(--ac); margin-right:4px; font-weight:bold; font-size:12px; vertical-align:middle;">♬</span>` : "";
+
+                const nameContainerHtml = `
+                <div style="flex: 1; min-width: 0;">
+                    <div class="source-name-edit" title="Double Click to Rename" ondblclick="renameSource('${encName}')">
+                        ${eyeClosedIcon}
+                        ${bgmIcon}
+                        ${escapeHTML(n)}
+                    </div>
+                </div>`;
+
+                div.innerHTML = `
+                <div class="color-filter-group" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; gap: 4px;">
+                        ${['red', 'blue', 'yellow', 'green', 'white'].map(c => `<div class="filter-dot tag-${c} ${savedColor === c ? 'active' : ''}" onclick="changeColor('${encName}','${c}')"></div>`).join('')}
+                    </div>
+                    <div class="filter-icon-btn" onclick="openFilters('${encName}')" title="フィルターを表示" style="margin-left: auto; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; transition: 0.2s;">
+                        <svg class="icon" style="width: 14px; height: 14px;" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    </div>
+                </div>
+                ${nameContainerHtml}
+                ${scenesHtml}
+                ${content}
+                <div class="btn-row" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+                    <button class="update-btn" onclick="applyUpdate('${encName}', '${type}', this)">${t('saveBtn')}</button>
+                    ${document.body.classList.contains('delete-mode-active') ? `<button class="update-btn delete" onclick="deleteSource('${encName}')">✕</button>` : ""}
+                </div>
+            </div>
+            <div class="filters-overlay" id="filters-overlay-${encName}" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:11px; font-weight:bold; color:var(--ac);">Filters</span>
+                    <div class="close-icon-btn" onclick="closeFilters('${encName}')">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </div>
+                </div>
+                <div id="filters-list-${encName}" style="flex:1; overflow-y:auto; margin-bottom:8px;"></div>
+                <button class="update-btn" style="width:100%;" onclick="openOBSFilters('${encName}')">OBSで開く</button>
+            </div>
+        `;
+                frag.appendChild(div);
+
+                if (pid) {
+                    const thumbEl = div.querySelector(`#${pid}`);
+                    if (thumbEl) thumbObserver.observe(thumbEl);
+                }
+            });
+
+            container.appendChild(frag);
+            scrollArea.scrollTop = currentScroll;
+        }
+
+        async function openFilters(encName) {
+            isFiltering = true;
+            const sourceName = safeDecode(encName);
+            document.getElementById('filters-overlay-' + encName).style.display = 'flex';
+            const res = await sendRequest("GetSourceFilterList", { sourceName: sourceName });
+            const listContainer = document.getElementById('filters-list-' + encName);
+            listContainer.innerHTML = "";
+
+            if (!res || !res.filters || res.filters.length === 0) {
+                listContainer.innerHTML = `<div style="text-align:center; color:#666; font-size:10px; margin-top:10px;">No Filters</div>`;
+                return;
+            }
+
+            res.filters.forEach(f => {
+                const encFilter = safeEncode(f.filterName);
+                const row = document.createElement('div');
+                row.className = 'filter-item-row';
+                row.innerHTML = `
+            <div class="filter-item-name" title="${escapeHTML(f.filterName)}">${escapeHTML(f.filterName)}</div>
+            <label class="switch" style="transform: scale(0.7);">
+                <input type="checkbox" ${f.filterEnabled ? 'checked' : ''} onchange="toggleFilterState('${encName}', '${encFilter}', this.checked)">
+                <span class="slider"></span>
+            </label>
+        `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function closeFilters(encName) {
+            document.getElementById('filters-overlay-' + encName).style.display = 'none';
+            isFiltering = false;
+            refreshData();
+        }
+
+        async function toggleFilterState(encSource, encFilter, isEnabled) {
+            const sourceName = safeDecode(encSource);
+            const filterName = safeDecode(encFilter);
+            await sendRequest("SetSourceFilterEnabled", { sourceName: sourceName, filterName: filterName, filterEnabled: isEnabled });
+        }
+
+        async function openOBSFilters(encName) {
+            const inputName = safeDecode(encName);
+            try {
+                await sendRequest("OpenInputFiltersDialog", { inputName: inputName });
+            } catch (e) {
+                alert("OBSのバージョンが古いか、直接起動に対応していません。");
+            }
+        }
+
+        async function changeImagePath(encName) {
+            const sourceName = safeDecode(encName);
+            const res = await sendRequest("GetInputSettings", { inputName: sourceName });
+            if (!res || !res.inputSettings) {
+                alert("設定の取得に失敗しました。");
+                return;
+            }
+
+            const s = res.inputSettings;
+            const currentPath = getPathFromSettings(s);
+            const newPath = prompt(`「${sourceName}」の新しいパスを入力:`, currentPath);
+
+            if (newPath !== null && newPath !== currentPath && newPath.trim() !== "") {
+                const settings = createUpdatedSettings(s, newPath.trim());
+                await sendRequest("SetInputSettings", { inputName: sourceName, inputSettings: settings });
+                delete thumbnailCache[sourceName];
+                refreshData();
+            }
+        }
+
+        function openBatchReplace() {
+            document.getElementById('replace-old').value = "";
+            document.getElementById('replace-new').value = "";
+            document.getElementById('replace-overlay').style.display = 'flex';
+        }
+
+        async function executeBatchReplace() {
+            const oldText = document.getElementById('replace-old').value;
+            const newText = document.getElementById('replace-new').value;
+            if (!oldText) {
+                alert("旧パスを入力してください。");
+                return;
+            }
+
+            if (!confirm(`表示中のアセットに対し、「${oldText}」を「${newText}」に置換します。\nよろしいですか？`)) return;
+
+            document.getElementById('replace-overlay').style.display = 'none';
+            let replaceCount = 0;
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if (!activeBtn) return;
+
+            const type = activeBtn.id.replace('tab-btn-', '');
+            const map = { text: 'control-container', browser: 'browser-container', files: 'files-container', captures: 'captures-container', groups: 'groups-container' };
+            const container = document.getElementById(map[type]);
+            const visibleCards = Array.from(container.children).filter(card => card.style.display !== 'none');
+
+            if (visibleCards.length === 0) {
+                alert("置換対象となるアセットが表示されていません。");
+                return;
+            }
+
+            container.innerHTML = `<div style="color:var(--ac); width:100%; text-align:center; padding: 20px;">置換中...しばらくお待ちください</div>`;
+
+            for (const card of visibleCards) {
+                const name = card.dataset.name;
+                const res = await sendRequest("GetInputSettings", { inputName: name });
+                if (!res || !res.inputSettings) continue;
+
+                const { replaced, settings } = performBatchReplaceInSettings(res.inputSettings, oldText, newText);
+                if (replaced) {
+                    await sendRequest("SetInputSettings", { inputName: name, inputSettings: settings });
+                    delete thumbnailCache[name];
+                    replaceCount++;
+                }
+            }
+
+            alert(`${replaceCount} 個のアセットのパスを一括置換しました！`);
+            refreshData();
+        }
+
+        function markDirty(el) {
+            el.classList.add('is-dirty');
+            const btn = el.closest('.control-group').querySelector('.update-btn');
+            if (btn) btn.classList.add('is-dirty');
+        }
+
+        async function renameSource(encName) {
+            const oldName = safeDecode(encName);
+            const newName = prompt(`Rename Source:`, oldName);
+            if (newName && newName.trim() !== "" && newName !== oldName) {
+                isUserInteracting = true;
+                const res = await sendRequest("SetInputName", { inputName: oldName, newInputName: newName.trim() });
+                if (res) {
+                    delete thumbnailCache[oldName];
+                    setTimeout(() => {
+                        isUserInteracting = false;
+                        refreshData();
+                    }, 500);
+                } else {
+                    isUserInteracting = false;
+                    alert("Failed to Rename.");
+                }
+            }
+        }
+
+        async function deleteSource(encName) {
+            const name = safeDecode(encName);
+            if (confirm(t('deleteConfirm')(name))) {
+                isUserInteracting = true;
+                const res = await sendRequest("RemoveInput", { inputName: name });
+                if (res) {
+                    const card = document.querySelector(`[data-enc="${encName}"]`);
+                    if (card) {
+                        card.style.opacity = "0";
+                        setTimeout(() => {
+                            card.remove();
+                            isUserInteracting = false;
+                            refreshData();
+                        }, 300);
+                    } else {
+                        isUserInteracting = false;
+                        refreshData();
+                    }
+                } else {
+                    isUserInteracting = false;
+                    alert(t('deleteFailed'));
+                }
+            }
+        }
+
+        async function applyUpdate(encName, type, el) {
+            const name = safeDecode(encName);
+            const card = el.closest('.control-group');
+            const tx = card.querySelector('textarea');
+            if (type === 'text') await sendRequest("SetInputSettings", { inputName: name, inputSettings: { text: tx.value } });
+            if (type === 'browser') {
+                const res = await sendRequest("GetInputSettings", { inputName: name });
+                if (res && res.inputSettings) {
+                    const settings = {};
+                    if (res.inputSettings.is_local_file) {
+                        settings.local_file = tx.value;
+                    } else {
+                        settings.url = tx.value;
+                    }
+                    await sendRequest("SetInputSettings", { inputName: name, inputSettings: settings });
+                } else {
+                    await sendRequest("SetInputSettings", { inputName: name, inputSettings: { url: tx.value } });
+                }
+            }
+
+            tx.classList.remove('is-dirty');
+            el.classList.remove('is-dirty');
+            el.innerText = t('saveDone');
+            el.classList.add('done');
+            setTimeout(() => { el.classList.remove('done'); el.innerText = t('saveBtn'); }, 1500);
+        }
+
+        async function changeOBSScene(sceneName) {
+            if (!sceneName) return;
+            await sendRequest("SetCurrentProgramScene", { sceneName: sceneName });
+        }
+
+        async function toggleAllScenes(encName, newStatus) {
+            const sourceName = safeDecode(encName);
+            let sourceData = appState.text[sourceName] || appState.browser[sourceName] || appState.captures[sourceName] || appState.files[sourceName];
+            if (sourceData) {
+                await Promise.all(sourceData.scenes.map(s => sendRequest("SetSceneItemEnabled", { sceneName: s.parent || s.name, sceneItemId: s.id, sceneItemEnabled: newStatus })));
+            }
+        }
+
+        function switchTab(tabName) {
+            localStorage.setItem(TAB_KEY, tabName);
+            document.querySelectorAll('.tab-btn, .view-section').forEach(e => e.classList.remove('active'));
+            document.getElementById('tab-btn-' + tabName).classList.add('active');
+            document.getElementById('view-' + tabName).classList.add('active');
+            document.getElementById('mainBody').className = 'theme-' + tabName + ' ' + (currentTheme === 'light' ? 'light-mode' : 'dark-mode');
+
+            const ph = { text: 'Search Text...', browser: 'Search Web...', files: 'Search Files...', captures: 'Search Captures...', groups: 'Search Groups...' };
+            const searchInput = document.getElementById('globalSearch');
+            if (searchInput) searchInput.placeholder = t('searchPlaceholder');
+
+            renderActiveTab();
+        }
+
+        function toggleDeleteMode() {
+            document.body.classList.toggle('delete-mode-active', document.getElementById('globalDeleteMode').checked);
+            renderActiveTab();
+        }
+
+        function toggleColorFilter(color, el) {
+            if (activeGlobalColorFilters.has(color)) {
+                activeGlobalColorFilters.delete(color);
+            } else {
+                activeGlobalColorFilters.add(color);
+            }
+            el.classList.toggle('active');
+            applyFilters();
+        }
+
+        function changeColor(encName, c) {
+            const name = safeDecode(encName);
+            const oldColor = colorMemory[name];
+            const newColor = (oldColor === c) ? 'none' : c;
+            colorMemory[name] = newColor;
+            localStorage.setItem(COLOR_KEY, JSON.stringify(colorMemory));
+
+            const card = document.querySelector(`[data-enc="${encName}"]`);
+            if (card) {
+                card.dataset.color = newColor;
+                card.style.backgroundColor = getBgColor(newColor);
+                card.querySelectorAll('.btn-row .filter-dot').forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.classList.contains('tag-' + newColor)) dot.classList.add('active');
+                });
+            }
+            applyFilters();
+        }
+
+        function renameLabel(colorCode) {
+            const newName = prompt(t('tagRenamePrompt')(colorCode), customLabels[colorCode]);
+            if (newName && newName.trim() !== "") {
+                customLabels[colorCode] = newName.trim();
+                localStorage.setItem(LABEL_KEY, JSON.stringify(customLabels));
+                alert(t('tagRenameDone'));
+                renderActiveTab();
+            }
+        }
+
+        function saveSettings() {
+            config.host = document.getElementById('obs-host').value;
+            config.pw = document.getElementById('obs-pw').value;
+            const savePw = document.getElementById('save-pw-toggle').checked;
+            localStorage.setItem(CONFIG_KEY, config.host);
+            localStorage.setItem(SAVE_PW_KEY, savePw);
+            if (savePw) {
+                localStorage.setItem(PW_KEY, b64e(config.pw));
+            } else {
+                localStorage.removeItem(PW_KEY);
+            }
+            document.getElementById('settings-overlay').style.display = 'none';
+            connect();
+        }
+
+        function resetAllSettings() {
+            if (confirm(t('resetConfirm'))) {
+                localStorage.clear();
+                sessionStorage.clear();
+                alert(t('resetDone'));
+                location.reload();
+            }
+        }
+
+        function startSync() {
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshData();
+            refreshTimer = setInterval(refreshData, 60000);
+        }
+
+        function copySettingsToClipboard() {
+            const data = { host: config.host, pw: config.pw };
+            navigator.clipboard.writeText(JSON.stringify(data)).then(() => alert(t('copyDone')));
+        }
+
+        function importSettingsFromClipboard() {
+            navigator.clipboard.readText().then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    if (data.host) {
+                        config.host = data.host;
+                        config.pw = data.pw || "";
+                        saveSettings();
+                        alert(t('importDone'));
+                    }
+                } catch (e) { alert(t('invalidFormat')); }
+            });
+        }
+
+        function initTab() {
+            const savedTab = localStorage.getItem(TAB_KEY);
+            if (savedTab) {
+                switchTab(savedTab);
+            }
+        }
+
+        function toggleSceneView() {
+            isSceneExpanded = !isSceneExpanded;
+            localStorage.setItem(SCENE_VIEW_KEY, isSceneExpanded);
+            applySceneView();
+            renderActiveTab();
+        }
+
+        function applySceneView() {
+            const btn = document.getElementById('global-scene-toggle');
+            if (isSceneExpanded) {
+                document.body.classList.add('expand-scenes-mode');
+                if (btn) {
+                    btn.innerHTML = `${t('sceneLabel')}: <span style="color:#fff;">${t('sceneViewAll')}</span>`;
+                    btn.style.background = "var(--ac)";
+                }
+            } else {
+                document.body.classList.remove('expand-scenes-mode');
+                if (btn) {
+                    btn.innerHTML = `${t('sceneLabel')}: <span style="color:#ccc;">${t('sceneViewSingle')}</span>`;
+                    btn.style.background = "#444";
+                }
+            }
+        }
+
+        window.onload = () => {
+            const urlSettings = getSettingsFromURL();
+            if (urlSettings.host) {
+                config.host = urlSettings.host;
+                localStorage.setItem(CONFIG_KEY, urlSettings.host);
+            }
+            if (urlSettings.pw) {
+                config.pw = urlSettings.pw;
+                localStorage.setItem(PW_KEY, b64e(urlSettings.pw));
+                localStorage.setItem(SAVE_PW_KEY, 'true');
+            }
+
+            applyLanguage();
+            setupTheme();
+            connect();
+            initTab();
+            isSceneExpanded = (localStorage.getItem(SCENE_VIEW_KEY) === 'true');
+            applySceneView();
+
+            const headerThemeToggle = document.getElementById('header-theme-toggle');
+            if (headerThemeToggle) {
+                headerThemeToggle.addEventListener('click', toggleTheme);
+            }
+        };
+    </script>
+    <script src="footer.js"></script>
+</body>
+
+</html>
