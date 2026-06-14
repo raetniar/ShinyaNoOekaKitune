@@ -13,6 +13,9 @@
     <!-- Lucide Icons for premium visual design -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <!-- FontAwesome from index.html -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- JSZip for dynamic zip generation in browser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
@@ -23,26 +26,28 @@
            Design Style: Premium Dark/Light Flat Compact Design
            ========================================================================== */
 
-        /* 1. Theme Configuration & Global Variables */
+        /* 1. Theme Configuration & Global Variables (Aligned exactly to Panel Editor & index.html) */
         :root {
             --transition-speed: 0.2s;
             --border-radius-lg: 8px;
             --border-radius-md: 4px;
             --border-radius-sm: 3px;
             
-            /* Dark Theme Variables (Default) */
-            --bg-primary: #0e0e10;
-            --bg-secondary: #1f1f23;
-            --bg-tertiary: #18181b;
-            --text-primary: #f5f5f7;
-            --text-secondary: #adadb8;
-            --accent-purple: #9146ff;
-            --accent-purple-hover: #772ce8;
-            --accent-purple-rgb: 145, 70, 255;
-            --border-color: #2f2f35;
-            --drop-zone-bg: rgba(145, 70, 255, 0.03);
-            --drop-zone-border: rgba(145, 70, 255, 0.3);
-            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            /* Light Mode Variables (Aligned exactly to index.html) */
+            --bg-main-light: #f8f9fa;
+            --bg-secondary-light: #f8f9fa;
+            --bg-panel-light: #ffffff;
+            --text-primary-light: #111111;
+            --text-secondary-light: #555555;
+            --border-color-light: #e5e7eb;
+            
+            /* Dark Mode Variables */
+            --bg-main-dark: #111111;
+            --bg-secondary-dark: #1a1a1a;
+            --bg-panel-dark: #222222;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+            --border-color-dark: #333333;
             
             /* Twitch Specific Colors (Constant) */
             --twitch-chat-mod: #00AD03;
@@ -63,14 +68,13 @@
             --mock-profile-card-bg: #18181b;
         }
 
-        /* Light Theme Variables */
-        body.light-theme {
-            --bg-primary: #f7f7f8;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #efeef1;
-            --text-primary: #0e0e10;
-            --text-secondary: #53535f;
-            --border-color: #e4e4e7;
+        body.light-mode {
+            --bg-primary: var(--bg-main-light);
+            --bg-secondary: var(--bg-panel-light);
+            --bg-tertiary: var(--bg-secondary-light);
+            --text-primary: var(--text-primary-light);
+            --text-secondary: var(--text-secondary-light);
+            --border-color: var(--border-color-light);
             --drop-zone-bg: rgba(145, 70, 255, 0.02);
             --drop-zone-border: rgba(145, 70, 255, 0.2);
             --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -84,6 +88,18 @@
             --mock-chat-input-bg: #f2f2f7;
             --mock-chat-point-btn-bg: #efeef1;
             --mock-profile-card-bg: #f7f7f8;
+        }
+
+        body.dark-mode {
+            --bg-primary: var(--bg-main-dark);
+            --bg-secondary: var(--bg-panel-dark);
+            --bg-tertiary: var(--bg-secondary-dark);
+            --text-primary: var(--text-primary-dark);
+            --text-secondary: var(--text-secondary-dark);
+            --border-color: var(--border-color-dark);
+            --drop-zone-bg: rgba(145, 70, 255, 0.03);
+            --drop-zone-border: rgba(145, 70, 255, 0.3);
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* 2. Global Resets & Typography */
@@ -155,78 +171,216 @@
             color: var(--accent-purple);
             text-decoration: underline;
         }
-        /* 4. App Header Styling */
-        .app-header {
+        /* Tool Header & Back Button (aligned to Panel Editor / Calendar / index.html) */
+        .tool-header-bar {
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
-            align-items: center;
-            padding: 6px 8px 8px 8px;
+            flex-wrap: nowrap;
+            gap: 16px;
+            padding: 12px 20px;
+            background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 10px;
+            flex-shrink: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
-
-        .header-logo {
+        .tool-title-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+        .tool-title-row {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
-
-        .logo-icon {
-            width: 24px;
-            height: 24px;
-            color: var(--accent-purple);
-            animation: pulse-compact 2s infinite alternate;
-        }
-
-        .header-logo h1 {
-            font-size: 17px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            color: var(--text-primary);
-        }
-
-        .header-logo p {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            width: 32px;
-            height: 32px;
-            border-radius: var(--border-radius-md);
+        .back-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             cursor: pointer;
+            white-space: nowrap;
+        }
+        /* Light Mode Back Button */
+        body.light-mode .back-home-btn {
+            color: #111111;
+            background-color: #f8f9fa;
+            border: 1px solid #d1d5db;
+        }
+        body.light-mode .back-home-btn:hover {
+            color: #ffffff;
+            background-color: #111111;
+            border-color: #111111;
+        }
+        /* Dark Mode Back Button */
+        body.dark-mode .back-home-btn {
+            color: #efeff1;
+            background-color: #18181b;
+            border: 1px solid #3a3a3d;
+        }
+        body.dark-mode .back-home-btn:hover {
+            color: #111111;
+            background-color: #ffffff;
+            border-color: #ffffff;
+        }
+        .tool-name-heading {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.2;
+            white-space: normal;
+        }
+        .tool-description-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin: 0;
+            line-height: 1.3;
+            white-space: normal;
+        }
+        .tool-safety-note {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+            font-weight: 400;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            cursor: help;
+            white-space: nowrap;
+        }
+        .tool-safety-text {
+            display: inline;
+            white-space: nowrap;
+        }
+        .tool-header-actions {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: var(--text-primary);
-            transition: all var(--transition-speed);
+            gap: 12px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
-
-        .theme-toggle-btn:hover {
-            border-color: var(--accent-purple);
+        .header-theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .header-theme-toggle:hover {
             background-color: var(--bg-tertiary);
         }
+        .header-booth-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        /* Light Mode BOOTH: White background, black text */
+        body.light-mode .header-booth-btn {
+            color: #111111;
+            background-color: #ffffff;
+            border: 1px solid #111111;
+        }
+        body.light-mode .header-booth-btn:hover {
+            color: #ffffff;
+            background-color: #111111;
+        }
+        /* Dark Mode BOOTH: Black background, white text */
+        body.dark-mode .header-booth-btn {
+            color: #ffffff;
+            background-color: #111111;
+            border: 1px solid #ffffff;
+        }
+        body.dark-mode .header-booth-btn:hover {
+            color: #111111;
+            background-color: #ffffff;
+        }
+        .tool-header-actions * {
+            white-space: nowrap;
+        }
 
-        .theme-toggle-btn .sun-icon {
-            display: none;
+        /* Responsive Constraints */
+        @media (max-width: 1024px) {
+            .tool-safety-text {
+                display: none;
+            }
+            .tool-safety-note {
+                margin-left: 4px;
+            }
+            .tool-safety-note::after {
+                content: "アップロードされた画像データはローカルブラウザでのみ処理され、サーバーへ送信されることはありません";
+                position: absolute;
+                left: 0;
+                top: 25px;
+                background: #111111;
+                color: #ffffff;
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 0.7rem;
+                z-index: 999;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                border: 1px solid #333333;
+            }
+            body.light-mode .tool-safety-note::after {
+                background: #ffffff;
+                color: #111111;
+                border: 1px solid #d1d5db;
+            }
+            .tool-safety-note:hover::after {
+                opacity: 1;
+                visibility: visible;
+            }
         }
-        .theme-toggle-btn .moon-icon {
-            display: block;
-            width: 16px;
-            height: 16px;
-        }
-
-        body.light-theme .theme-toggle-btn .sun-icon {
-            display: block;
-            color: #f5a623;
-            width: 16px;
-            height: 16px;
-        }
-        body.light-theme .theme-toggle-btn .moon-icon {
-            display: none;
+        @media (max-width: 600px) {
+            .tool-header-actions .btn-text {
+                display: none;
+            }
+            .tool-header-bar {
+                padding: 10px 10px;
+                margin-left: -12px;
+                width: calc(100% + 24px);
+            }
+            .tool-header-actions {
+                gap: 6px;
+            }
         }
 
         /* 5. Main Layout Structuring */
@@ -235,7 +389,7 @@
             grid-template-columns: 1.15fr 0.85fr;
             gap: 12px;
             max-width: 1550px;
-            margin: 0 auto;
+            margin: 60px auto;
         }
 
         @media (max-width: 1150px) {
@@ -925,7 +1079,7 @@
             z-index: 2;
         }
 
-        body.light-theme .preview-tab-btn.active {
+        body.light-mode .preview-tab-btn.active {
             background-color: var(--bg-secondary);
             border-color: var(--border-color);
             border-bottom: 1px solid var(--bg-secondary);
@@ -1316,7 +1470,7 @@
         }
 
         .profile-banner-mock {
-            height: 100px;
+            height: 120px;
             width: 100%;
             background-color: var(--bg-tertiary);
             background-position: center;
@@ -1348,16 +1502,16 @@
 
         .avatar-container-mock {
             position: relative;
-            margin-top: -24px;
+            margin-top: -30px;
             z-index: 2;
         }
 
         .profile-avatar-mock {
-            width: 44px;
-            height: 44px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background-color: var(--bg-secondary);
-            border: 2px solid var(--accent-purple);
+            border: 3px solid #eb0400;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
@@ -1682,7 +1836,7 @@
             background-color: #ff25a7;
         }
 
-        body.light-theme .preview-filename-item {
+        body.light-mode .preview-filename-item {
             background-color: #f0f0f5;
             color: #444455;
         }
@@ -1757,15 +1911,30 @@
         }
     </style>
 </head>
-<body class="dark-theme">
-    <header class="app-header">
-        <div class="header-logo">
-            <i data-lucide="sparkles" class="logo-icon"></i>
+<body class="light-mode">
+    <header class="tool-header-bar">
+        <div class="tool-title-area">
+            <div class="tool-title-row">
+                <h1 class="tool-name-heading">Twitch Image Resizer</h1>
+                <span class="tool-safety-note" title="安全性の詳細">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="tool-safety-text">編集データはブラウザのキャッシュ（localStorage）にのみ保存され、サーバーへ送信されることはありません</span>
+                </span>
+            </div>
+            <span class="tool-description-sub">Twitch用の各種画像をかんたんリサイズ＆プレビュー。登録前の視認性チェックにもご使用いただけます。</span>
         </div>
-        <button id="theme-toggle" class="theme-toggle-btn" aria-label="テーマ切り替え">
-            <i data-lucide="sun" class="sun-icon"></i>
-            <i data-lucide="moon" class="moon-icon"></i>
-        </button>
+        <div class="tool-header-actions">
+            <button id="header-theme-toggle" class="header-theme-toggle" title="テーマ切り替え">
+                <i class="fa-solid fa-sun" id="header-theme-icon"></i>
+                <span id="header-theme-text" class="btn-text">ライトモード</span>
+            </button>
+            <a href="https://shinya-oekaki.booth.pm/" target="_blank" rel="noopener noreferrer" class="header-booth-btn">
+                <i class="fa-solid fa-cart-shopping"></i> <span class="btn-text">booth</span>
+            </a>
+            <a href="../index.html" class="back-home-btn">
+                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span>
+            </a>
+        </div>
     </header>
 
     <main class="app-main-layout">
@@ -1774,11 +1943,11 @@
             <!-- 1. ファイルアップロード / ドロップエリア -->
             <div class="card drop-zone-card">
                 <div id="drop-zone" class="drop-zone">
-                    <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" class="file-input" multiple>
                     <i data-lucide="image-plus" class="upload-icon"></i>
                     <p class="upload-text">画像をドラッグ＆ドロップ、または <span>ファイルを選択</span></p>
                     <p class="upload-hint">PNG, JPEG, WebP | 複数ファイルをまとめてドロップ可能！</p>
                 </div>
+                <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" style="display: none;" multiple>
             </div>
 
             <!-- アップロード済み画像キューリスト -->
@@ -2009,10 +2178,25 @@
                                                 <div class="chat-messages-container" id="chat-messages-list">
                         </div>
 
-                        <div class="chat-input-area" style="display: flex; gap: 8px; padding: 10px; background: var(--mock-chat-input-bg); border-top: 1px solid var(--mock-chat-border);">
-                            <input type="text" id="real-chat-input" placeholder="メッセージを入力..." style="flex: 1; padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 12px;">
-                            <button id="btn-send-chat" class="btn btn-primary btn-sm" style="padding: 4px 10px; font-size: 11px;">送信</button>
-                            <button id="btn-send-emote" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">スタンプ</button>
+                        <!-- 送信用スタンプのバッファおよび巨大化オプション -->
+                        <div class="chat-input-area" style="display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--mock-chat-input-bg); border-top: 1px solid var(--mock-chat-border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 700; color: var(--text-primary);">
+                                    <input type="checkbox" id="chat-huge-emote" style="width: auto; margin-bottom: 0;"> スタンプ巨大化
+                                </label>
+                                <button id="btn-clear-chat-buffer" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 10px;">クリア</button>
+                            </div>
+                            <!-- 送信予定スタンプ表示枠 -->
+                            <div id="chat-send-buffer" style="display: flex; gap: 6px; padding: 4px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; min-height: 36px; align-items: center; overflow-x: auto;">
+                                <span style="font-size: 10px; color: var(--text-secondary); opacity: 0.6; padding-left: 4px;">スタンプを選択して並べてね...</span>
+                            </div>
+                            <!-- キュー内のスタンプ選択肢 -->
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div id="chat-emote-selector" style="display: flex; gap: 6px; overflow-x: auto; flex: 1; padding: 2px 0; max-height: 40px;">
+                                    <span style="font-size: 10px; color: var(--text-secondary); opacity: 0.6;">画像がありません</span>
+                                </div>
+                                <button id="btn-send-buffered-emotes" class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 11px; font-weight: 700; white-space: nowrap;">送信</button>
+                            </div>
                         </div>
                         </div>
                     </div>
@@ -2052,16 +2236,6 @@
                                         <p>ここに入力した情報パネルの画像が実際のサイズ（横幅320px）で表示されます。SNSリンクや配信スケジュールなどの画像に最適です。</p>
                                     </div>
                                 </div>
-
-                                <!-- ダミーの別パネル -->
-                                <div class="panel-card-mock dummy-panel">
-                                    <div class="panel-dummy-header">
-                                        <h4>DONATION</h4>
-                                    </div>
-                                    <div class="panel-text-content">
-                                        <p>活動を応援していただける方は、上記のリンクからドネーション（投げ銭）をお願いいたします！配信環境のクオリティアップに繋がります。</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -2071,105 +2245,153 @@
         </section>
     </main>
 
-    <!-- Zone C: プレミアムリーガルフッター（フラット・アフィリンク統合版） -->
-    <footer class="app-footer">
-        <div class="global-ad-banner">
-            <a id="amazon-ad-link" href="https://www.amazon.co.jp/cer/c/7e4fe727" target="_blank" rel="noopener noreferrer">
-                <span class="ad-badge">AD</span><span id="amazon-ad-text">AmazonプライムとTwitchを連携すると、お好きな配信者に毎月無料でサブスク（支援）ができます！</span>
-            </a>
-            <span style="margin: 0 10px; opacity: 0.5;">|</span>
-            <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer">
-                Twitchのフォローもお願いします！
-            </a>
-        </div>
-    </footer>
-
-    <!-- Embedded Scripts (JS Integrated) -->
+    <script src="footer.js"></script>
     <script>
-        // Amazon Ad Rotation Logic
-        const amazonAds = [
-            { url: 'https://www.amazon.co.jp/cer/c/7e4fe727', text: 'AmazonプライムとTwitchを連携すると、お好きな配信者に毎月無料でサブスク（支援）ができます！' },
-            { url: 'https://amzn.to/4x1PegD', text: '『Blender完全入門』形から質感、光、撮影まで全部できる！' },
-            { url: 'https://amzn.to/4tU7upp', text: '『ビデオサロン 2026年3月号』映像制作の最新情報をチェック' },
-            { url: 'https://amzn.to/4nIg0Gp', text: '『なるほどデッサン』みるみる上達するコツ教えます' },
-            { url: 'https://amzn.to/43sgXsU', text: '『サムネイルデザインのきほん』伝える、目立たせるためのアイデア' },
-            { url: 'https://amzn.to/3RDRIRQ', text: '『「悩まない」配色の基本』好きな色から考えるデザイン' },
-            { url: 'https://amzn.to/4dqcKMs', text: '『はじめての3Dモデリング Blender 4 超入門』' },
-            { url: 'https://amzn.to/4nFXw9o', text: '『描きたい絵が描けるようになる本』明暗・構図・配色の知識' },
-            { url: 'https://amzn.to/4uqBUR5', text: '『10日でBlender 4入門』ミニチュア作りで楽しくはじめる' },
-            { url: 'https://amzn.to/4nLx2Uf', text: '漫画のプロが全力で教える『「描き文字」の基本』' },
-            { url: 'https://amzn.to/49QcGTR', text: '『ポケモン公式ぜんこく図鑑 1996-2026』' }
-        ];
-        let currentAdIndex = 0;
-        function rotateAmazonAd() {
-            const adLink = document.getElementById('amazon-ad-link');
-            const adText = document.getElementById('amazon-ad-text');
-            if (adLink && adText) {
-                // Fade out
-                adLink.style.transition = 'opacity 0.5s';
-                adLink.style.opacity = '0';
-                
-                setTimeout(() => {
-                    currentAdIndex = (currentAdIndex + 1) % amazonAds.length;
-                    adLink.href = amazonAds[currentAdIndex].url;
-                    adText.textContent = amazonAds[currentAdIndex].text;
-                    // Fade in
-                    adLink.style.opacity = '1';
-                }, 500);
-            }
-        }
-        setInterval(rotateAmazonAd, 15000); // 15秒ごとにローテーション
-
-        // Chat Stamp Mockup Logic
         document.addEventListener('DOMContentLoaded', () => {
-            const btnChat = document.getElementById('btn-send-chat');
-            const btnEmote = document.getElementById('btn-send-emote');
-            const inputChat = document.getElementById('real-chat-input');
             const chatList = document.getElementById('chat-messages-list');
+            const chatSendBuffer = document.getElementById('chat-send-buffer');
+            const chatEmoteSelector = document.getElementById('chat-emote-selector');
+            const btnClearBuffer = document.getElementById('btn-clear-chat-buffer');
+            const btnSendBuffered = document.getElementById('btn-send-buffered-emotes');
+            const checkboxHuge = document.getElementById('chat-huge-emote');
             
-            function addMockupChatMessage(message, isEmote = false) {
+            // 送信バッファの状態（画像オブジェクトの配列）
+            let chatBuffer = [];
+
+            // チャット欄へメッセージ追加
+            function addMockupChatMessage(emoteItems, isHuge = false) {
                 if (!chatList) return;
                 const msgEl = document.createElement('div');
                 msgEl.className = 'mock-chat-message';
+                msgEl.style.display = 'flex';
+                msgEl.style.alignItems = 'center';
+                msgEl.style.flexWrap = 'wrap';
+                msgEl.style.gap = '4px';
+                msgEl.style.padding = '4px 8px';
+                
                 const time = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
                 
-                let content = '';
-                if (isEmote) {
-                    const firstImg = document.querySelector('.queue-list .canvas-preview');
-                    let imgSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="%239146ff" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>';
-                    if (firstImg && firstImg.src) {
-                        imgSrc = firstImg.src;
-                    }
-                    content = `<img src="${imgSrc}" alt="stamp" style="max-width: 28px; max-height: 28px; vertical-align: middle;">`;
-                } else {
-                    content = `<span class="message-text">${message.replace(/</g, '&lt;')}</span>`;
-                }
+                let emotesHtml = '';
+                const sizeStyle = isHuge 
+                    ? 'width: 112px; height: 112px; vertical-align: middle; border-radius: 2px;' 
+                    : 'width: 28px; height: 28px; vertical-align: middle; border-radius: 2px;';
+                
+                emoteItems.forEach(item => {
+                    emotesHtml += `<img src="${item.src}" alt="stamp" style="${sizeStyle}">`;
+                });
 
                 msgEl.innerHTML = `
-                    <span class="chat-timestamp">${time}</span>
-                    <span class="chat-username" style="color: var(--twitch-chat-user-1);">You</span>
-                    <span class="chat-separator">:</span>
-                    ${content}
+                    <span class="chat-timestamp" style="font-size: 10px; color: var(--mock-chat-timestamp); margin-right: 4px;">${time}</span>
+                    <span class="chat-username" style="color: var(--twitch-chat-mod); font-weight: 700; margin-right: 4px;">You</span>
+                    <span class="chat-separator" style="color: var(--text-secondary); margin-right: 4px;">:</span>
+                    <div style="display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap;">${emotesHtml}</div>
                 `;
                 chatList.appendChild(msgEl);
                 chatList.scrollTop = chatList.scrollHeight;
             }
 
-            if (btnChat && inputChat) {
-                btnChat.addEventListener('click', () => {
-                    const text = inputChat.value.trim();
-                    if (text) {
-                        addMockupChatMessage(text, false);
-                        inputChat.value = '';
-                    }
+            // セレクター（キュー画像一覧）の描画更新
+            window.updateChatEmoteSelector = function() {
+                if (!chatEmoteSelector) return;
+                chatEmoteSelector.innerHTML = '';
+                
+                if (state.queue.length === 0) {
+                    chatEmoteSelector.innerHTML = '<span style="font-size: 10px; color: var(--text-secondary); opacity: 0.6;">画像がありません</span>';
+                    return;
+                }
+                
+                state.queue.forEach(item => {
+                    const imgEl = document.createElement('img');
+                    imgEl.src = item.src;
+                    imgEl.alt = item.name;
+                    imgEl.style.width = '24px';
+                    imgEl.style.height = '24px';
+                    imgEl.style.objectFit = 'cover';
+                    imgEl.style.cursor = 'pointer';
+                    imgEl.style.border = '1px solid var(--border-color)';
+                    imgEl.style.borderRadius = '3px';
+                    imgEl.title = item.name;
+                    imgEl.addEventListener('click', () => {
+                        addToChatBuffer(item);
+                    });
+                    chatEmoteSelector.appendChild(imgEl);
                 });
-                inputChat.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') btnChat.click();
+            };
+
+            // バッファにスタンプを追加
+            function addToChatBuffer(item) {
+                chatBuffer.push(item);
+                renderChatBuffer();
+            }
+
+            // バッファ描画更新
+            function renderChatBuffer() {
+                if (!chatSendBuffer) return;
+                chatSendBuffer.innerHTML = '';
+                
+                if (chatBuffer.length === 0) {
+                    chatSendBuffer.innerHTML = '<span style="font-size: 10px; color: var(--text-secondary); opacity: 0.6; padding-left: 4px;">スタンプを選択して並べてね...</span>';
+                    return;
+                }
+                
+                chatBuffer.forEach((item, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.display = 'inline-block';
+                    
+                    const imgEl = document.createElement('img');
+                    imgEl.src = item.src;
+                    imgEl.style.width = '24px';
+                    imgEl.style.height = '24px';
+                    imgEl.style.objectFit = 'cover';
+                    imgEl.style.border = '1px solid var(--border-color)';
+                    imgEl.style.borderRadius = '3px';
+                    
+                    // バッファから個別削除するボタン
+                    const delBtn = document.createElement('div');
+                    delBtn.innerHTML = '&times;';
+                    delBtn.style.position = 'absolute';
+                    delBtn.style.top = '-4px';
+                    delBtn.style.right = '-4px';
+                    delBtn.style.width = '10px';
+                    delBtn.style.height = '10px';
+                    delBtn.style.background = '#eb0400';
+                    delBtn.style.color = '#fff';
+                    delBtn.style.borderRadius = '50%';
+                    delBtn.style.fontSize = '8px';
+                    delBtn.style.display = 'flex';
+                    delBtn.style.alignItems = 'center';
+                    delBtn.style.justifyContent = 'center';
+                    delBtn.style.cursor = 'pointer';
+                    delBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        chatBuffer.splice(index, 1);
+                        renderChatBuffer();
+                    });
+                    
+                    wrapper.appendChild(imgEl);
+                    wrapper.appendChild(delBtn);
+                    chatSendBuffer.appendChild(wrapper);
                 });
             }
-            if (btnEmote) {
-                btnEmote.addEventListener('click', () => addMockupChatMessage('', true));
-            }
+
+            // バッファクリア
+            btnClearBuffer?.addEventListener('click', () => {
+                chatBuffer = [];
+                renderChatBuffer();
+            });
+
+            // バッファ送信
+            btnSendBuffered?.addEventListener('click', () => {
+                if (chatBuffer.length === 0) return;
+                
+                const isHuge = checkboxHuge ? checkboxHuge.checked && chatBuffer.length === 1 : false;
+                addMockupChatMessage(chatBuffer, isHuge);
+                
+                // 送信後にバッファクリア
+                chatBuffer = [];
+                renderChatBuffer();
+            });
         });
         /* ==========================================================================
            Twitch Image Resizer & Creator - Integrated Application Script
@@ -2195,12 +2417,12 @@
             dragTarget: null, // 'image' | 'text'
             lastMouseX: 0,
             lastMouseY: 0,
-            theme: 'dark'
+            theme: 'light'
         };
 
         // 2. DOM Elements
         const elements = {
-            themeToggle: document.getElementById('theme-toggle'),
+            themeToggle: document.getElementById('header-theme-toggle'),
             dropZone: document.getElementById('drop-zone'),
             fileInput: document.getElementById('file-input'),
             editorCard: document.getElementById('editor-card'),
@@ -2310,7 +2532,6 @@
             }, 8000); // Rotate every 8 seconds
         }
         function init() {
-            initAdRotation();
             setupTheme();
             setupEventListeners();
             applyPreset();
@@ -2321,31 +2542,40 @@
             lucide.createIcons();
         }
 
+        function updateThemeUI(theme) {
+            localStorage.setItem('twitch-resizer-theme-v2', theme);
+            state.theme = theme;
+            
+            const iconEl = document.getElementById('header-theme-icon');
+            const textEl = document.getElementById('header-theme-text');
+            
+            if (theme === 'dark') {
+                document.body.className = 'dark-mode';
+                if (iconEl) iconEl.className = 'fa-solid fa-moon';
+                if (textEl) textEl.textContent = 'ダークモード';
+            } else {
+                document.body.className = 'light-mode';
+                if (iconEl) iconEl.className = 'fa-solid fa-sun';
+                if (textEl) textEl.textContent = 'ライトモード';
+            }
+            if (typeof draw === 'function') {
+                draw();
+            }
+        }
+
         // テーマの初期設定
-                function setupTheme() {
+        function setupTheme() {
             try {
-                const savedTheme = localStorage.getItem('twitch-resizer-theme');
-                if (savedTheme === 'light') {
-                    document.body.classList.add('light-theme');
-                    document.body.classList.remove('dark-theme');
-                    state.theme = 'light';
-                } else {
-                    document.body.classList.remove('light-theme');
-                    document.body.classList.add('dark-theme');
-                    state.theme = 'dark';
-                }
-            } catch(e) {}
+                const savedTheme = localStorage.getItem('twitch-resizer-theme-v2') || 'light';
+                updateThemeUI(savedTheme);
+            } catch(e) {
+                updateThemeUI('light');
+            }
         }
 
         // 各種イベントリスナー登録
         function setupEventListeners() {
             elements.themeToggle.addEventListener('click', toggleTheme);
-            const btnSendChat = document.getElementById('btn-send-chat');
-            const btnSendEmote = document.getElementById('btn-send-emote');
-            const inputChat = document.getElementById('real-chat-input');
-            if (btnSendChat) btnSendChat.addEventListener('click', () => sendRealChatMessage(false));
-            if (btnSendEmote) btnSendEmote.addEventListener('click', () => sendRealChatMessage(true));
-            if (inputChat) inputChat.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendRealChatMessage(false); });
             elements.dropZone.addEventListener('click', () => elements.fileInput.click());
             elements.fileInput.addEventListener('change', handleFileSelect);
             
@@ -2526,9 +2756,9 @@
                 elements.pointsPopup.classList.add('hidden');
             });
             document.addEventListener('click', () => {
-                elements.pointsPopup.classList.add('hidden');
+                elements.pointsPopup?.classList.add('hidden');
             });
-            elements.pointsPopup.addEventListener('click', (e) => e.stopPropagation());
+            elements.pointsPopup?.addEventListener('click', (e) => e.stopPropagation());
 
             // プレビュータブ切り替えリスナー
             document.querySelectorAll('.preview-tab-btn').forEach(btn => {
@@ -2547,19 +2777,9 @@
             return state.queue.find(item => item.id === state.activeImageId) || null;
         }
 
-                function toggleTheme() {
-            if (document.body.classList.contains('light-theme')) {
-                document.body.classList.remove('light-theme');
-                document.body.classList.add('dark-theme');
-                try { localStorage.setItem('twitch-resizer-theme', 'dark'); } catch(e){}
-                state.theme = 'dark';
-            } else {
-                document.body.classList.add('light-theme');
-                document.body.classList.remove('dark-theme');
-                try { localStorage.setItem('twitch-resizer-theme', 'light'); } catch(e){}
-                state.theme = 'light';
-            }
-            draw();
+        function toggleTheme() {
+            const currentTheme = state.theme === 'light' ? 'dark' : 'light';
+            updateThemeUI(currentTheme);
         }
 
         function applyPreset() {
@@ -2571,7 +2791,9 @@
             elements.canvas.height = preset.height;
             
             elements.currentPresetBadge.textContent = preset.label;
-            elements.previewModeName.textContent = `${preset.name} プレビュー`;
+            if (elements.previewModeName) {
+                elements.previewModeName.textContent = `${preset.name} プレビュー`;
+            }
             elements.namePrefixDisplay.textContent = `${preset.prefix}_`;
             
             // プリセットの種類に応じて自動で対応するタブに切り替える
@@ -2626,6 +2848,7 @@
                             id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                             file: file,
                             img: img,
+                            src: event.target.result,
                             name: baseName,
                             presetKey: state.currentPresetKey,
                             
@@ -2784,6 +3007,7 @@
                 elements.queueList.appendChild(row);
             });
             
+            if (window.updateChatEmoteSelector) window.updateChatEmoteSelector();
             lucide.createIcons();
         }
 
@@ -3290,7 +3514,83 @@
         // 8. キュー内の全画像をZIPで一括エクスポート
         // ==========================================================================
         function exportAllImagesZip() {
-            alert('この機能は削除されています。');
+            if (state.queue.length === 0) {
+                alert('キューに画像がありません。');
+                return;
+            }
+            const preset = PRESETS[state.currentPreset];
+            if (!preset) {
+                alert('有効なプリセットが選択されていません。');
+                return;
+            }
+            
+            const zip = new JSZip();
+            const offCanvas = document.createElement('canvas');
+            const offCtx = offCanvas.getContext('2d');
+            
+            state.queue.forEach(item => {
+                offCanvas.width = preset.width;
+                offCanvas.height = preset.height;
+                offCtx.clearRect(0, 0, preset.width, preset.height);
+                
+                if (item.img) {
+                    offCtx.save();
+                    offCtx.translate(preset.width / 2 + item.imgX, preset.height / 2 + item.imgY);
+                    offCtx.rotate((item.imgRotation * Math.PI) / 180);
+                    const drawW = item.img.width * item.imgScale;
+                    const drawH = item.img.height * item.imgScale;
+                    offCtx.drawImage(item.img, -drawW / 2, -drawH / 2, drawW, drawH);
+                    offCtx.restore();
+                }
+                
+                if (item.textEnabled && item.text.trim() !== '') {
+                    offCtx.save();
+                    offCtx.font = `${item.strokeWidth > 0 ? 'bold' : ''} ${item.fontSize}px ${item.fontFamily}`;
+                    offCtx.textAlign = 'center';
+                    offCtx.textBaseline = 'middle';
+                    const textDrawX = preset.width / 2 + item.textX;
+                    const textDrawY = preset.height / 2 + item.textY;
+                    if (item.strokeWidth > 0) {
+                        offCtx.strokeStyle = item.strokeColor;
+                        offCtx.lineWidth = item.strokeWidth;
+                        offCtx.lineJoin = 'round';
+                        offCtx.lineCap = 'round';
+                        offCtx.strokeText(item.text, textDrawX, textDrawY);
+                    }
+                    offCtx.fillStyle = item.textColor;
+                    offCtx.fillText(item.text, textDrawX, textDrawY);
+                    offCtx.restore();
+                }
+                
+                if (preset.type === 'single') {
+                    const imgUrl = offCanvas.toDataURL('image/png');
+                    const base64Data = imgUrl.split(',')[1];
+                    zip.file(`${preset.prefix}_${item.name}.png`, base64Data, { base64: true });
+                } else {
+                    preset.exportSizes.forEach(size => {
+                        const resizeCanvas = document.createElement('canvas');
+                        resizeCanvas.width = size;
+                        resizeCanvas.height = size;
+                        const resizeCtx = resizeCanvas.getContext('2d');
+                        resizeCtx.imageSmoothingEnabled = true;
+                        resizeCtx.imageSmoothingQuality = 'high';
+                        resizeCtx.drawImage(offCanvas, 0, 0, offCanvas.width, offCanvas.height, 0, 0, size, size);
+                        
+                        const resizeUrl = resizeCanvas.toDataURL('image/png');
+                        const base64Data = resizeUrl.split(',')[1];
+                        zip.file(`${preset.prefix}_${item.name}_${size}x${size}.png`, base64Data, { base64: true });
+                    });
+                }
+            });
+            
+            zip.generateAsync({ type: 'blob' }).then(function(content) {
+                const url = window.URL.createObjectURL(content);
+                const link = document.createElement('a');
+                link.download = `twitch_queue_${preset.prefix}_all.zip`;
+                link.href = url;
+                link.click();
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            });
         }
         // ==========================================================================
         // 14. [NEW] 法的モーダル制御 ＆ 日本語ポリシーデータ
