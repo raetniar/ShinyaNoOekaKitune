@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -425,6 +425,7 @@
             text-transform: uppercase;
             display: flex;
             justify-content: space-between;
+            align-items: baseline;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 0.4rem;
         }
@@ -603,7 +604,6 @@
     </style>
 </head>
 <body>
-
     <div class="container fade-in-section">
         <!-- Header -->
         <header>
@@ -611,9 +611,9 @@
             <div id="collection-header-text" class="fade-in-section">
                 <div class="brand-logo">Collection</div>
                 <h1 class="main-headline">
-                    Streaming & Creation Utilities
-                    <span>配信や創作活動を快適にする、HTMLツール。ときどきお遊び。</span>
-                    <span>ローカルで動作される前の使用感チェックなどに　まだこのさいとじたいがさくせいちゅうだよん</span>
+                    <span>配信を快適にする、HTMLツールおいてます。ときどきお遊び。</span>
+                    <span>導入する前の使用感チェックなどに...</span>
+                    <span>まだこのさいとじたいがさくせいちゅうだよん</span>
                 </h1>
             </div>
 
@@ -621,7 +621,6 @@
             <div id="about-header-text" class="fade-in-section" style="display: none;">
                 <div class="brand-logo">About</div>
                 <h1 class="main-headline">
-                    About uikouka
                     <span>■初狐羽鹿（ういこうか）</span>
                     <span>イヌ科イヌ亜科の一部。独義に"その辺のキツネ属"とされる</span>
 
@@ -662,16 +661,57 @@
         <section id="collection-tab" class="tab-content active">
             <div class="works-grid" id="tools-container">
                 
-                <!-- Card 1: OBS Asset Manager -->
+                <!-- Card 1: Title Manager -->
+                <div class="work-card" data-tags="obs twitch utility" data-title="タイトルマネージャー">
+                    <div class="card-thumbnail thumb-color-6">
+                        <i class="fa-solid fa-list-check"></i>
+                        <div class="card-thumbnail-title">Title Manager</div>
+                    </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>v3.2</span>
+                            <span>26/6/16</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">タイトルマネージャー</h3>
+                            <p class="overlay-desc">配信のセットアップ時に毎回使用する配信タイトルなどをまとめて一時保存・管理・連携できます。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/Title_manager_localize_Ver3.2.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="https://toumei2suisai.booth.pm/items/8164152" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2: Twitch Panel Editor -->
+                <div class="work-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
+                    <div class="card-thumbnail thumb-color-5">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <div class="card-thumbnail-title">Twitch Panel Editor</div>
+                    </div>
+                    <div class="card-overlay">
+                        <div class="overlay-meta">
+                            <span>v1.5</span>
+                            <span>26/6/16</span>
+                        </div>
+                        <div>
+                            <h3 class="overlay-title">Twitch パネルエディター</h3>
+                            <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネルの内容、ブラウザ上で直感的に記入・デザインできます。</p>
+                        </div>
+                        <div class="overlay-footer">
+                            <a href="tools/Twitch_Panel_Editor.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3: OBS Asset Manager -->
                 <div class="work-card" data-tags="obs utility" data-title="OBSアセットマネージャー">
                     <div class="card-thumbnail thumb-color-1">
-                        <i class="fa-solid fa-folder-open"></i>
+                        <i class="fa-solid fa-layer-group"></i>
                         <div class="card-thumbnail-title">OBS Asset Manager</div>
                     </div>
                     <div class="card-overlay">
                         <div class="overlay-meta">
-                            <span>OBS / Utility</span>
                             <span>v1.0</span>
+                            <span>26/6/16</span>
                         </div>
                         <div>
                             <h3 class="overlay-title">OBS アセットマネージャー</h3>
@@ -683,8 +723,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Card 2: Twitch Image Resizer -->
+                <!-- Card 4: Twitch Image Resizer -->
                 <div class="work-card" data-tags="twitch utility" data-title="Twitch画像リサイザー">
                     <div class="card-thumbnail thumb-color-2">
                         <i class="fa-solid fa-images"></i>
@@ -692,21 +731,20 @@
                     </div>
                     <div class="card-overlay">
                         <div class="overlay-meta">
-                            <span>Twitch / Utility</span>
                             <span>v1.0</span>
+                            <span>26/6/16</span>
                         </div>
                         <div>
                             <h3 class="overlay-title">Twitch 画像リサイザー</h3>
-                            <p class="overlay-desc">Twitchのスタンプやバッジなどの画像を、簡単な操作で一括リサイズ・書き出しができるクリエイター向けツール。</p>
+                            <p class="overlay-desc">Twitchのスタンプやバッジなどの画像を、簡単操作で一括リサイズ・書き出しができます。視認性チェックにも◯。とても自分用。
+                            </p>
                         </div>
                         <div class="overlay-footer">
                             <a href="tools/Twitch_Image_Resizer_02.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                            <a href="https://shinya-oekaki.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Card 3: SVG Calendar Generator -->
+                <!-- Card 5: SVG Calendar Generator -->
                 <div class="work-card" data-tags="utility" data-title="SVGカレンダー生成ツール">
                     <div class="card-thumbnail thumb-color-3">
                         <i class="fa-regular fa-calendar-days"></i>
@@ -714,60 +752,15 @@
                     </div>
                     <div class="card-overlay">
                         <div class="overlay-meta">
-                            <span>Utility / Vector</span>
                             <span>v1.0</span>
+                            <span>26/6/16</span>
                         </div>
                         <div>
                             <h3 class="overlay-title">SVG カレンダー生成ツール</h3>
-                            <p class="overlay-desc">配信スケジュールや壁紙に使える、カスタマイズ可能なSVGカレンダー画像を直感的な操作で生成するツール。</p>
+                            <p class="overlay-desc">限定壁紙カレンダーのシンプルなカレンダー枠作成に。今月のSVGカレンダー画像を生成できます。とても自分用です。</p>
                         </div>
                         <div class="overlay-footer">
                             <a href="tools/SVGCalendarGenerator.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                            <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4: Twitch Panel Editor -->
-                <div class="work-card" data-tags="twitch utility" data-title="Twitchパネルエディター">
-                    <div class="card-thumbnail thumb-color-5">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <div class="card-thumbnail-title">Twitch Panel Editor</div>
-                    </div>
-                    <div class="card-overlay">
-                        <div class="overlay-meta">
-                            <span>Twitch / Creator</span>
-                            <span>v1.5</span>
-                        </div>
-                        <div>
-                            <h3 class="overlay-title">Twitch パネルエディター</h3>
-                            <p class="overlay-desc">Twitchのプロフィール概要欄に配置するパネル画像を、テンプレートを元にブラウザ上で直感的にデザイン・書き出し。</p>
-                        </div>
-                        <div class="overlay-footer">
-                            <a href="tools/Twitch_Panel_Editor.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                            <a href="https://toumei2suisai.booth.pm/items/8415575" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 5: Title Manager -->
-                <div class="work-card" data-tags="obs twitch utility" data-title="タイトルマネージャー">
-                    <div class="card-thumbnail thumb-color-6">
-                        <i class="fa-solid fa-heading"></i>
-                        <div class="card-thumbnail-title">Title Manager</div>
-                    </div>
-                    <div class="card-overlay">
-                        <div class="overlay-meta">
-                            <span>OBS / Twitch / Utility</span>
-                            <span>v3.2</span>
-                        </div>
-                        <div>
-                            <h3 class="overlay-title">タイトルマネージャー</h3>
-                            <p class="overlay-desc">配信のセットアップ時に毎回使用する配信タイトルや各種メタデータ（告知文・シャウトアウト先など）をまとめて一時保存・管理・連携するツール。</p>
-                        </div>
-                        <div class="overlay-footer">
-                            <a href="tools/Title_manager_localize_Ver3.2.html" class="detail-btn">Open Tool <i class="fa-solid fa-arrow-right"></i></a>
-                            <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener" class="booth-btn"><i class="fa-solid fa-shop"></i> booth</a>
                         </div>
                     </div>
                 </div>
@@ -1021,3 +1014,11 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
