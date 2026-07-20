@@ -1950,12 +1950,24 @@ class App(ctk.CTk):
         
         if info.get("done", False):
             dialog.destroy()
+            prev_idx = self.active_job_index
             self.jobs = info["jobs_copy"]
-            self.active_job_index = -1
             self.render_job_list()
-            self.render_subtitle_editor_from_active_job()
-            self.show_current_frame()
-            messagebox.showinfo("完了", "選択された候補の字幕生成が完了しました！")
+            
+            target_idx = prev_idx
+            if target_idx < 0 or target_idx >= len(self.jobs):
+                if info.get("selected_indices"):
+                    target_idx = info["selected_indices"][0]
+            
+            if target_idx >= 0 and target_idx < len(self.jobs):
+                self.load_job_to_editor(target_idx)
+                self.switch_wizard_step("step2")
+            else:
+                self.active_job_index = -1
+                self.render_subtitle_editor_from_active_job()
+                self.show_current_frame()
+                
+            messagebox.showinfo("完了", "選択された候補の字幕生成が完了しました！\n「② 字幕・編集」ステップへ自動遷移します。")
             self.bulk_whisper_info = {}
             return
             
