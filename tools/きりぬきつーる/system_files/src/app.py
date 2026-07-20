@@ -773,6 +773,8 @@ class App(ctk.CTk):
         ctk.CTkButton(time_ctrl, text="🎬外部", width=55, command=self.play_in_external_player).pack(side="left", padx=2, pady=3)
         self.time_label = ctk.CTkLabel(time_ctrl, text="00:00 / 00:00", width=90)
         self.time_label.pack(side="left", padx=4, pady=3)
+        self.audio_status_lbl = ctk.CTkLabel(time_ctrl, text="", text_color="orange", font=ctk.CTkFont(size=11))
+        self.audio_status_lbl.pack(side="left", padx=4, pady=3)
         self.seek_slider = ctk.CTkSlider(time_ctrl, from_=0, to=100, number_of_steps=100, command=self.on_seek_drag)
         self.seek_slider.set(0)
         self.seek_slider.pack(side="left", padx=4, pady=3, fill="x", expand=True)
@@ -799,7 +801,7 @@ class App(ctk.CTk):
         self.add_queue_btn = ctk.CTkButton(rf, text="➕ 編集した内容で処理キューに追加する", font=ctk.CTkFont(size=14, weight="bold"), fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.add_active_job_to_queue)
         self.add_queue_btn.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
-        self.char_panel = ctk.CTkFrame(rf)
+        self.char_panel = ctk.CTkScrollableFrame(rf, width=280)
         self.char_panel.grid(row=1, column=2, rowspan=4, padx=(10, 8), pady=5, sticky="nsew")
         self.setup_char_panel()
 
@@ -911,12 +913,11 @@ class App(ctk.CTk):
 
         pos_frame = ctk.CTkFrame(size_pos_row, fg_color="transparent")
         pos_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
-        ctk.CTkLabel(pos_frame, text="位置 Y (px):", font=ctk.CTkFont(size=11)).pack(anchor="w")
-        self.margin_v_entry = ctk.CTkEntry(pos_frame, width=120, height=24)
-        self.margin_v_entry.insert(0, "500")
-        self.margin_v_entry.bind("<FocusOut>", lambda _: self.on_text_style_changed())
-        self.margin_v_entry.bind("<Return>", lambda _: self.on_text_style_changed())
-        self.margin_v_entry.pack(anchor="w", fill="x")
+        self.margin_v_lbl = ctk.CTkLabel(pos_frame, text="位置 Y (500 px):", font=ctk.CTkFont(size=11))
+        self.margin_v_lbl.pack(anchor="w")
+        self.margin_v_slider = ctk.CTkSlider(pos_frame, from_=20.0, to=1920.0, number_of_steps=190, command=self.on_margin_v_slider_changed, height=16)
+        self.margin_v_slider.set(500.0)
+        self.margin_v_slider.pack(anchor="w", fill="x", pady=4)
 
         color_lbl = ctk.CTkLabel(self.char_panel, text="テキスト色 (HEX/RGB):", font=ctk.CTkFont(size=11))
         color_lbl.pack(anchor="w", padx=10, pady=(4, 0))
@@ -1486,8 +1487,30 @@ class App(ctk.CTk):
             self.video_entry.insert(0, fp)
 
     def on_shadow_alpha_changed(self, v):
-        self.shadow_alpha_label.configure(text=f"影不透明度 ({float(v):.2f}):")
+        self.shadow_alpha_lbl.configure(text=f"影不透明度 ({float(v):.2f}):")
         self.on_text_style_changed()
+
+    def on_margin_v_slider_changed(self, v):
+        self.margin_v_lbl.configure(text=f"位置 Y ({int(float(v))} px):")
+        self.on_text_style_changed()
+
+    def get_safe_audio_path(self, path):
+        if not path: return ""
+        abs_path = os.path.abspath(path)
+        if not os.path.exists(abs_path): return abs_path
+        try:
+            import ctypes
+            from ctypes import wintypes
+            GetShortPathNameW = ctypes.windll.kernel32.GetShortPathNameW
+            GetShortPathNameW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
+            GetShortPathNameW.restype = wintypes.DWORD
+            buf = ctypes.create_unicode_buffer(1024)
+            ret = GetShortPathNameW(abs_path, buf, 1024)
+            if ret > 0 and ret <= 1024:
+                return buf.value
+        except Exception:
+            pass
+        return abs_path
 
     def get_preset_images(self):
         img_dir = "画像"
@@ -1966,6 +1989,8 @@ class App(ctk.CTk):
 
     def prepare_preview_audio(self, video_path, start_time, end_time):
         self.audio_ready = False
+        if hasattr(self, "audio_status_lbl"):
+            self.audio_status_lbl.configure(text="🔊 音声抽出中...", text_color="orange")
         try:
             import winsound
             winsound.PlaySound(None, winsound.SND_PURGE)
@@ -1989,6 +2014,8 @@ class App(ctk.CTk):
                 duration = v.duration
                 if start_time >= duration:
                     print("⚠️ プレビュー音声準備: 開始時間が動画長を超えています。")
+                    if hasattr(self, "audio_status_lbl"):
+                        self.audio_status_lbl.configure(text="🔇 範囲外", text_color="red")
                     return
                 safe_end = min(duration, end_time)
                 a = v.subclip(max(0.0, start_time), safe_end).audio
@@ -1996,9 +2023,13 @@ class App(ctk.CTk):
                     a.write_audiofile(self.temp_play_audio, codec="pcm_s16le", fps=44100, logger=None)
                     a.close()
             self.audio_ready = True
+            if hasattr(self, "audio_status_lbl"):
+                self.audio_status_lbl.configure(text="🔊 音声準備完了", text_color="green")
             print(f"🔊 プレビュー音声をロードしました: {self.temp_play_audio}")
         except Exception as e:
             print(f"プレビュー音声切り出し失敗: {e}")
+            if hasattr(self, "audio_status_lbl"):
+                self.audio_status_lbl.configure(text="🔇 音声抽出失敗", text_color="red")
 
     def load_job_to_editor(self, idx):
         if idx < 0 or idx >= len(self.jobs): return
@@ -2086,8 +2117,8 @@ class App(ctk.CTk):
         
         self.font_menu.set(job.get("fontname", "MS Gothic"))
         
-        self.margin_v_entry.delete(0, "end")
-        self.margin_v_entry.insert(0, str(job.get("margin_v", 500)))
+        self.margin_v_slider.set(float(job.get("margin_v", 500)))
+        self.margin_v_lbl.configure(text=f"位置 Y ({int(float(self.margin_v_slider.get()))} px):")
         
         self.loud_zoom_var.set(job.get("loud_zoom", False))
         self.bold_var.set(job.get("bold", False))
@@ -2235,11 +2266,11 @@ class App(ctk.CTk):
                                 a.write_audiofile(temp_seek_audio, codec="pcm_s16le", fps=44100, logger=None)
                                 a.close()
                         
-                        winsound.PlaySound(temp_seek_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
+                        winsound.PlaySound(self.get_safe_audio_path(temp_seek_audio), winsound.SND_ASYNC | winsound.SND_FILENAME)
                     else:
                         self.preview_current_frame = self.preview_start_frame
                         self.preview_cap.set(cv2.CAP_PROP_POS_FRAMES, self.preview_start_frame)
-                        winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
+                        winsound.PlaySound(self.get_safe_audio_path(self.temp_play_audio), winsound.SND_ASYNC | winsound.SND_FILENAME)
                 except Exception as e:
                     print(f"音声再生失敗: {e}")
                     
@@ -2653,7 +2684,7 @@ class App(ctk.CTk):
         
         try:
             import winsound
-            winsound.PlaySound(audio_path, winsound.SND_ASYNC | winsound.SND_FILENAME)
+            winsound.PlaySound(self.get_safe_audio_path(audio_path), winsound.SND_ASYNC | winsound.SND_FILENAME)
         except Exception as e:
             print(f"字幕音声再生失敗: {e}")
             
@@ -2763,8 +2794,8 @@ class App(ctk.CTk):
         self.jobs[self.active_job_index]["color"] = self.color_entry.get().strip()
         self.jobs[self.active_job_index]["fontname"] = self.font_menu.get()
         
-        try: margin_v = int(self.margin_v_entry.get().strip())
-        except ValueError: margin_v = 500
+        try: margin_v = int(self.margin_v_slider.get())
+        except Exception: margin_v = 500
         self.jobs[self.active_job_index]["margin_v"] = margin_v
         
         self.jobs[self.active_job_index]["loud_zoom"] = self.loud_zoom_var.get()
