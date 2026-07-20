@@ -1,0 +1,13 @@
+﻿*.exe
+system_files/build/
+system_files/dist/
+system_files/_internal/
+**/__pycache__/
+動画/*
+!動画/.gitkeep
+ショート/*
+!ショート/.gitkeep
+画像/*
+!画像/.gitkeep
+temp/
+*.wav

@@ -1,0 +1,5 @@
+﻿*.exe
+system_files/ffmpeg.exe
+system_files/_internal/
+**/__pycache__/
+temp/
