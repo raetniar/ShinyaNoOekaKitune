@@ -633,6 +633,8 @@ class App(ctk.CTk):
         self.bulk_whisper_info = {}
         self.audio_ready = False
         self.temp_play_audio = "temp_play_audio.wav"
+        self.loud_zoom_var = ctk.BooleanVar(value=False)
+        self.overlay_enabled_var = ctk.BooleanVar(value=False)
 
         self.create_widgets()
         self.scan_environment()
