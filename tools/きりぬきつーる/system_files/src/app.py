@@ -971,7 +971,7 @@ class App(ctk.CTk):
         sa_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
         self.shadow_alpha_lbl = ctk.CTkLabel(sa_frame, text="影不透明度 (1.00):", font=ctk.CTkFont(size=11))
         self.shadow_alpha_lbl.pack(anchor="w")
-        self.shadow_alpha_slider = ctk.CTkSlider(sa_frame, from_=0.0, to=1.0, number_of_steps=100, command=self.on_shadow_alpha_slider_changed, height=16)
+        self.shadow_alpha_slider = ctk.CTkSlider(sa_frame, from_=0.0, to=1.0, number_of_steps=100, command=self.on_shadow_alpha_changed, height=16)
         self.shadow_alpha_slider.set(1.0)
         self.shadow_alpha_slider.pack(fill="x", pady=4)
 
