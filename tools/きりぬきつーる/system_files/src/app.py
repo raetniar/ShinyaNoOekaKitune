@@ -1000,8 +1000,8 @@ class App(ctk.CTk):
         self.preset_menu = ctk.CTkOptionMenu(preset_row, values=[], height=24, width=130, command=self.on_preset_selected)
         self.preset_menu.set("(選択なし)")
         self.preset_menu.pack(side="left", padx=5)
-        self.preset_save_btn = ctk.CTkButton(preset_row, text="保存", width=40, height=24, command=self.save_current_as_preset)
-        self.preset_save_btn.pack(side="left", padx=2)
+        self.preset_folder_btn = ctk.CTkButton(preset_row, text="📁", width=40, height=24, command=self.open_presets_folder)
+        self.preset_folder_btn.pack(side="left", padx=2)
 
         choose_row = ctk.CTkFrame(self.char_panel, fg_color="transparent")
         choose_row.pack(fill="x", padx=10, pady=2)
