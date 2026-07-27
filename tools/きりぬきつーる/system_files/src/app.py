@@ -775,12 +775,12 @@ class App(ctk.CTk):
         self.step2_frame.grid_columnconfigure(0, weight=1)
         self.step2_frame.grid_rowconfigure(0, weight=1)
 
-        rf = ctk.CTkFrame(self.step2_frame, fg_color="transparent")
+        rf = ctk.CTkScrollableFrame(self.step2_frame, fg_color="transparent")
         rf.grid(row=0, column=0, sticky="nsew")
         rf.grid_columnconfigure(0, weight=1)
         rf.grid_columnconfigure(1, weight=1)
         rf.grid_columnconfigure(2, weight=0, minsize=280)
-        rf.grid_rowconfigure(3, weight=1)
+        rf.grid_rowconfigure(3, weight=1, minsize=340)
 
         hdr_frame = ctk.CTkFrame(rf, fg_color="transparent")
         hdr_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=(8, 3), sticky="ew")
@@ -817,7 +817,7 @@ class App(ctk.CTk):
         self.end_entry.pack(side="left", padx=2, pady=3)
         ctk.CTkButton(time_ctrl, text="更新", width=50, command=self.update_active_job_range).pack(side="left", padx=4, pady=3)
 
-        self.preview_container = ctk.CTkFrame(rf, fg_color="#000000")
+        self.preview_container = ctk.CTkFrame(rf, fg_color="#000000", height=340)
         self.preview_container.grid(row=3, column=0, padx=(10, 4), pady=5, sticky="nsew")
         self.preview_container.grid_propagate(False)
 
@@ -3351,8 +3351,8 @@ class App(ctk.CTk):
             th = h
             tw = int(h * aspect)
             
-        self.current_preview_w = max(100, tw)
-        self.current_preview_h = max(177, th)
+        self.current_preview_w = max(150, tw)
+        self.current_preview_h = max(270, th)
         self.show_current_frame()
 
     def update_log_from_queue(self):
