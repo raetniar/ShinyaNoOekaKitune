@@ -2325,8 +2325,12 @@ class App(ctk.CTk):
 
     def prepare_preview_audio(self, video_path, start_time, end_time):
         self.audio_ready = False
-        if hasattr(self, "audio_status_lbl"):
-            self.audio_status_lbl.configure(text="🔊 音声抽出中...", text_color="orange")
+        def update_ui_status(text, color):
+            if hasattr(self, "audio_status_lbl"):
+                self.after(0, lambda: self.audio_status_lbl.configure(text=text, text_color=color))
+
+        update_ui_status("🔊 音声抽出中...", "orange")
+        
         try:
             import winsound
             winsound.PlaySound(None, winsound.SND_PURGE)
@@ -2344,7 +2348,8 @@ class App(ctk.CTk):
                 except Exception: pass
             
             # Check duration via OpenCV VideoCapture
-            cap = cv2.VideoCapture(os.path.abspath(video_path))
+            abs_video_path = os.path.abspath(video_path)
+            cap = cv2.VideoCapture(abs_video_path)
             fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
             total_f = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
             cap.release()
@@ -2363,7 +2368,7 @@ class App(ctk.CTk):
                 "-y",
                 "-ss", f"{max(0.0, start_time):.3f}",
                 "-t", f"{duration:.3f}",
-                "-i", os.path.abspath(video_path),
+                "-i", abs_video_path,
                 "-map", "0:a:0?",
                 "-vn",
                 "-acodec", "pcm_s16le",
@@ -2376,8 +2381,7 @@ class App(ctk.CTk):
             
             if os.path.exists(self.temp_play_audio) and os.path.getsize(self.temp_play_audio) > 1000:
                 self.audio_ready = True
-                if hasattr(self, "audio_status_lbl"):
-                    self.audio_status_lbl.configure(text="🔊 音声準備完了", text_color="green")
+                update_ui_status("🔊 音声準備完了", "green")
                 return
         except Exception as e:
             print(f"FFmpeg direct extraction fallback: {e}")
@@ -2388,8 +2392,7 @@ class App(ctk.CTk):
             with video_mod.VideoFileClip(safe_vp) as v:
                 v_dur = v.duration
                 if start_time >= v_dur or v.audio is None:
-                    if hasattr(self, "audio_status_lbl"):
-                        self.audio_status_lbl.configure(text="🔇 音声なし", text_color="red")
+                    update_ui_status("🔇 音声なし", "red")
                     return
                 safe_end = min(v_dur, end_time)
                 a = v.subclip(max(0.0, start_time), safe_end).audio
@@ -2397,15 +2400,12 @@ class App(ctk.CTk):
                     a.write_audiofile(self.temp_play_audio, codec="pcm_s16le", fps=44100, logger=None)
                     a.close()
                     self.audio_ready = True
-                    if hasattr(self, "audio_status_lbl"):
-                        self.audio_status_lbl.configure(text="🔊 音声準備完了", text_color="green")
+                    update_ui_status("🔊 音声準備完了", "green")
                 else:
-                    if hasattr(self, "audio_status_lbl"):
-                        self.audio_status_lbl.configure(text="🔇 音声なし", text_color="red")
+                    update_ui_status("🔇 音声なし", "red")
         except Exception as err:
             print(f"❌ プレビュー音声作成失敗: {err}")
-            if hasattr(self, "audio_status_lbl"):
-                self.audio_status_lbl.configure(text="🔇 音声エラー", text_color="red")
+            update_ui_status("🔇 音声エラー", "red")
 
     def refresh_job_select_menu(self):
         if not hasattr(self, "job_select_menu"): return
@@ -2643,9 +2643,10 @@ class App(ctk.CTk):
             self.preview_playing = True
             self.play_btn.configure(text="⏸")
             
-            if hasattr(self, "temp_play_audio") and os.path.exists(self.temp_play_audio):
+            if getattr(self, "audio_ready", False) and hasattr(self, "temp_play_audio") and os.path.exists(self.temp_play_audio):
                 try:
                     import winsound
+                    winsound.PlaySound(None, winsound.SND_PURGE)
                     winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
                 except Exception as e:
                     print(f"音声再生失敗: {e}")
