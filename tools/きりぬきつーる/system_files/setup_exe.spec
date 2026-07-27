@@ -1,12 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+
 block_cipher = None
 
 a = Analysis(
     ['src/setup_gui.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('../きりぬきつーる.exe', '.')],
     hiddenimports=['customtkinter'],
     hookspath=[],
     hooksconfig={},
