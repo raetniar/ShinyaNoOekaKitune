@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>きりぬきつーる 完全使い方マニュアル</title>
+<title>きりぬきつーる 詳細取扱説明書・完全マニュアル</title>
 <style>
   @page {
     size: A4 portrait;
@@ -11,233 +11,259 @@
   body {
     font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     color: #2b2d42;
-    line-height: 1.5;
+    line-height: 1.6;
     background-color: #ffffff;
     margin: 0;
     padding: 0;
-    font-size: 13px;
+    font-size: 12px;
   }
-  .header {
-    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+  .page-break {
+    page-break-before: always;
+  }
+  .header-main {
+    background: linear-gradient(135deg, #0d47a1, #1a73e8);
     color: white;
-    padding: 20px 24px;
+    padding: 22px 26px;
     border-radius: 12px;
-    margin-bottom: 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
-  .header-title h1 {
-    margin: 0 0 4px 0;
+  .header-main h1 {
+    margin: 0 0 6px 0;
     font-size: 24px;
     letter-spacing: 0.5px;
   }
-  .header-title p {
+  .header-main p {
     margin: 0;
     opacity: 0.9;
     font-size: 13px;
   }
-  .badge-ver {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.4);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .step-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.03);
-    border-left: 6px solid #1a73e8;
-  }
   
-  .step-header {
+  .section-title {
+    background: #e8f0fe;
+    color: #1a73e8;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    border-left: 6px solid #1a73e8;
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
   }
   
-  .step-badge {
-    background: #1a73e8;
-    color: white;
-    font-weight: bold;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    margin-right: 12px;
-    letter-spacing: 0.5px;
-  }
-  
-  .step-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #1a73e8;
-    margin: 0;
+  .card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   }
 
-  ol {
-    padding-left: 20px;
-    margin: 8px 0;
+  .ui-badge {
+    background: #1a73e8;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
   }
-  li {
-    margin-bottom: 6px;
-  }
-  
-  .ui-tag {
-    background: #edf2f7;
-    border: 1px solid #cbd5e0;
-    color: #2d3748;
-    padding: 2px 6px;
+
+  .ui-button {
+    background: #e2e8f0;
+    border: 1px solid #94a3b8;
+    color: #0f172a;
+    padding: 2px 8px;
     border-radius: 4px;
     font-weight: bold;
     font-size: 11px;
   }
-  
-  .visual-flow {
-    background: #f7fafc;
-    border: 1px solid #e2e8f0;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 11.5px;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  th {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: bold;
+  }
+
+  .flow-box {
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
     border-radius: 8px;
     padding: 12px;
     margin: 10px 0;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
     text-align: center;
   }
-  
-  .flow-item {
-    flex: 1;
+  .flow-step {
+    display: inline-block;
     background: white;
-    border: 1px solid #cbd5e0;
+    border: 1px solid #cbd5e1;
     border-radius: 6px;
-    padding: 8px;
-    margin: 0 4px;
+    padding: 6px 12px;
     font-weight: bold;
-    font-size: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  
-  .flow-arrow {
-    color: #1a73e8;
-    font-weight: bold;
-    font-size: 16px;
+    color: #1e293b;
+    margin: 4px;
   }
 
-  .tips-container {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-top: 10px;
+  .alert-info {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 11.5px;
   }
-  .tips-title {
-    color: #166534;
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
+  .alert-warning {
+    background: #fffbe6;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 11.5px;
   }
-  .tips-list {
-    margin: 0;
-    padding-left: 18px;
-    color: #15803d;
-  }
-  
+
   .footer {
     text-align: center;
-    margin-top: 20px;
-    font-size: 11px;
-    color: #a0aec0;
+    font-size: 10px;
+    color: #94a3b8;
     border-top: 1px solid #e2e8f0;
-    padding-top: 10px;
+    padding-top: 8px;
+    margin-top: 20px;
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-title">
-    <h1>🎬 きりぬきつーる 完全使い方マニュアル</h1>
-    <p>AI自動検出 ＆ 高機能字幕・テロップ・ショート動画作成ツール</p>
-  </div>
-  <div class="badge-ver">初心者ガイド PDF版</div>
+<!-- PAGE 1 -->
+<div class="header-main">
+  <h1>🎬 きりぬきつーる 完全取扱説明書（マニュアル）</h1>
+  <p>AI自動見どころ判定・文字起こし・字幕テロップ・立ち絵合成 一括編集ツール</p>
 </div>
 
-<div class="step-card">
-  <div class="step-header">
-    <span class="step-badge">STEP 0</span>
-    <h2 class="step-title">インストール ＆ 起動</h2>
-  </div>
+<div class="section-title">📌 第1章：ツールの全体概要 ＆ セットアップ手順</div>
+<div class="card">
+  <p><strong>「きりぬきつーる」</strong>は、配信録画や長尺動画（MP4）から、見どころシーンをAI（Whisper + Gemini）で自動検出・字幕生成し、テロップ装飾や立ち絵画像を載せてショート動画（YouTube Shorts / TikTok / Reels）を高速作成するツールです。</p>
+  
+  <h4 style="margin: 10px 0 6px 0; color: #1a73e8;">■ セットアップ手順（初回インストール）</h4>
   <ol>
-    <li>ダウンロードしたフォルダ内の <span class="ui-tag">セットアップ.exe</span> をダブルクリック。</li>
-    <li>保存先を確認して <span class="ui-tag">🚀 インストール実行</span> ボタンを押します。</li>
-    <li>デスクトップに作成された <span class="ui-tag">きりぬきつーる</span> アイコンからツールを起動します。</li>
+    <li>フォルダ内の <span class="ui-button">セットアップ.exe</span> をダブルクリックで起動します。</li>
+    <li>「インストール先フォルダ」欄で保存先を確認します（デフォルト：<code>Documents\きりぬきつーる</code>）。必要に応じて<span class="ui-button">参照...</span> ボタンで変更可能です。</li>
+    <li><span class="ui-badge">🚀 インストール実行</span> ボタンを押します。自動でファイルがデプロイされ、デスクトップおよびスタートメニューにショートカットが生成されます。</li>
+  </ol>
+
+  <h4 style="margin: 10px 0 6px 0; color: #1a73e8;">■ 作成される主要フォルダの役割</h4>
+  <table>
+    <tr><th>フォルダ名</th><th>役割・用途</th></tr>
+    <tr><td><code>動画/</code></td><td>元となる配信録画や長尺MP4動画を保存する場所</td></tr>
+    <tr><td><code>画像/</code></td><td>動画上に重ねるキャラクター立ち絵やロゴ画像を保存する場所</td></tr>
+    <tr><td><code>ショート/</code></td><td>完成した切り抜きMP4動画が自動出力される場所</td></tr>
+    <tr><td><code>temp/</code></td><td>編集・抽出用の一時音声データが自動保存される作業フォルダ</td></tr>
+  </table>
+</div>
+
+<div class="section-title">📌 第2章：全体設定 ＆ パーソナルデータの入力（Gemini設定）</div>
+<div class="card">
+  <p>AIによる見どころ検出の精度を劇的に向上させるため、右側（または専用タブ）の「パーソナルデータ」を入力します。</p>
+  
+  <table>
+    <tr><th>項目名</th><th>入力内容（必須4項目）</th></tr>
+    <tr><td><strong>配信者名・チャンネル名</strong></td><td>あなたのお名前やチャンネル名（例：しんやチャンネル）</td></tr>
+    <tr><td><strong>キャラクター・主な特徴・性格</strong></td><td>声の特徴やトークのスタイル（例：元気な関西弁、いじられキャラ）</td></tr>
+    <tr><td><strong>主な視聴者層・ターゲット</strong></td><td>普段見ているファン層（例：20〜30代ゲーマー、Vtuber好き）</td></tr>
+    <tr><td><strong>狙いたい視聴者層</strong></td><td>ショート動画で新規獲得したい層（例：短時間で笑いたい人）</td></tr>
+  </table>
+  
+  <div class="alert-info">
+    💡 <strong>動画情報欄（任意）:</strong> 今回の動画のテーマ（例:「〇〇コラボ」「ホラゲー絶叫回」）を入力しておくと、AIがより的確なシーンを抽出してくれます。
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGE 2 -->
+<div class="section-title">📌 第3章：候補の自動生成（Step 1：動画読み込み ＆ AI判定）</div>
+<div class="card">
+  <div class="flow-box">
+    <span class="flow-step">1. 動画ドラッグ＆ドロップ</span> ➔
+    <span class="flow-step">2. AI自動判定ボタン実行</span> ➔
+    <span class="flow-step">3. 候補リスト＆字幕プレビュー生成</span>
+  </div>
+  
+  <ol>
+    <li>「動画ファイル」入力欄に、編集したいMP4動画をドラッグ＆ドロップします。</li>
+    <li><span class="ui-badge">Gemini / AI自動検出</span> をクリックします。Whisperによる高精度な音声認識とGemini AIが連携し、盛り上がりシーンを自動検出します。</li>
+    <li>画面上に切り抜き候補リスト（No.1, No.2 ...）が生成されます。</li>
   </ol>
 </div>
 
-<div class="step-card">
-  <div class="step-header">
-    <span class="step-badge">STEP 1</span>
-    <h2 class="step-title">動画の読み込み ＆ AI見どころ切り抜き候補の自動作成</h2>
-  </div>
-  <ol>
-    <li>元動画（MP4ファイル）をツール画面の「動画ファイル」欄へドラッグ＆ドロップ。</li>
-    <li><span class="ui-tag">Gemini / AI自動検出</span> ボタンをクリック。AIが自動で見どころシーンを検出し候補リストを作成します。</li>
-  </ol>
-  <div class="visual-flow">
-    <div class="flow-item">📥 1. 動画ドラッグ</div>
-    <div class="flow-arrow">➔</div>
-    <div class="flow-item">🤖 2. AI自動解析</div>
-    <div class="flow-arrow">➔</div>
-    <div class="flow-item">📋 3. 候補リスト生成</div>
-  </div>
+<div class="section-title">📌 第4章：詳細編集 ＆ 音声プレビュー（Step 2：字幕・画像装飾）</div>
+<div class="card">
+  <p>生成された各切り抜き候補の字幕テキスト・文字装飾・立ち絵位置を微調整します。</p>
+
+  <h4 style="margin: 10px 0 6px 0; color: #1a73e8;">1. 編集対象の切り替え</h4>
+  <p>画面上部のプルダウンメニュー（<span class="ui-button">No.1 [00:01:23〜] ...</span>）から編集したい候補を選択すると、プレビュー画面および編集項目がその候補へ即座に切替わります。</p>
+
+  <h4 style="margin: 10px 0 6px 0; color: #1a73e8;">2. 音声付きリアルタイムプレビュー</h4>
+  <p><span class="ui-button">▶ 再生ボタン</span> を押すと、最新のオーディオエンジン（WASAPI）により<strong>実際の声・サウンドを聞きながら動画プレビュー</strong>が動きます。シークバーで自由な位置へ移動可能です。</p>
+
+  <h4 style="margin: 10px 0 6px 0; color: #1a73e8;">3. 字幕・テロップ設定</h4>
+  <table>
+    <tr><th>設定項目</th><th>詳細と調整方法</th></tr>
+    <tr><td><strong>テキスト内容</strong></td><td>字幕文字の修正・改行の調整</td></tr>
+    <tr><td><strong>フォント・サイズ</strong></td><td>フォント種類（MSゴシック等）および文字の大きさスライダー</td></tr>
+    <tr><td><strong>文字色・縁取り</strong></td><td>プリセット色（黄・白・赤・緑等）および太さの調整</td></tr>
+    <tr><td><strong>影（ドロップシャドウ）</strong></td><td>影の色・深さ・不透明度スライダー</td></tr>
+    <tr><td><strong>文字位置 Y</strong></td><td>画面上下の表示位置をピクセル指定スライダーで調整</td></tr>
+  </table>
+
+  <h4 style="margin: 10px 0 6px 0; color: #1a73e8;">4. 立ち絵・画像オーバーレイ設定</h4>
+  <p><code>画像/</code> フォルダ内のキャラクター画像を選択し、<span class="ui-badge">表示位置 X/Y</span>、<span class="ui-badge">拡大率（%）</span>、<span class="ui-badge">角度（°）</span>、<span class="ui-badge">不透明度</span> をプレビューを確認しながらリアルタイム調整できます。</p>
 </div>
 
-<div class="step-card">
-  <div class="step-header">
-    <span class="step-badge">STEP 2</span>
-    <h2 class="step-title">字幕テロップ・文字装飾 ＆ 立ち絵（画像）の編集</h2>
-  </div>
-  <ol>
-    <li>ドロップダウンから編集したい候補（<span class="ui-tag">No.1 [00:01:23〜] ...</span>）を選択。</li>
-    <li><span class="ui-tag">▶ 再生ボタン</span> を押し、プレビュー音声を聞きながら字幕タイミングと文字装飾を調整。</li>
-    <li>文字サイズ・カラー・縁取り・影の深さ・位置（Y軸）を調整。</li>
-    <li>キャラクター画像（立ち絵）を配置し、位置（X/Y軸）・拡大率・角度をプレビュー確認しながら設定。</li>
-  </ol>
-  <div class="visual-flow">
-    <div class="flow-item">📺 画面上段：リアルタイム動画プレビュー</div>
-    <div class="flow-arrow">＋</div>
-    <div class="flow-item">🎛 画面下段：字幕・画像タイムライン編集</div>
-  </div>
-</div>
+<div class="page-break"></div>
 
-<div class="step-card">
-  <div class="step-header">
-    <span class="step-badge">STEP 3</span>
-    <h2 class="step-title">切り抜き動画の一括書き出し</h2>
-  </div>
+<!-- PAGE 3 -->
+<div class="section-title">📌 第5章：一括書き出し（Step 3：動画レンダリング）</div>
+<div class="card">
   <ol>
-    <li>出力したい候補のチェックボックスにチェックを入れます。</li>
-    <li><span class="ui-tag">一括動画書き出し</span> を押すと、字幕・装飾付きの切り抜き動画（MP4）が <span class="ui-tag">ショート</span> フォルダへ自動保存されます！</li>
+    <li>完成した候補のチェックボックスにチェックを入れます（複数選択可能）。</li>
+    <li><span class="ui-badge">一括動画書き出し</span> ボタンをクリックします。</li>
+    <li>エンコードが完了すると、<span class="ui-button">ショート</span> フォルダに完成した切り抜きMP4動画が自動保存されます！</li>
   </ol>
 </div>
 
-<div class="tips-container">
-  <div class="tips-title">💡 初心者におすすめの便利ポイント</div>
-  <ul class="tips-list">
-    <li><strong>🔊 音声プレビュー対応:</strong> ▶ ボタンを押せば実音を聴きながら字幕位置をぴったり調整可能！</li>
-    <li><strong>📐 自動レスポンシブ構成:</strong> ウィンドウ幅を狭めても「上：動画 / 下：字幕」の二段構成に自動調整されるためノートPCでも快適作業！</li>
-  </ul>
+<div class="section-title">❓ 第6章：よくある質問・トラブルシューティング (Q&A)</div>
+<div class="card">
+  <h4 style="margin: 6px 0; color: #d97706;">Q1. 再生ボタンを押しても音が聴こえない・音が出ない</h4>
+  <div class="alert-warning">
+    <strong>対策:</strong> Windowsの「音量ミキサー」を開き、<code>きりぬき箇所判定・一括編集ツール</code> の音量が100%になっているか確認してください。再生ボタン（▶）を押すと自動でWASAPIエンジンが音声を読み込み再生します。
+  </div>
+
+  <h4 style="margin: 12px 0 6px 0; color: #d97706;">Q2. 画面の幅を狭くしたらタイムラインやプレビューが見切れる</h4>
+  <div class="alert-info">
+    <strong>仕様:</strong> ウィンドウ幅が1150px未満になると、自動的に「1段目：動画プレビュー全幅」「2段目：字幕タイムライン全幅」の<strong>二段構成縦スタック</strong>へ自動切替わります。ノートPCでも画面が潰れず快適に作業できます。
+  </div>
+
+  <h4 style="margin: 12px 0 6px 0; color: #d97706;">Q3. AI判定がエラーになる</h4>
+  <div class="alert-warning">
+    <strong>対策:</strong> インターネット接続を確認し、Gemini APIキーおよび「全体設定」の必須4項目（配信者名、ターゲット層等）が正しく入力されているか確認してください。
+  </div>
 </div>
 
 <div class="footer">
-  きりぬきつーる Official Manual &copy; 2026 ShinyaNoOekaKitune. All Rights Reserved.
+  きりぬきつーる 公式詳細取扱説明書 &copy; 2026 ShinyaNoOekaKitune. All Rights Reserved.
 </div>
 
 </body>
