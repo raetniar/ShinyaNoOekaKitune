@@ -1257,15 +1257,16 @@ class App(ctk.CTk):
     def setup_prompt_tab(self):
         self.tab_prompt.grid_rowconfigure(0, weight=1)
         self.tab_prompt.grid_columnconfigure(0, weight=1)
+        self.tab_prompt.grid_columnconfigure(1, weight=1)
 
-        # 左カラム: Geminiプロンプト設定 (1カラム化して横いっぱいに広げる)
+        # 左カラム: Geminiプロンプト編集 & コントロール
         left_frame = ctk.CTkFrame(self.tab_prompt, fg_color="transparent")
-        left_frame.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+        left_frame.grid(row=0, column=0, padx=(10, 5), pady=5, sticky="nsew")
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(3, weight=1)
         left_frame.grid_rowconfigure(4, weight=0)
 
-        # 上段1行目: リンク
+        # 1行目: ボタン群
         ptf = ctk.CTkFrame(left_frame)
         ptf.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         ptf.grid_columnconfigure(0, weight=1)
@@ -1276,10 +1277,10 @@ class App(ctk.CTk):
         ctk.CTkButton(ptf, text="🎬 YouTube Studioを開く", font=ctk.CTkFont(weight="bold"), height=35,
                       fg_color="#e52d27", hover_color="#b31217", command=self.open_youtube_studio).grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
-        # 上段2行目: テンプレート管理
+        # 2行目: テンプレート管理
         ptf2 = ctk.CTkFrame(left_frame)
         ptf2.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        ptf2.grid_columnconfigure(1, weight=1) # メニューを横いっぱいに広げる
+        ptf2.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(ptf2, text="指示書テンプレート:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
         self.tpl_menu = ctk.CTkOptionMenu(ptf2, values=list(self.config_data["templates"].keys()), command=self.on_template_changed)
@@ -1289,12 +1290,12 @@ class App(ctk.CTk):
         ctk.CTkButton(ptf2, text="削除", width=55, fg_color="firebrick", hover_color="darkred", command=self.delete_current_template).grid(row=0, column=2, padx=5, pady=10)
         ctk.CTkButton(ptf2, text="別名保存...", width=95, command=self.save_new_template).grid(row=0, column=3, padx=10, pady=10)
 
-        # 3行目: YouTube動画URL ＋ 目標個数設定（Entryが伸縮するため、目標個数入力が画面外に押し出されずに常時表示されます）
+        # 3行目: YouTube動画URL ＋ 目標個数
         yf = ctk.CTkFrame(left_frame)
         yf.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
         yf.grid_columnconfigure(1, weight=1)
         
-        ctk.CTkLabel(yf, text="🎥 対象 of YouTube動画リンク: ", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=8, sticky="w")
+        ctk.CTkLabel(yf, text="🎥 対象のYouTube動画リンク: ", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=8, sticky="w")
         self.youtube_entry = ctk.CTkEntry(yf, placeholder_text="https://www.youtube.com/watch?v=...")
         self.youtube_entry.insert(0, self.config_data.get("last_youtube_url", ""))
         self.youtube_entry.grid(row=0, column=1, padx=10, pady=8, sticky="ew")
@@ -1307,21 +1308,130 @@ class App(ctk.CTk):
         self.count_entry.pack(side="left", padx=2)
         ctk.CTkLabel(count_frame, text="個", font=ctk.CTkFont(weight="bold")).pack(side="left", padx=2)
 
-        # 4行目: プロンプト編集テキスボックス
+        # 4行目: プロンプト編集テキストボックス
         pmf = ctk.CTkFrame(left_frame)
         pmf.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
         pmf.grid_rowconfigure(1, weight=1)
         pmf.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(pmf, text="【プロンプト編集】 {video_url}, {count}, {profile} はコピー時に自動置換されます", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        ctk.CTkLabel(pmf, text="【プロンプト編集】 {video_url}, {count}, {profile}, {video_info} はコピー時に自動置換されます", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=5, sticky="w")
         self.prompt_textbox = ctk.CTkTextbox(pmf, font=(self.ui_font_family, self.ui_font_size))
         self.prompt_textbox.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
-        # 5行目: 上書き・コピーボタン
+        # 5行目: コピーボタン等
         pbf = ctk.CTkFrame(left_frame)
         pbf.grid(row=4, column=0, padx=5, pady=10, sticky="ew")
-        ctk.CTkButton(pbf, text="現在のテンプレートに上書き保存", width=220, command=self.save_current_template).pack(side="left", padx=15, pady=10)
-        ctk.CTkButton(pbf, text="📋 プロンプトをコピー", font=ctk.CTkFont(size=14, weight="bold"), height=35,
-                      fg_color="forestgreen", hover_color="darkgreen", command=self.copy_prompt).pack(side="right", padx=15, pady=10)
+        ctk.CTkButton(pbf, text="現在のテンプレートに上書き保存", width=200, command=self.save_current_template).pack(side="left", padx=10, pady=10)
+        ctk.CTkButton(pbf, text="📋 プロンプトをコピー", font=ctk.CTkFont(size=14, weight="bold"), height=38,
+                      fg_color="forestgreen", hover_color="darkgreen", command=self.copy_prompt).pack(side="right", padx=10, pady=10)
+
+        # 右カラム: パーソナルデータ ＆ 動画情報設定 (スクロール可能)
+        right_frame = ctk.CTkFrame(self.tab_prompt, fg_color="transparent")
+        right_frame.grid(row=0, column=1, padx=(5, 10), pady=5, sticky="nsew")
+        right_frame.grid_columnconfigure(0, weight=1)
+        right_frame.grid_rowconfigure(0, weight=1)
+
+        scroll = ctk.CTkScrollableFrame(right_frame, label_text="✨ パーソナルデータ ＆ 動画情報設定（入力任意）")
+        scroll.grid(row=0, column=0, sticky="nsew")
+        scroll.grid_columnconfigure(0, weight=1)
+
+        # SECTION 1: 配信者パーソナルデータ
+        sec1 = ctk.CTkFrame(scroll)
+        sec1.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        sec1.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(sec1, text="👤 配信者・チャンネルのパーソナルデータ", font=ctk.CTkFont(size=13, weight="bold")).grid(row=0, column=0, padx=10, pady=(10, 4), sticky="w")
+        ctk.CTkLabel(sec1, text="※ ここに入力したデータはプロンプトの {profile} に自動反映されます。", font=ctk.CTkFont(size=10), text_color="gray").grid(row=1, column=0, padx=10, pady=(0, 8), sticky="w")
+
+        # 1. 配信者名・名義
+        ctk.CTkLabel(sec1, text="■ 配信者名・チャンネル名", font=ctk.CTkFont(weight="bold", size=11)).grid(row=2, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_name_entry = ctk.CTkEntry(sec1, placeholder_text="例: 初狐羽鹿 / @UikoUka")
+        self.profile_name_entry.insert(0, self.config_data.get("last_streamer_name", ""))
+        self.profile_name_entry.grid(row=3, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 2. キャラクター・特徴
+        ctk.CTkLabel(sec1, text="■ キャラクター・主な特徴・性格", font=ctk.CTkFont(weight="bold", size=11)).grid(row=4, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_char_entry = ctk.CTkEntry(sec1, placeholder_text="例: ツッコミ系VTuber、ポンコツ、元気、毒舌など")
+        self.profile_char_entry.insert(0, self.config_data.get("last_streamer_profile_char", ""))
+        self.profile_char_entry.grid(row=5, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 3. 話し方・口調・口癖
+        ctk.CTkLabel(sec1, text="■ 話し方・口調・口癖", font=ctk.CTkFont(weight="bold", size=11)).grid(row=6, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_tone_entry = ctk.CTkEntry(sec1, placeholder_text="例: 「〜だよ」「〜じゃん」、語尾に「〜きつね」、関西弁")
+        self.profile_tone_entry.insert(0, self.config_data.get("last_streamer_profile_tone", ""))
+        self.profile_tone_entry.grid(row=7, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 4. 定番フレーズ・決め台詞
+        ctk.CTkLabel(sec1, text="■ 定番フレーズ・決め台詞", font=ctk.CTkFont(weight="bold", size=11)).grid(row=8, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_phrases_entry = ctk.CTkEntry(sec1, placeholder_text="例: 「おつ狐〜！」「絶対に許さん！」")
+        self.profile_phrases_entry.insert(0, self.config_data.get("last_streamer_profile_phrases", ""))
+        self.profile_phrases_entry.grid(row=9, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 5. 視聴者層
+        ctk.CTkLabel(sec1, text="■ 主な視聴者層・ターゲット", font=ctk.CTkFont(weight="bold", size=11)).grid(row=10, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_target_entry = ctk.CTkEntry(sec1, placeholder_text="例: 10代〜20代男性、ゲーム好き、癒やし求む層")
+        self.profile_target_entry.insert(0, self.config_data.get("last_streamer_profile_target", ""))
+        self.profile_target_entry.grid(row=11, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 6. 得意ジャンル・テーマ
+        ctk.CTkLabel(sec1, text="■ 得意ジャンル・主な配信テーマ", font=ctk.CTkFont(weight="bold", size=11)).grid(row=12, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_genre_entry = ctk.CTkEntry(sec1, placeholder_text="例: 雑談配信、レトロゲーム、歌枠、逆転裁判")
+        self.profile_genre_entry.insert(0, self.config_data.get("last_streamer_profile_genre", ""))
+        self.profile_genre_entry.grid(row=13, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 7. NG表現・避ける言葉
+        ctk.CTkLabel(sec1, text="■ NGワード・避ける表現", font=ctk.CTkFont(weight="bold", size=11)).grid(row=14, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_ng_entry = ctk.CTkEntry(sec1, placeholder_text="例: ネガティブな発言、過度な下ネタ、他者の批判")
+        self.profile_ng_entry.insert(0, self.config_data.get("last_streamer_profile_ng", ""))
+        self.profile_ng_entry.grid(row=15, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 8. 登録者数
+        ctk.CTkLabel(sec1, text="■ 登録者数・フォロワー数", font=ctk.CTkFont(weight="bold", size=11)).grid(row=16, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_subscribers_entry = ctk.CTkEntry(sec1, placeholder_text="例: YouTube 1万人、Twitch 5000人など")
+        self.profile_subscribers_entry.insert(0, self.config_data.get("last_streamer_profile_subscribers", ""))
+        self.profile_subscribers_entry.grid(row=17, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 9. 主な投稿プラットフォーム
+        ctk.CTkLabel(sec1, text="■ 主な投稿プラットフォーム", font=ctk.CTkFont(weight="bold", size=11)).grid(row=18, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_platforms_entry = ctk.CTkEntry(sec1, placeholder_text="例: YouTubeショート、TikTok、Instagramリール")
+        self.profile_platforms_entry.insert(0, self.config_data.get("last_streamer_profile_platforms", ""))
+        self.profile_platforms_entry.grid(row=19, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 10. ショート運用実績・バズり傾向
+        ctk.CTkLabel(sec1, text="■ ショート動画のバズり傾向・実績", font=ctk.CTkFont(weight="bold", size=11)).grid(row=20, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_shorts_entry = ctk.CTkEntry(sec1, placeholder_text="例: リアクションが大きい箇所がバズりやすい、テンポの早いツッコミが好評")
+        self.profile_shorts_entry.insert(0, self.config_data.get("last_streamer_profile_shorts", ""))
+        self.profile_shorts_entry.grid(row=21, column=0, padx=10, pady=(0, 10), sticky="ew")
+
+        # SECTION 2: 動画自体の情報記入欄
+        sec2 = ctk.CTkFrame(scroll)
+        sec2.grid(row=1, column=0, padx=5, pady=10, sticky="ew")
+        sec2.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(sec2, text="🎬 今回の対象動画自体の情報・見どころ", font=ctk.CTkFont(size=13, weight="bold")).grid(row=0, column=0, padx=10, pady=(10, 4), sticky="w")
+        ctk.CTkLabel(sec2, text="※ ここに入力したデータはプロンプトの {video_info} に自動反映されます。", font=ctk.CTkFont(size=10), text_color="gray").grid(row=1, column=0, padx=10, pady=(0, 8), sticky="w")
+
+        # 1. 動画/配信タイトル
+        ctk.CTkLabel(sec2, text="■ 動画・配信のタイトル / プレイングゲーム名", font=ctk.CTkFont(weight="bold", size=11)).grid(row=2, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.video_title_entry = ctk.CTkEntry(sec2, placeholder_text="例: 【逆転裁判#3】裁判で大パニック！？")
+        self.video_title_entry.insert(0, self.config_data.get("last_video_title", ""))
+        self.video_title_entry.grid(row=3, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 2. 動画の大まかな内容・ハイライト
+        ctk.CTkLabel(sec2, text="■ 動画の大まかな内容・ハイライト概要", font=ctk.CTkFont(weight="bold", size=11)).grid(row=4, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.video_summary_entry = ctk.CTkEntry(sec2, placeholder_text="例: 証人の矛盾を見つけてドヤ顔したが完全に推理が外れて焦るシーン")
+        self.video_summary_entry.insert(0, self.config_data.get("last_video_summary", ""))
+        self.video_summary_entry.grid(row=5, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 3. 切り抜いてほしい見どころ・テイスト
+        ctk.CTkLabel(sec2, text="■ 特に切り抜いてほしい見どころ・テイスト指定", font=ctk.CTkFont(weight="bold", size=11)).grid(row=6, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.video_focus_entry = ctk.CTkEntry(sec2, placeholder_text="例: 爆笑シーン中心、テンポ良くツッコミを立たせる、ドラマチックな展開")
+        self.video_focus_entry.insert(0, self.config_data.get("last_video_focus", ""))
+        self.video_focus_entry.grid(row=7, column=0, padx=10, pady=(0, 10), sticky="ew")
+
+        # 右カラム下部: 保存ボタン
+        ctk.CTkButton(scroll, text="💾 パーソナルデータ ＆ 動画情報を保存", font=ctk.CTkFont(size=13, weight="bold"),
+                      fg_color="chocolate", hover_color="sienna", height=35, command=self.save_profile_data_only).grid(row=2, column=0, padx=5, pady=10, sticky="ew")
+
 
     def setup_profile_tab(self):
         self.sub_frame_profile.grid_rowconfigure(0, weight=1)
@@ -1376,14 +1486,22 @@ class App(ctk.CTk):
                       command=self.save_profile_data_only).grid(row=14, column=0, padx=15, pady=15, sticky="ew")
 
     def save_profile_data_only(self):
-        self.config_data["last_streamer_profile_char"] = self.profile_char_entry.get().strip()
-        self.config_data["last_streamer_profile_target"] = self.profile_target_entry.get().strip()
-        self.config_data["last_streamer_profile_genre"] = self.profile_genre_entry.get().strip()
-        self.config_data["last_streamer_profile_subscribers"] = self.profile_subscribers_entry.get().strip()
-        self.config_data["last_streamer_profile_platforms"] = self.profile_platforms_entry.get().strip()
-        self.config_data["last_streamer_profile_shorts"] = self.profile_shorts_entry.get().strip()
+        self.config_data["last_streamer_name"] = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_char"] = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_tone"] = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_phrases"] = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_target"] = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_genre"] = getattr(self, "profile_genre_entry", None) and self.profile_genre_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_ng"] = getattr(self, "profile_ng_entry", None) and self.profile_ng_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_subscribers"] = getattr(self, "profile_subscribers_entry", None) and self.profile_subscribers_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_platforms"] = getattr(self, "profile_platforms_entry", None) and self.profile_platforms_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_shorts"] = getattr(self, "profile_shorts_entry", None) and self.profile_shorts_entry.get().strip() or ""
+        self.config_data["last_video_title"] = getattr(self, "video_title_entry", None) and self.video_title_entry.get().strip() or ""
+        self.config_data["last_video_summary"] = getattr(self, "video_summary_entry", None) and self.video_summary_entry.get().strip() or ""
+        self.config_data["last_video_focus"] = getattr(self, "video_focus_entry", None) and self.video_focus_entry.get().strip() or ""
         self.config_manager.save_config(self.config_data)
-        messagebox.showinfo("保存完了", "パーソナルデータを保存しました。")
+        messagebox.showinfo("保存完了", "パーソナルデータ ＆ 動画情報を保存しました。")
+
 
     def setup_dict_tab(self):
         self.sub_frame_dict.grid_rowconfigure(0, weight=1)
@@ -3152,55 +3270,80 @@ class App(ctk.CTk):
 
     def copy_prompt(self):
         cs = self.count_entry.get().strip()
-        if not cs.isdigit() or int(cs) <= 0: messagebox.showwarning("警告", "正の整数を入力してください。"); return
-        cv = int(cs); url = self.youtube_entry.get().strip()
+        if not cs.isdigit() or int(cs) <= 0:
+            messagebox.showwarning("警告", "正の整数を入力してください。")
+            return
+        cv = int(cs)
+        url = self.youtube_entry.get().strip()
         
-        char_val = self.profile_char_entry.get().strip()
-        target_val = self.profile_target_entry.get().strip()
-        genre_val = self.profile_genre_entry.get().strip()
-        subscribers_val = self.profile_subscribers_entry.get().strip()
-        platforms_val = self.profile_platforms_entry.get().strip()
-        shorts_val = self.profile_shorts_entry.get().strip()
-        
+        name_val = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
+        char_val = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
+        tone_val = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
+        phrases_val = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
+        target_val = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
+        genre_val = getattr(self, "profile_genre_entry", None) and self.profile_genre_entry.get().strip() or ""
+        ng_val = getattr(self, "profile_ng_entry", None) and self.profile_ng_entry.get().strip() or ""
+        subscribers_val = getattr(self, "profile_subscribers_entry", None) and self.profile_subscribers_entry.get().strip() or ""
+        platforms_val = getattr(self, "profile_platforms_entry", None) and self.profile_platforms_entry.get().strip() or ""
+        shorts_val = getattr(self, "profile_shorts_entry", None) and self.profile_shorts_entry.get().strip() or ""
+
+        v_title = getattr(self, "video_title_entry", None) and self.video_title_entry.get().strip() or ""
+        v_summary = getattr(self, "video_summary_entry", None) and self.video_summary_entry.get().strip() or ""
+        v_focus = getattr(self, "video_focus_entry", None) and self.video_focus_entry.get().strip() or ""
+
         self.config_data["target_count"] = cv
         self.config_data["last_youtube_url"] = url
+        self.config_data["last_streamer_name"] = name_val
         self.config_data["last_streamer_profile_char"] = char_val
+        self.config_data["last_streamer_profile_tone"] = tone_val
+        self.config_data["last_streamer_profile_phrases"] = phrases_val
         self.config_data["last_streamer_profile_target"] = target_val
         self.config_data["last_streamer_profile_genre"] = genre_val
+        self.config_data["last_streamer_profile_ng"] = ng_val
         self.config_data["last_streamer_profile_subscribers"] = subscribers_val
         self.config_data["last_streamer_profile_platforms"] = platforms_val
         self.config_data["last_streamer_profile_shorts"] = shorts_val
+        self.config_data["last_video_title"] = v_title
+        self.config_data["last_video_summary"] = v_summary
+        self.config_data["last_video_focus"] = v_focus
         self.config_manager.save_config(self.config_data)
         
-        # 6つのパーツを綺麗に連結してプロンプトに差し込む
-        parts = []
-        if char_val:
-            parts.append(f"■配信者様（またはチャンネル）の主なキャラクターや特徴\n{char_val}")
-        if target_val:
-            parts.append(f"■主な視聴者層（例：10代〜20代男性、女性層、ゲーム好きなど）\n{target_val}")
-        if genre_val:
-            parts.append(f"■この動画（または元配信）の簡単なジャンルや概要\n{genre_val}")
-        if subscribers_val:
-            parts.append(f"■現在のチャンネル登録者数・フォロワー数\n{subscribers_val}")
-        if platforms_val:
-            parts.append(f"■主な投稿プラットフォーム\n{platforms_val}")
-        if shorts_val:
-            parts.append(f"■過去 of ショート動画の運用実績\n{shorts_val}")
+        profile_parts = []
+        if name_val: profile_parts.append(f"■配信者名・チャンネル名: {name_val}")
+        if char_val: profile_parts.append(f"■キャラクター・特徴・性格: {char_val}")
+        if tone_val: profile_parts.append(f"■話し方・口調・口癖: {tone_val}")
+        if phrases_val: profile_parts.append(f"■定番フレーズ・決め台詞: {phrases_val}")
+        if target_val: profile_parts.append(f"■主な視聴者層・ターゲット: {target_val}")
+        if genre_val: profile_parts.append(f"■得意ジャンル・配信テーマ: {genre_val}")
+        if ng_val: profile_parts.append(f"■NGワード・避ける表現: {ng_val}")
+        if subscribers_val: profile_parts.append(f"■チャンネル登録者数: {subscribers_val}")
+        if platforms_val: profile_parts.append(f"■主な投稿プラットフォーム: {platforms_val}")
+        if shorts_val: profile_parts.append(f"■ショート動画のバズり傾向: {shorts_val}")
             
-        profile = "\n\n".join(parts)
+        profile = "\n".join(profile_parts)
+
+        video_parts = []
+        if v_title: video_parts.append(f"■動画/配信タイトル: {v_title}")
+        if v_summary: video_parts.append(f"■動画の内容・ハイライト概要: {v_summary}")
+        if v_focus: video_parts.append(f"■特に切り抜いてほしい見どころ・テイスト: {v_focus}")
+
+        video_info = "\n".join(video_parts)
         
         p = self.prompt_textbox.get("1.0", "end-1c")
         p = p.replace("{count}", str(cv)).replace("{count_plus_2}", str(cv + 2))
         p = p.replace("{video_url}", url).replace("*動画のリンク*", url)
         p = p.replace("{profile}", profile)
+        p = p.replace("{video_info}", video_info)
         
-        # テンプレートに {profile} が含まれていない場合でも、自動的に下部に付加する
         if profile and "{profile}" not in self.prompt_textbox.get("1.0", "end-1c"):
-            p += f"\n\n# 配信者の特徴・ターゲット層:\n{profile}"
+            p += f"\n\n# 配信者パーソナルデータ:\n{profile}"
+        if video_info and "{video_info}" not in self.prompt_textbox.get("1.0", "end-1c"):
+            p += f"\n\n# 今回の動画情報:\n{video_info}"
             
-        self.clipboard_clear(); self.clipboard_append(p); self.update()
+        self.clipboard_clear()
+        self.clipboard_append(p)
+        self.update()
         messagebox.showinfo("コピー完了", f"プロンプトをコピーしました！(候補数:{cv}個)")
-
     def on_close(self):
         try:
             import winsound

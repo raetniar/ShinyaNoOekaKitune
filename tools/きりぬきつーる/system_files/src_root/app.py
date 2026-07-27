@@ -1766,15 +1766,80 @@ class App(ctk.CTk):
 
     def copy_prompt(self):
         cs = self.count_entry.get().strip()
-        if not cs.isdigit() or int(cs) <= 0: messagebox.showwarning("警告", "正の整数を入力してください。"); return
-        cv = int(cs); url = self.youtube_entry.get().strip()
-        self.config_data["target_count"] = cv; self.config_data["last_youtube_url"] = url; self.config_manager.save_config(self.config_data)
+        if not cs.isdigit() or int(cs) <= 0:
+            messagebox.showwarning("警告", "正の整数を入力してください。")
+            return
+        cv = int(cs)
+        url = self.youtube_entry.get().strip()
+        
+        name_val = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
+        char_val = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
+        tone_val = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
+        phrases_val = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
+        target_val = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
+        genre_val = getattr(self, "profile_genre_entry", None) and self.profile_genre_entry.get().strip() or ""
+        ng_val = getattr(self, "profile_ng_entry", None) and self.profile_ng_entry.get().strip() or ""
+        subscribers_val = getattr(self, "profile_subscribers_entry", None) and self.profile_subscribers_entry.get().strip() or ""
+        platforms_val = getattr(self, "profile_platforms_entry", None) and self.profile_platforms_entry.get().strip() or ""
+        shorts_val = getattr(self, "profile_shorts_entry", None) and self.profile_shorts_entry.get().strip() or ""
+
+        v_title = getattr(self, "video_title_entry", None) and self.video_title_entry.get().strip() or ""
+        v_summary = getattr(self, "video_summary_entry", None) and self.video_summary_entry.get().strip() or ""
+        v_focus = getattr(self, "video_focus_entry", None) and self.video_focus_entry.get().strip() or ""
+
+        self.config_data["target_count"] = cv
+        self.config_data["last_youtube_url"] = url
+        self.config_data["last_streamer_name"] = name_val
+        self.config_data["last_streamer_profile_char"] = char_val
+        self.config_data["last_streamer_profile_tone"] = tone_val
+        self.config_data["last_streamer_profile_phrases"] = phrases_val
+        self.config_data["last_streamer_profile_target"] = target_val
+        self.config_data["last_streamer_profile_genre"] = genre_val
+        self.config_data["last_streamer_profile_ng"] = ng_val
+        self.config_data["last_streamer_profile_subscribers"] = subscribers_val
+        self.config_data["last_streamer_profile_platforms"] = platforms_val
+        self.config_data["last_streamer_profile_shorts"] = shorts_val
+        self.config_data["last_video_title"] = v_title
+        self.config_data["last_video_summary"] = v_summary
+        self.config_data["last_video_focus"] = v_focus
+        self.config_manager.save_config(self.config_data)
+        
+        profile_parts = []
+        if name_val: profile_parts.append(f"■配信者名・チャンネル名: {name_val}")
+        if char_val: profile_parts.append(f"■キャラクター・特徴・性格: {char_val}")
+        if tone_val: profile_parts.append(f"■話し方・口調・口癖: {tone_val}")
+        if phrases_val: profile_parts.append(f"■定番フレーズ・決め台詞: {phrases_val}")
+        if target_val: profile_parts.append(f"■主な視聴者層・ターゲット: {target_val}")
+        if genre_val: profile_parts.append(f"■得意ジャンル・配信テーマ: {genre_val}")
+        if ng_val: profile_parts.append(f"■NGワード・避ける表現: {ng_val}")
+        if subscribers_val: profile_parts.append(f"■チャンネル登録者数: {subscribers_val}")
+        if platforms_val: profile_parts.append(f"■主な投稿プラットフォーム: {platforms_val}")
+        if shorts_val: profile_parts.append(f"■ショート動画のバズり傾向: {shorts_val}")
+            
+        profile = "\n".join(profile_parts)
+
+        video_parts = []
+        if v_title: video_parts.append(f"■動画/配信タイトル: {v_title}")
+        if v_summary: video_parts.append(f"■動画の内容・ハイライト概要: {v_summary}")
+        if v_focus: video_parts.append(f"■特に切り抜いてほしい見どころ・テイスト: {v_focus}")
+
+        video_info = "\n".join(video_parts)
+        
         p = self.prompt_textbox.get("1.0", "end-1c")
         p = p.replace("{count}", str(cv)).replace("{count_plus_2}", str(cv + 2))
         p = p.replace("{video_url}", url).replace("*動画のリンク*", url)
-        self.clipboard_clear(); self.clipboard_append(p); self.update()
+        p = p.replace("{profile}", profile)
+        p = p.replace("{video_info}", video_info)
+        
+        if profile and "{profile}" not in self.prompt_textbox.get("1.0", "end-1c"):
+            p += f"\n\n# 配信者パーソナルデータ:\n{profile}"
+        if video_info and "{video_info}" not in self.prompt_textbox.get("1.0", "end-1c"):
+            p += f"\n\n# 今回の動画情報:\n{video_info}"
+            
+        self.clipboard_clear()
+        self.clipboard_append(p)
+        self.update()
         messagebox.showinfo("コピー完了", f"プロンプトをコピーしました！(候補数:{cv}個)")
-
     def on_close(self):
         try:
             import winsound
