@@ -11,7 +11,7 @@
   body {
     font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     color: #1e293b;
-    line-height: 1.6;
+    line-height: 1.68;
     background-color: #ffffff;
     margin: 0;
     padding: 0;
@@ -62,11 +62,11 @@
     line-height: 1.2;
   }
   .cover-subtitle {
-    font-size: 16px;
+    font-size: 15px;
     opacity: 0.9;
-    max-width: 480px;
+    max-width: 490px;
     margin: 0 auto 40px auto;
-    line-height: 1.6;
+    line-height: 1.7;
     color: #e2e8f0;
   }
   .cover-decor {
@@ -249,8 +249,8 @@
     <div class="cover-title">🎬 きりぬきつーる<br>完全取扱説明書</div>
     <div class="cover-decor"></div>
     <div class="cover-subtitle">
-      AI自動見どころ検出 ＆ 字幕テロップ・立ち絵合成<br>
-      ショート動画一括作成ツール 初心者ガイド
+      Web版Gemini（AIプロンプト）で取得した見どころを自動切り抜き！<br>
+      字幕テロップ・立ち絵合成 ショート動画一括作成支援ツール
     </div>
     <div class="cover-footer">
       発行: ShinyaNoOekaKitune / バージョン 2026.07
@@ -268,21 +268,21 @@
     <li class="toc-item">
       <div>
         <div class="toc-title">第1章：ツールの全体概要 ＆ セットアップ手順</div>
-        <div class="toc-desc">インストーラーの使い方・フォルダ構造・初期配置</div>
+        <div class="toc-desc">ツールのコンセプト・インストーラー・フォルダ構造</div>
       </div>
       <div class="toc-page">P. 3</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第2章：全体設定 ＆ パーソナルデータの入力（Gemini AI設定）</div>
-        <div class="toc-desc">AI判定精度を向上させる必須4項目と動画情報</div>
+        <div class="toc-desc">Web版Geminiとの連携を高める必須4項目と動画情報</div>
       </div>
       <div class="toc-page">P. 4</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第3章：候補の自動生成（Step 1：動画読み込み ＆ AI判定）</div>
-        <div class="toc-desc">動画のドラッグ＆ドロップとAI見どころ自動検出フロー</div>
+        <div class="toc-desc">見どころポイントの取り込みとAI切り抜き候補生成フロー</div>
       </div>
       <div class="toc-page">P. 5</div>
     </li>
@@ -296,7 +296,7 @@
     <li class="toc-item">
       <div>
         <div class="toc-title">第5章：一括書き出し（Step 3） ＆ トラブルシューティング</div>
-        <div class="toc-desc">MP4動画の一括書き出しとよくある質問・Q&A</div>
+        <div class="toc-desc">ショート動画（MP4）の一括書き出しとよくある質問・Q&A</div>
       </div>
       <div class="toc-page">P. 7</div>
     </li>
@@ -314,7 +314,7 @@
   
   <div class="card">
     <h4 style="margin:0 0 8px 0; color:#2563eb;">■ 「きりぬきつーる」とは？</h4>
-    <p>配信録画や長尺動画（MP4）から、AI（Whisper + Gemini）が見どころシーンを自動で検出・文字起こしを行い、字幕・テロップ・キャラクター立ち絵画像を合成してショート動画（YouTube Shorts / TikTok / Reels）を一括作成するツールです。</p>
+    <p>Web版の<strong>Gemini（AIプロンプト）</strong>を経由して取得した「配信や長尺動画の見どころポイント（切り抜き候補データ）」を取り込み、実際の元動画から該当シーンを自動で切り抜いて、字幕テロップや立ち絵（キャラ画像）の装飾を加え、YouTube Shorts / TikTok / Reels 向けのショート動画を誰でもカンタン＆一括で作成できるようにするための支援ツールです。</p>
   </div>
 
   <div class="card">
@@ -348,7 +348,7 @@
   </div>
 
   <div class="card">
-    <p>AIによる見どころシーン判定の精度を劇的に高めるため、右側（または専用タブ）の「パーソナルデータ」を設定します。</p>
+    <p>Web版Geminiによる見どころシーン判定の精度を劇的に高めるため、右側（または専用タブ）の「パーソナルデータ」を設定します。</p>
     
     <h4 style="margin:10px 0 6px 0; color:#2563eb;">■ 必須設定項目（4項目）</h4>
     <table>
@@ -360,7 +360,7 @@
     </table>
 
     <div class="alert-info">
-      💡 <strong>動画情報記入欄（任意）:</strong> 今回の動画の企画内容（例:「〇〇コラボ」「ホラゲー絶叫回」）を入力しておくと、AIが文脈を理解して最適なシーンを検出します。
+      💡 <strong>動画情報記入欄（任意）:</strong> 今回の動画の企画内容（例:「〇〇コラボ」「ホラゲー絶叫回」）を入力しておくと、Geminiが文脈を理解して最適なシーンを検出します。
     </div>
   </div>
   
@@ -378,13 +378,13 @@
     <h4 style="margin:0 0 8px 0; color:#2563eb;">■ AI判定の流れ</h4>
     <div class="flow-box">
       <span class="flow-step">1. 動画ドラッグ＆ドロップ</span> ➔
-      <span class="flow-step">2. AI自動判定ボタン実行</span> ➔
-      <span class="flow-step">3. 候補リスト＆字幕データ生成</span>
+      <span class="flow-step">2. Gemini AI自動判定実行</span> ➔
+      <span class="flow-step">3. 候補取り込み＆字幕データ生成</span>
     </div>
 
     <ol>
       <li>「動画ファイル」入力欄に、編集したいMP4動画をドラッグ＆ドロップします。</li>
-      <li><span class="ui-badge">Gemini / AI自動検出</span> をクリックします。Whisperによる高精度な音声認識とGemini AIが連携し、盛り上がりシーンを自動検出します。</li>
+      <li><span class="ui-badge">Gemini / AI自動検出</span> をクリックします。Whisperによる高精度な音声認識とGemini AIが連携し、見どころシーンを取り込みます。</li>
       <li>画面上に切り抜き候補リスト（No.1, No.2 ...）が自動生成されます。</li>
     </ol>
   </div>
