@@ -459,6 +459,7 @@ class App(ctk.CTk):
             self.render_job_list()
             self.render_queue_list()
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             
             messagebox.showinfo("読込完了", "作業状態を復元しました。")
         except Exception as e:
@@ -943,6 +944,7 @@ class App(ctk.CTk):
             self.active_job_index = -1
             self.render_job_list()
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
             messagebox.showinfo("完了", "選択された候補の字幕生成が完了しました！")
             self.bulk_whisper_info = {}
@@ -1029,6 +1031,26 @@ class App(ctk.CTk):
         except Exception as e:
             print(f"プレビュー音声切り出し失敗: {e}")
 
+    def refresh_job_select_menu(self):
+        if not hasattr(self, "job_select_menu"): return
+        if not self.jobs:
+            self.job_select_menu.configure(values=["(候補がありません)"])
+            self.job_select_menu.set("(候補がありません)")
+            return
+        vals = [f"No.{i+1} [{seconds_to_hms(j['start'])}〜] {j['title']}" for i, j in enumerate(self.jobs)]
+        self.job_select_menu.configure(values=vals)
+        if 0 <= self.active_job_index < len(vals):
+            self.job_select_menu.set(vals[self.active_job_index])
+
+    def on_job_select_menu_changed(self, choice):
+        if not self.jobs or choice == "(候補がありません)": return
+        for i, j in enumerate(self.jobs):
+            val_str = f"No.{i+1} [{seconds_to_hms(j['start'])}〜] {j['title']}"
+            if choice == val_str:
+                self.save_current_editor_to_active_job()
+                self.load_job_to_editor(i)
+                break
+
     def load_job_to_editor(self, idx):
         if idx < 0 or idx >= len(self.jobs): return
         self.active_job_index = idx
@@ -1086,6 +1108,7 @@ class App(ctk.CTk):
         self.update_playback_time_label()
         self.show_current_frame()
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
 
     def update_active_job_range(self):
         if self.active_job_index == -1: return
@@ -1124,6 +1147,7 @@ class App(ctk.CTk):
             
         self.show_current_frame(); self.update_playback_time_label()
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.checkboxes[self.active_job_index].configure(
             text=f"No.{self.active_job_index + 1} [{seconds_to_hms(s)}～] {job['title']}")
 
@@ -1392,6 +1416,7 @@ class App(ctk.CTk):
                 
             job["subtitles"] = segments
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
             messagebox.showinfo("完了", f"字幕 {len(segments)}件 を生成しました！")
 
@@ -1523,6 +1548,7 @@ class App(ctk.CTk):
         if sub_idx > 0:
             subs[sub_idx], subs[sub_idx - 1] = subs[sub_idx - 1], subs[sub_idx]
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
 
     def move_subtitle_down(self, sub_idx):
@@ -1533,6 +1559,7 @@ class App(ctk.CTk):
         if sub_idx < len(subs) - 1:
             subs[sub_idx], subs[sub_idx + 1] = subs[sub_idx + 1], subs[sub_idx]
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
 
     def delete_subtitle_line(self, sub_idx):
@@ -1542,6 +1569,7 @@ class App(ctk.CTk):
         if 0 <= sub_idx < len(job["subtitles"]):
             del job["subtitles"][sub_idx]
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
 
     def add_new_subtitle_line(self):
@@ -1562,6 +1590,7 @@ class App(ctk.CTk):
             "text": "新規字幕"
         })
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.show_current_frame()
 
     def on_subtitle_time_focus_out(self):
@@ -1569,6 +1598,7 @@ class App(ctk.CTk):
         job = self.jobs[self.active_job_index]
         job["subtitles"].sort(key=lambda x: x["start"])
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.show_current_frame()
 
     def on_subtitle_text_edited(self):
@@ -1577,6 +1607,8 @@ class App(ctk.CTk):
 
     def save_current_editor_to_active_job(self):
         if self.active_job_index == -1: return
+        if not hasattr(self, "subtitle_widgets") or not self.subtitle_widgets:
+            return
         subs = []
         for wg in self.subtitle_widgets:
             if "start" in wg and "end" in wg and "text" in wg:
@@ -1774,9 +1806,22 @@ class App(ctk.CTk):
         
         name_val = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
         char_val = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
+        target_val = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
+        target_future_val = getattr(self, "profile_target_future_entry", None) and self.profile_target_future_entry.get().strip() or ""
+
+        missing_required = []
+        if not name_val: missing_required.append("・配信者名・チャンネル名")
+        if not char_val: missing_required.append("・キャラクター・主な特徴・性格")
+        if not target_val: missing_required.append("・現在の主な視聴者層・ターゲット")
+        if not target_future_val: missing_required.append("・今後狙いたい視聴者層・ターゲット")
+
+        if missing_required:
+            err_msg = "高精度なプロンプトを作成するため、以下の【必須項目】を入力してください:\n\n" + "\n".join(missing_required)
+            messagebox.showwarning("必須項目の未入力", err_msg)
+            return
+
         tone_val = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
         phrases_val = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
-        target_val = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
         genre_val = getattr(self, "profile_genre_entry", None) and self.profile_genre_entry.get().strip() or ""
         ng_val = getattr(self, "profile_ng_entry", None) and self.profile_ng_entry.get().strip() or ""
         subscribers_val = getattr(self, "profile_subscribers_entry", None) and self.profile_subscribers_entry.get().strip() or ""
@@ -1791,9 +1836,10 @@ class App(ctk.CTk):
         self.config_data["last_youtube_url"] = url
         self.config_data["last_streamer_name"] = name_val
         self.config_data["last_streamer_profile_char"] = char_val
+        self.config_data["last_streamer_profile_target"] = target_val
+        self.config_data["last_streamer_profile_target_future"] = target_future_val
         self.config_data["last_streamer_profile_tone"] = tone_val
         self.config_data["last_streamer_profile_phrases"] = phrases_val
-        self.config_data["last_streamer_profile_target"] = target_val
         self.config_data["last_streamer_profile_genre"] = genre_val
         self.config_data["last_streamer_profile_ng"] = ng_val
         self.config_data["last_streamer_profile_subscribers"] = subscribers_val
@@ -1807,9 +1853,10 @@ class App(ctk.CTk):
         profile_parts = []
         if name_val: profile_parts.append(f"■配信者名・チャンネル名: {name_val}")
         if char_val: profile_parts.append(f"■キャラクター・特徴・性格: {char_val}")
+        if target_val: profile_parts.append(f"■現在の主な視聴者層: {target_val}")
+        if target_future_val: profile_parts.append(f"■今後狙いたい視聴者層: {target_future_val}")
         if tone_val: profile_parts.append(f"■話し方・口調・口癖: {tone_val}")
         if phrases_val: profile_parts.append(f"■定番フレーズ・決め台詞: {phrases_val}")
-        if target_val: profile_parts.append(f"■主な視聴者層・ターゲット: {target_val}")
         if genre_val: profile_parts.append(f"■得意ジャンル・配信テーマ: {genre_val}")
         if ng_val: profile_parts.append(f"■NGワード・避ける表現: {ng_val}")
         if subscribers_val: profile_parts.append(f"■チャンネル登録者数: {subscribers_val}")

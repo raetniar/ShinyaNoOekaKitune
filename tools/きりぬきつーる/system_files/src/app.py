@@ -761,7 +761,17 @@ class App(ctk.CTk):
         rf.grid_columnconfigure(2, weight=0, minsize=280)
         rf.grid_rowconfigure(3, weight=1)
 
-        ctk.CTkLabel(rf, text="【3. プレビュー＆字幕タイムライン編集】", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, columnspan=3, padx=10, pady=(8, 3), sticky="w")
+        hdr_frame = ctk.CTkFrame(rf, fg_color="transparent")
+        hdr_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=(8, 3), sticky="ew")
+        hdr_frame.grid_columnconfigure(0, weight=1)
+        
+        ctk.CTkLabel(hdr_frame, text="【3. プレビュー＆字幕タイムライン編集】", font=ctk.CTkFont(weight="bold")).pack(side="left", anchor="w")
+        
+        select_box = ctk.CTkFrame(hdr_frame, fg_color="transparent")
+        select_box.pack(side="right", anchor="e")
+        ctk.CTkLabel(select_box, text="編集対象の候補: ", font=ctk.CTkFont(weight="bold")).pack(side="left", padx=2)
+        self.job_select_menu = ctk.CTkOptionMenu(select_box, values=["(候補がありません)"], width=280, command=self.on_job_select_menu_changed)
+        self.job_select_menu.pack(side="left", padx=2)
 
         self.whisper_btn = ctk.CTkButton(rf, text="🪄 AIで字幕を自動生成 (この範囲のみの音声を解析)", command=self.start_whisper_for_active_job)
         self.whisper_btn.grid(row=1, column=0, columnspan=2, padx=10, pady=4, sticky="ew")
@@ -877,6 +887,11 @@ class App(ctk.CTk):
             self.step1_frame.pack(fill="both", expand=True)
         elif step == "step2":
             self.step2_frame.pack(fill="both", expand=True)
+            if self.jobs and self.active_job_index == -1:
+                self.load_job_to_editor(0)
+            elif 0 <= self.active_job_index < len(self.jobs):
+                self.render_subtitle_editor_from_active_job()
+                self.refresh_job_select_menu()
         elif step == "step3":
             self.step3_frame.pack(fill="both", expand=True)
 
@@ -1122,6 +1137,7 @@ class App(ctk.CTk):
             self.render_job_list()
             self.render_queue_list()
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             
             messagebox.showinfo("読込完了", "作業状態を復元しました。")
         except Exception as e:
@@ -1330,7 +1346,7 @@ class App(ctk.CTk):
         right_frame.grid_columnconfigure(0, weight=1)
         right_frame.grid_rowconfigure(0, weight=1)
 
-        scroll = ctk.CTkScrollableFrame(right_frame, label_text="✨ パーソナルデータ ＆ 動画情報設定（入力任意）")
+        scroll = ctk.CTkScrollableFrame(right_frame, label_text="✨ パーソナルデータ ＆ 動画情報設定")
         scroll.grid(row=0, column=0, sticky="nsew")
         scroll.grid_columnconfigure(0, weight=1)
 
@@ -1340,74 +1356,80 @@ class App(ctk.CTk):
         sec1.grid_columnconfigure(0, weight=1)
 
         ctk.CTkLabel(sec1, text="👤 配信者・チャンネルのパーソナルデータ", font=ctk.CTkFont(size=13, weight="bold")).grid(row=0, column=0, padx=10, pady=(10, 4), sticky="w")
-        ctk.CTkLabel(sec1, text="※ ここに入力したデータはプロンプトの {profile} に自動反映されます。", font=ctk.CTkFont(size=10), text_color="gray").grid(row=1, column=0, padx=10, pady=(0, 8), sticky="w")
+        ctk.CTkLabel(sec1, text="※ (★必須) 項目を入力すると高精度なプロンプトが作成されます。", font=ctk.CTkFont(size=10), text_color="orange").grid(row=1, column=0, padx=10, pady=(0, 8), sticky="w")
 
-        # 1. 配信者名・名義
-        ctk.CTkLabel(sec1, text="■ 配信者名・チャンネル名", font=ctk.CTkFont(weight="bold", size=11)).grid(row=2, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 1. 配信者名・名義 (★必須)
+        ctk.CTkLabel(sec1, text="■ 配信者名・チャンネル名 (★必須)", font=ctk.CTkFont(weight="bold", size=11), text_color="#ff7b7b").grid(row=2, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_name_entry = ctk.CTkEntry(sec1, placeholder_text="例: 初狐羽鹿 / @UikoUka")
         self.profile_name_entry.insert(0, self.config_data.get("last_streamer_name", ""))
         self.profile_name_entry.grid(row=3, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 2. キャラクター・特徴
-        ctk.CTkLabel(sec1, text="■ キャラクター・主な特徴・性格", font=ctk.CTkFont(weight="bold", size=11)).grid(row=4, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 2. キャラクター・特徴 (★必須)
+        ctk.CTkLabel(sec1, text="■ キャラクター・主な特徴・性格 (★必須)", font=ctk.CTkFont(weight="bold", size=11), text_color="#ff7b7b").grid(row=4, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_char_entry = ctk.CTkEntry(sec1, placeholder_text="例: ツッコミ系VTuber、ポンコツ、元気、毒舌など")
         self.profile_char_entry.insert(0, self.config_data.get("last_streamer_profile_char", ""))
         self.profile_char_entry.grid(row=5, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 3. 話し方・口調・口癖
-        ctk.CTkLabel(sec1, text="■ 話し方・口調・口癖", font=ctk.CTkFont(weight="bold", size=11)).grid(row=6, column=0, padx=10, pady=(4, 1), sticky="w")
-        self.profile_tone_entry = ctk.CTkEntry(sec1, placeholder_text="例: 「〜だよ」「〜じゃん」、語尾に「〜きつね」、関西弁")
-        self.profile_tone_entry.insert(0, self.config_data.get("last_streamer_profile_tone", ""))
-        self.profile_tone_entry.grid(row=7, column=0, padx=10, pady=(0, 6), sticky="ew")
-
-        # 4. 定番フレーズ・決め台詞
-        ctk.CTkLabel(sec1, text="■ 定番フレーズ・決め台詞", font=ctk.CTkFont(weight="bold", size=11)).grid(row=8, column=0, padx=10, pady=(4, 1), sticky="w")
-        self.profile_phrases_entry = ctk.CTkEntry(sec1, placeholder_text="例: 「おつ狐〜！」「絶対に許さん！」")
-        self.profile_phrases_entry.insert(0, self.config_data.get("last_streamer_profile_phrases", ""))
-        self.profile_phrases_entry.grid(row=9, column=0, padx=10, pady=(0, 6), sticky="ew")
-
-        # 5. 視聴者層
-        ctk.CTkLabel(sec1, text="■ 主な視聴者層・ターゲット", font=ctk.CTkFont(weight="bold", size=11)).grid(row=10, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 3. 現在の主な視聴者層 (★必須)
+        ctk.CTkLabel(sec1, text="■ 現在の主な視聴者層・ターゲット (★必須)", font=ctk.CTkFont(weight="bold", size=11), text_color="#ff7b7b").grid(row=6, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_target_entry = ctk.CTkEntry(sec1, placeholder_text="例: 10代〜20代男性、ゲーム好き、癒やし求む層")
         self.profile_target_entry.insert(0, self.config_data.get("last_streamer_profile_target", ""))
-        self.profile_target_entry.grid(row=11, column=0, padx=10, pady=(0, 6), sticky="ew")
+        self.profile_target_entry.grid(row=7, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 6. 得意ジャンル・テーマ
-        ctk.CTkLabel(sec1, text="■ 得意ジャンル・主な配信テーマ", font=ctk.CTkFont(weight="bold", size=11)).grid(row=12, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 4. 今後狙いたい視聴者層 (★必須)
+        ctk.CTkLabel(sec1, text="■ 今後狙いたい・獲得したい視聴者層 (★必須)", font=ctk.CTkFont(weight="bold", size=11), text_color="#ff7b7b").grid(row=8, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_target_future_entry = ctk.CTkEntry(sec1, placeholder_text="例: ショート動画から新規で流入させたい同世代の女性層など")
+        self.profile_target_future_entry.insert(0, self.config_data.get("last_streamer_profile_target_future", ""))
+        self.profile_target_future_entry.grid(row=9, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 5. 話し方・口調・口癖 (任意)
+        ctk.CTkLabel(sec1, text="■ 話し方・口調・口癖 (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=10, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_tone_entry = ctk.CTkEntry(sec1, placeholder_text="例: 「〜だよ」「〜じゃん」、語尾に「〜きつね」、関西弁")
+        self.profile_tone_entry.insert(0, self.config_data.get("last_streamer_profile_tone", ""))
+        self.profile_tone_entry.grid(row=11, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 6. 定番フレーズ・決め台詞 (任意)
+        ctk.CTkLabel(sec1, text="■ 定番フレーズ・決め台詞 (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=12, column=0, padx=10, pady=(4, 1), sticky="w")
+        self.profile_phrases_entry = ctk.CTkEntry(sec1, placeholder_text="例: 「おつ狐〜！」「絶対に許さん！」")
+        self.profile_phrases_entry.insert(0, self.config_data.get("last_streamer_profile_phrases", ""))
+        self.profile_phrases_entry.grid(row=13, column=0, padx=10, pady=(0, 6), sticky="ew")
+
+        # 7. 得意ジャンル・テーマ (任意)
+        ctk.CTkLabel(sec1, text="■ 得意ジャンル・主な配信テーマ (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=14, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_genre_entry = ctk.CTkEntry(sec1, placeholder_text="例: 雑談配信、レトロゲーム、歌枠、逆転裁判")
         self.profile_genre_entry.insert(0, self.config_data.get("last_streamer_profile_genre", ""))
-        self.profile_genre_entry.grid(row=13, column=0, padx=10, pady=(0, 6), sticky="ew")
+        self.profile_genre_entry.grid(row=15, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 7. NG表現・避ける言葉
-        ctk.CTkLabel(sec1, text="■ NGワード・避ける表現", font=ctk.CTkFont(weight="bold", size=11)).grid(row=14, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 8. NG表現・避ける言葉 (任意)
+        ctk.CTkLabel(sec1, text="■ NGワード・避ける表現 (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=16, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_ng_entry = ctk.CTkEntry(sec1, placeholder_text="例: ネガティブな発言、過度な下ネタ、他者の批判")
         self.profile_ng_entry.insert(0, self.config_data.get("last_streamer_profile_ng", ""))
-        self.profile_ng_entry.grid(row=15, column=0, padx=10, pady=(0, 6), sticky="ew")
+        self.profile_ng_entry.grid(row=17, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 8. 登録者数
-        ctk.CTkLabel(sec1, text="■ 登録者数・フォロワー数", font=ctk.CTkFont(weight="bold", size=11)).grid(row=16, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 9. 登録者数 (任意)
+        ctk.CTkLabel(sec1, text="■ 登録者数・フォロワー数 (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=18, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_subscribers_entry = ctk.CTkEntry(sec1, placeholder_text="例: YouTube 1万人、Twitch 5000人など")
         self.profile_subscribers_entry.insert(0, self.config_data.get("last_streamer_profile_subscribers", ""))
-        self.profile_subscribers_entry.grid(row=17, column=0, padx=10, pady=(0, 6), sticky="ew")
+        self.profile_subscribers_entry.grid(row=19, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 9. 主な投稿プラットフォーム
-        ctk.CTkLabel(sec1, text="■ 主な投稿プラットフォーム", font=ctk.CTkFont(weight="bold", size=11)).grid(row=18, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 10. 主な投稿プラットフォーム (任意)
+        ctk.CTkLabel(sec1, text="■ 主な投稿プラットフォーム (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=20, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_platforms_entry = ctk.CTkEntry(sec1, placeholder_text="例: YouTubeショート、TikTok、Instagramリール")
         self.profile_platforms_entry.insert(0, self.config_data.get("last_streamer_profile_platforms", ""))
-        self.profile_platforms_entry.grid(row=19, column=0, padx=10, pady=(0, 6), sticky="ew")
+        self.profile_platforms_entry.grid(row=21, column=0, padx=10, pady=(0, 6), sticky="ew")
 
-        # 10. ショート運用実績・バズり傾向
-        ctk.CTkLabel(sec1, text="■ ショート動画のバズり傾向・実績", font=ctk.CTkFont(weight="bold", size=11)).grid(row=20, column=0, padx=10, pady=(4, 1), sticky="w")
+        # 11. ショート運用実績・バズり傾向 (任意)
+        ctk.CTkLabel(sec1, text="■ ショート動画のバズり傾向・実績 (任意)", font=ctk.CTkFont(weight="bold", size=11)).grid(row=22, column=0, padx=10, pady=(4, 1), sticky="w")
         self.profile_shorts_entry = ctk.CTkEntry(sec1, placeholder_text="例: リアクションが大きい箇所がバズりやすい、テンポの早いツッコミが好評")
         self.profile_shorts_entry.insert(0, self.config_data.get("last_streamer_profile_shorts", ""))
-        self.profile_shorts_entry.grid(row=21, column=0, padx=10, pady=(0, 10), sticky="ew")
+        self.profile_shorts_entry.grid(row=23, column=0, padx=10, pady=(0, 10), sticky="ew")
 
         # SECTION 2: 動画自体の情報記入欄
         sec2 = ctk.CTkFrame(scroll)
         sec2.grid(row=1, column=0, padx=5, pady=10, sticky="ew")
         sec2.grid_columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(sec2, text="🎬 今回の対象動画自体の情報・見どころ", font=ctk.CTkFont(size=13, weight="bold")).grid(row=0, column=0, padx=10, pady=(10, 4), sticky="w")
+        ctk.CTkLabel(sec2, text="🎬 今回の対象動画自体の情報・見どころ (任意)", font=ctk.CTkFont(size=13, weight="bold")).grid(row=0, column=0, padx=10, pady=(10, 4), sticky="w")
         ctk.CTkLabel(sec2, text="※ ここに入力したデータはプロンプトの {video_info} に自動反映されます。", font=ctk.CTkFont(size=10), text_color="gray").grid(row=1, column=0, padx=10, pady=(0, 8), sticky="w")
 
         # 1. 動画/配信タイトル
@@ -1488,9 +1510,10 @@ class App(ctk.CTk):
     def save_profile_data_only(self):
         self.config_data["last_streamer_name"] = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
         self.config_data["last_streamer_profile_char"] = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_target"] = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
+        self.config_data["last_streamer_profile_target_future"] = getattr(self, "profile_target_future_entry", None) and self.profile_target_future_entry.get().strip() or ""
         self.config_data["last_streamer_profile_tone"] = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
         self.config_data["last_streamer_profile_phrases"] = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
-        self.config_data["last_streamer_profile_target"] = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
         self.config_data["last_streamer_profile_genre"] = getattr(self, "profile_genre_entry", None) and self.profile_genre_entry.get().strip() or ""
         self.config_data["last_streamer_profile_ng"] = getattr(self, "profile_ng_entry", None) and self.profile_ng_entry.get().strip() or ""
         self.config_data["last_streamer_profile_subscribers"] = getattr(self, "profile_subscribers_entry", None) and self.profile_subscribers_entry.get().strip() or ""
@@ -2123,6 +2146,7 @@ class App(ctk.CTk):
             else:
                 self.active_job_index = -1
                 self.render_subtitle_editor_from_active_job()
+                self.refresh_job_select_menu()
                 self.show_current_frame()
                 
             messagebox.showinfo("完了", "選択された候補の字幕生成が完了しました！\n「② 字幕・編集」ステップへ自動遷移します。")
@@ -2200,6 +2224,26 @@ class App(ctk.CTk):
             print(f"プレビュー音声切り出し失敗: {e}")
             if hasattr(self, "audio_status_lbl"):
                 self.audio_status_lbl.configure(text="🔇 音声抽出失敗", text_color="red")
+
+    def refresh_job_select_menu(self):
+        if not hasattr(self, "job_select_menu"): return
+        if not self.jobs:
+            self.job_select_menu.configure(values=["(候補がありません)"])
+            self.job_select_menu.set("(候補がありません)")
+            return
+        vals = [f"No.{i+1} [{seconds_to_hms(j['start'])}〜] {j['title']}" for i, j in enumerate(self.jobs)]
+        self.job_select_menu.configure(values=vals)
+        if 0 <= self.active_job_index < len(vals):
+            self.job_select_menu.set(vals[self.active_job_index])
+
+    def on_job_select_menu_changed(self, choice):
+        if not self.jobs or choice == "(候補がありません)": return
+        for i, j in enumerate(self.jobs):
+            val_str = f"No.{i+1} [{seconds_to_hms(j['start'])}〜] {j['title']}"
+            if choice == val_str:
+                self.save_current_editor_to_active_job()
+                self.load_job_to_editor(i)
+                break
 
     def load_job_to_editor(self, idx):
         if idx < 0 or idx >= len(self.jobs): return
@@ -2347,6 +2391,7 @@ class App(ctk.CTk):
         self.update_playback_time_label()
         self.show_current_frame()
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.on_text_style_changed()
 
     def update_active_job_range(self):
@@ -2386,6 +2431,7 @@ class App(ctk.CTk):
             
         self.show_current_frame(); self.update_playback_time_label()
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.checkboxes[self.active_job_index].configure(
             text=f"No.{self.active_job_index + 1} [{seconds_to_hms(s)}～] {job['title']}")
 
@@ -2726,6 +2772,7 @@ class App(ctk.CTk):
                 
             job["subtitles"] = segments
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
             messagebox.showinfo("完了", f"字幕 {len(segments)}件 を生成しました！")
 
@@ -2868,6 +2915,7 @@ class App(ctk.CTk):
         if sub_idx > 0:
             subs[sub_idx], subs[sub_idx - 1] = subs[sub_idx - 1], subs[sub_idx]
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
 
     def move_subtitle_down(self, sub_idx):
@@ -2878,6 +2926,7 @@ class App(ctk.CTk):
         if sub_idx < len(subs) - 1:
             subs[sub_idx], subs[sub_idx + 1] = subs[sub_idx + 1], subs[sub_idx]
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
 
     def delete_subtitle_line(self, sub_idx):
@@ -2887,6 +2936,7 @@ class App(ctk.CTk):
         if 0 <= sub_idx < len(job["subtitles"]):
             del job["subtitles"][sub_idx]
             self.render_subtitle_editor_from_active_job()
+            self.refresh_job_select_menu()
             self.show_current_frame()
 
     def add_new_subtitle_line(self):
@@ -2907,6 +2957,7 @@ class App(ctk.CTk):
             "text": "新規字幕"
         })
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.show_current_frame()
 
     def on_subtitle_time_focus_out(self):
@@ -2914,6 +2965,7 @@ class App(ctk.CTk):
         job = self.jobs[self.active_job_index]
         job["subtitles"].sort(key=lambda x: x["start"])
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.show_current_frame()
 
     def on_subtitle_text_edited(self):
@@ -2945,11 +2997,14 @@ class App(ctk.CTk):
             sub["end"] = max(0.0, sub["end"] + offset)
             
         self.render_subtitle_editor_from_active_job()
+        self.refresh_job_select_menu()
         self.show_current_frame()
         messagebox.showinfo("完了", f"すべての字幕タイミングを {offset:+.2f} 秒シフトしました。")
 
     def save_current_editor_to_active_job(self):
         if self.active_job_index == -1: return
+        if not hasattr(self, "subtitle_widgets") or not self.subtitle_widgets:
+            return
         subs = []
         for wg in self.subtitle_widgets:
             if "start" in wg and "end" in wg and "text" in wg:
@@ -3278,9 +3333,22 @@ class App(ctk.CTk):
         
         name_val = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
         char_val = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
+        target_val = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
+        target_future_val = getattr(self, "profile_target_future_entry", None) and self.profile_target_future_entry.get().strip() or ""
+
+        missing_required = []
+        if not name_val: missing_required.append("・配信者名・チャンネル名")
+        if not char_val: missing_required.append("・キャラクター・主な特徴・性格")
+        if not target_val: missing_required.append("・現在の主な視聴者層・ターゲット")
+        if not target_future_val: missing_required.append("・今後狙いたい視聴者層・ターゲット")
+
+        if missing_required:
+            err_msg = "高精度なプロンプトを作成するため、以下の【必須項目】を入力してください:\n\n" + "\n".join(missing_required)
+            messagebox.showwarning("必須項目の未入力", err_msg)
+            return
+
         tone_val = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
         phrases_val = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
-        target_val = getattr(self, "profile_target_entry", None) and self.profile_target_entry.get().strip() or ""
         genre_val = getattr(self, "profile_genre_entry", None) and self.profile_genre_entry.get().strip() or ""
         ng_val = getattr(self, "profile_ng_entry", None) and self.profile_ng_entry.get().strip() or ""
         subscribers_val = getattr(self, "profile_subscribers_entry", None) and self.profile_subscribers_entry.get().strip() or ""
@@ -3295,9 +3363,10 @@ class App(ctk.CTk):
         self.config_data["last_youtube_url"] = url
         self.config_data["last_streamer_name"] = name_val
         self.config_data["last_streamer_profile_char"] = char_val
+        self.config_data["last_streamer_profile_target"] = target_val
+        self.config_data["last_streamer_profile_target_future"] = target_future_val
         self.config_data["last_streamer_profile_tone"] = tone_val
         self.config_data["last_streamer_profile_phrases"] = phrases_val
-        self.config_data["last_streamer_profile_target"] = target_val
         self.config_data["last_streamer_profile_genre"] = genre_val
         self.config_data["last_streamer_profile_ng"] = ng_val
         self.config_data["last_streamer_profile_subscribers"] = subscribers_val
@@ -3311,9 +3380,10 @@ class App(ctk.CTk):
         profile_parts = []
         if name_val: profile_parts.append(f"■配信者名・チャンネル名: {name_val}")
         if char_val: profile_parts.append(f"■キャラクター・特徴・性格: {char_val}")
+        if target_val: profile_parts.append(f"■現在の主な視聴者層: {target_val}")
+        if target_future_val: profile_parts.append(f"■今後狙いたい視聴者層: {target_future_val}")
         if tone_val: profile_parts.append(f"■話し方・口調・口癖: {tone_val}")
         if phrases_val: profile_parts.append(f"■定番フレーズ・決め台詞: {phrases_val}")
-        if target_val: profile_parts.append(f"■主な視聴者層・ターゲット: {target_val}")
         if genre_val: profile_parts.append(f"■得意ジャンル・配信テーマ: {genre_val}")
         if ng_val: profile_parts.append(f"■NGワード・避ける表現: {ng_val}")
         if subscribers_val: profile_parts.append(f"■チャンネル登録者数: {subscribers_val}")
