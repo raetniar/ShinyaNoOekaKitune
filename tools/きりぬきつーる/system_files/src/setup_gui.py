@@ -32,12 +32,10 @@ class SetupApp(ctk.CTk):
             self.source_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
             self.bundled_dir = self.source_dir
 
-        # Default install dir: C:\きりぬきつーる or user's current source_dir
-        default_target = r"C:\きりぬきつーる"
-        if not os.access("C:\\", os.W_OK):
-            default_target = os.path.join(os.path.expanduser("~"), "AppData", "Local", "きりぬきつーる")
-            
-        self.target_dir_var = ctk.StringVar(value=self.source_dir if os.path.exists(os.path.join(self.source_dir, "きりぬきつーる.exe")) else default_target)
+        # Default install dir: User's Documents\きりぬきつーる
+        docs_dir = os.path.join(os.path.expanduser("~"), "Documents")
+        default_target = os.path.join(docs_dir, "きりぬきつーる")
+        self.target_dir_var = ctk.StringVar(value=default_target)
 
         # GUI Layout
         self.main_frame = ctk.CTkFrame(self, corner_radius=12)
@@ -52,7 +50,7 @@ class SetupApp(ctk.CTk):
         
         self.desc_label = ctk.CTkLabel(
             self.main_frame, 
-            text="インストール先を選択し、「インストール実行」を押してください。\n必須ファイル・フォルダの構築とショートカット作成を自動で行います。",
+            text="インストール先を確認・変更し、「インストール実行」を押してください。\n必須ファイル・フォルダの構築とショートカット作成を自動で行います。",
             font=ctk.CTkFont(size=12),
             text_color="gray70"
         )
