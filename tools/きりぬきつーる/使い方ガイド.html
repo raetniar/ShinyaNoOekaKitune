@@ -2,20 +2,20 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>きりぬきつーる 公式詳細取扱説明書（操作画面解説付き）</title>
+<title>きりぬきつーる 公式詳細取扱説明書（実機スクリーンショット版）</title>
 <style>
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm;
+    margin: 10mm 14mm;
   }
   body {
     font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     color: #1e293b;
-    line-height: 1.6;
+    line-height: 1.55;
     background-color: #ffffff;
     margin: 0;
     padding: 0;
-    font-size: 11.5px;
+    font-size: 11px;
   }
   .page {
     page-break-after: always;
@@ -86,11 +86,11 @@
   .toc-header {
     background: linear-gradient(135deg, #1e293b, #334155);
     color: white;
-    padding: 18px 24px;
+    padding: 16px 22px;
     border-radius: 10px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
-  .toc-header h2 { margin: 0; font-size: 22px; }
+  .toc-header h2 { margin: 0; font-size: 20px; }
   
   .toc-list {
     list-style: none;
@@ -101,29 +101,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 18px;
-    margin-bottom: 12px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     border-left: 5px solid #2563eb;
   }
   .toc-title {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: bold;
     color: #0f172a;
   }
   .toc-desc {
-    font-size: 11px;
+    font-size: 10.5px;
     color: #64748b;
     margin-top: 2px;
   }
   .toc-page {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     color: #2563eb;
     background: #eff6ff;
-    padding: 4px 12px;
+    padding: 4px 10px;
     border-radius: 6px;
     border: 1px solid #bfdbfe;
   }
@@ -131,8 +131,8 @@
   /* CONTENT PAGES (Page 3+) */
   .page-header {
     border-bottom: 2px solid #2563eb;
-    padding-bottom: 8px;
-    margin-bottom: 14px;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -140,10 +140,10 @@
   .page-header h3 {
     margin: 0;
     color: #1e40af;
-    font-size: 17px;
+    font-size: 16.5px;
   }
   .page-header-tag {
-    font-size: 11px;
+    font-size: 10.5px;
     color: #64748b;
     font-weight: bold;
   }
@@ -152,8 +152,8 @@
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 12px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
   }
 
   .ui-badge {
@@ -161,7 +161,7 @@
     color: white;
     padding: 2px 8px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: bold;
   }
   .ui-btn {
@@ -171,18 +171,18 @@
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 10.5px;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 8px 0;
-    font-size: 11px;
+    margin: 6px 0;
+    font-size: 10.5px;
   }
   th, td {
     border: 1px solid #cbd5e1;
-    padding: 6px 8px;
+    padding: 5px 8px;
     text-align: left;
   }
   th {
@@ -191,123 +191,23 @@
     font-weight: bold;
   }
 
-  /* REALISTIC UI MOCKUP STYLES */
-  .ui-mockup-window {
-    background: #1e1e2e;
-    border: 1px solid #313244;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 12px 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    color: #cdd6f4;
-    font-family: Consolas, "Segoe UI", sans-serif;
-    font-size: 11px;
+  /* REAL SCREENSHOT EMBED STYLES */
+  .screenshot-box {
+    text-align: center;
+    margin: 8px 0;
   }
-  .ui-mockup-header {
-    background: #181825;
-    padding: 6px 12px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #313244;
-  }
-  .ui-dots {
-    display: flex;
-    gap: 6px;
-    margin-right: 12px;
-  }
-  .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .dot-red { background: #f38ba8; }
-  .dot-yellow { background: #f9e2af; }
-  .dot-green { background: #a6e3a1; }
-  .ui-mockup-title { color: #a6adc8; font-weight: bold; font-size: 11px; }
-
-  .ui-mockup-body {
-    padding: 12px;
-  }
-
-  .mock-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .mock-input {
-    background: #313244;
-    border: 1px solid #45475a;
-    color: #cdd6f4;
-    padding: 5px 10px;
-    border-radius: 5px;
-    flex: 1;
-    font-size: 11px;
-  }
-  .mock-btn-blue {
-    background: #89b4fa;
-    color: #11111b;
-    font-weight: bold;
-    padding: 5px 12px;
-    border-radius: 5px;
-  }
-  .mock-btn-green {
-    background: #a6e3a1;
-    color: #11111b;
-    font-weight: bold;
-    padding: 5px 12px;
-    border-radius: 5px;
-  }
-  .mock-textarea {
-    background: #313244;
-    border: 1px solid #45475a;
-    color: #a6e3a1;
-    padding: 8px;
-    border-radius: 5px;
-    width: 96%;
-    height: 50px;
-    font-family: monospace;
-    font-size: 10.5px;
-  }
-
-  /* VIDEO PREVIEW MOCKUP */
-  .mock-video-preview {
-    background: #11111b;
-    border: 2px solid #89b4fa;
+  .screenshot-img {
+    max-width: 100%;
+    max-height: 380px;
     border-radius: 8px;
-    height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    margin-bottom: 8px;
-    color: white;
+    border: 1px solid #475569;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
   }
-  .mock-subtitle-overlay {
-    background: rgba(0,0,0,0.75);
-    color: #f9e2af;
-    border: 2px solid #f9e2af;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-  }
-  .mock-character-overlay {
-    position: absolute;
-    bottom: 8px;
-    right: 12px;
-    background: #cba6f7;
-    color: #11111b;
-    padding: 2px 8px;
-    border-radius: 12px;
+  .screenshot-caption {
     font-size: 10px;
+    color: #475569;
+    margin-top: 4px;
     font-weight: bold;
-  }
-  .mock-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #313244;
-    padding: 6px 12px;
-    border-radius: 5px;
   }
 
   .alert-info {
@@ -315,16 +215,16 @@
     border-left: 4px solid #0284c7;
     padding: 8px 12px;
     border-radius: 4px;
-    margin: 8px 0;
-    font-size: 11px;
+    margin: 6px 0;
+    font-size: 10.5px;
   }
   .alert-warn {
     background: #fffbe6;
     border-left: 4px solid #d97706;
     padding: 8px 12px;
     border-radius: 4px;
-    margin: 8px 0;
-    font-size: 11px;
+    margin: 6px 0;
+    font-size: 10.5px;
   }
 
   .page-footer {
@@ -345,11 +245,11 @@
 <!-- ==================== PAGE 1: COVER ==================== -->
 <div class="page">
   <div class="cover-container">
-    <div class="cover-badge">OFFICIAL VISUAL USER MANUAL</div>
-    <div class="cover-title">🎬 きりぬきつーる<br>完全取扱説明書（画面図解付き）</div>
+    <div class="cover-badge">OFFICIAL REAL-UI USER MANUAL</div>
+    <div class="cover-title">🎬 きりぬきつーる<br>完全取扱説明書（実物画面付き）</div>
     <div class="cover-decor"></div>
     <div class="cover-subtitle">
-      実際の操作画面イメージで直感的にわかる！<br>
+      実際のアプリ画面で直感的にわかる！<br>
       Web版Gemini連携 ＆ 字幕テロップ・立ち絵合成 ショート動画一括作成ガイド
     </div>
     <div class="cover-footer">
@@ -375,28 +275,28 @@
     <li class="toc-item">
       <div>
         <div class="toc-title">第2章：全体設定 ＆ パーソナルデータ入力画面</div>
-        <div class="toc-desc">AI精度を高める設定入力欄と操作画面イメージ</div>
+        <div class="toc-desc">AI精度を高めるプロンプト設定とパーソナルデータ入力欄</div>
       </div>
       <div class="toc-page">P. 4</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第3章：動画読み込み ＆ Geminiコピペ仮切り抜き（Step 1）</div>
-        <div class="toc-desc">動画読み込みボタンとGeminiデータ取り込み操作画面</div>
+        <div class="toc-desc">動画参照ボタンとGeminiデータ取り込み操作画面</div>
       </div>
       <div class="toc-page">P. 5</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第4章：字幕タイムライン ＆ 音声プレビュー画面（Step 2）</div>
-        <div class="toc-desc">動画プレビュー画面・音声再生・字幕装飾・立ち絵配置のUI解説</div>
+        <div class="toc-desc">動画プレビュー画面・音声再生・字幕装飾・タイムライン編集</div>
       </div>
       <div class="toc-page">P. 6</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第5章：一括書き出し（Step 3） ＆ Q&Aトラブルシューティング</div>
-        <div class="toc-desc">MP4一括動画出力画面とよくある質問・音量ミキサー解説</div>
+        <div class="toc-desc">書き出し処理キュー画面とよくある質問・音量ミキサー解説</div>
       </div>
       <div class="toc-page">P. 7</div>
     </li>
@@ -413,31 +313,18 @@
   </div>
   
   <div class="card">
-    <h4 style="margin:0 0 6px 0; color:#2563eb;">■ 「きりぬきつーる」とは？</h4>
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 「きりぬきつーる」とは？</h4>
     <p>Web版の <strong>Gemini（AIプロンプト）</strong> を経由して取得した「配信や長尺動画の見どころポイント（切り抜き候補データ）」を取り込み、実際の元動画からその該当シーンを自動で仮切り抜きして、字幕テロップや立ち絵（キャラ画像）の装飾を加え、YouTube Shorts / TikTok / Reels 向けのショート動画を誰でもカンタン＆一括で作成できるようにするための支援ツールです。</p>
   </div>
 
-  <!-- UI MOCKUP: INSTALLER -->
-  <div class="ui-mockup-window">
-    <div class="ui-mockup-header">
-      <div class="ui-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-      <div class="ui-mockup-title">きりぬきつーる - インストーラー画面イメージ</div>
-    </div>
-    <div class="ui-mockup-body">
-      <div style="font-weight:bold; font-size:12px; margin-bottom:6px;">🎨 きりぬきつーる インストーラー</div>
-      <div class="mock-row">
-        <span>保存先:</span>
-        <div class="mock-input">C:/Users/Documents/きりぬきつーる</div>
-        <div class="mock-btn-blue">参照...</div>
-      </div>
-      <div class="mock-row" style="margin-top:10px;">
-        <div class="mock-btn-green" style="width:100%; text-align:center;">🚀 インストール実行 (ショートカット ＆ 必須フォルダ生成)</div>
-      </div>
-    </div>
+  <!-- REAL SCREENSHOT 1: INSTALLER -->
+  <div class="screenshot-box">
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 154644.png" alt="インストーラー画面" style="max-height: 260px;">
+    <div class="screenshot-caption">📷 実際の操作画面：セットアップ インストーラー</div>
   </div>
 
   <div class="card">
-    <h4 style="margin:0 0 6px 0; color:#2563eb;">■ 自動生成される主要フォルダの役割</h4>
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 自動生成される主要フォルダの役割</h4>
     <table>
       <tr><th>フォルダ名</th><th>役割・用途</th></tr>
       <tr><td><code>動画/</code></td><td>元となる配信録画や長尺MP4動画を保存する場所</td></tr>
@@ -458,27 +345,18 @@
   </div>
 
   <div class="card">
-    <p>Web版Geminiによる見どころシーン判定の精度を劇的に高めるため、右側（または専用タブ）の「パーソナルデータ」を設定します。</p>
+    <p>Web版Geminiによる見どころシーン判定の精度を劇的に高めるため、「Geminiプロンプト設定」および右側の「パーソナルデータ」を設定します。</p>
   </div>
 
-  <!-- UI MOCKUP: PERSONAL DATA SETTINGS -->
-  <div class="ui-mockup-window">
-    <div class="ui-mockup-header">
-      <div class="ui-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-      <div class="ui-mockup-title">全体設定 ＆ パーソナルデータ画面イメージ</div>
-    </div>
-    <div class="ui-mockup-body">
-      <div class="mock-row"><span>配信者名・チャンネル名:</span> <div class="mock-input">しんやチャンネル</div></div>
-      <div class="mock-row"><span>キャラクター・性格:</span> <div class="mock-input">元気な関西弁トーク・いじられキャラ</div></div>
-      <div class="mock-row"><span>主な視聴者ターゲット:</span> <div class="mock-input">20〜30代ゲーマー、Vtuber好き</div></div>
-      <div class="mock-row"><span>狙いたい新規視聴者層:</span> <div class="mock-input">短時間で笑いたい人</div></div>
-      <div class="mock-row" style="margin-top:6px;"><span>動画情報（任意）:</span> <div class="mock-input">ホラゲー絶叫回！〇〇さんコラボ</div></div>
-    </div>
+  <!-- REAL SCREENSHOT 2: SETTINGS -->
+  <div class="screenshot-box">
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 154845.png" alt="全体設定画面" style="max-height: 350px;">
+    <div class="screenshot-caption">📷 実際の操作画面：Geminiプロンプト設定 ＆ パーソナルデータ項目</div>
   </div>
 
   <div class="card">
     <div class="alert-info">
-      💡 <strong>アドバイス:</strong> 声の特徴や口癖、コラボ相手の名前を入力しておくと、Geminiが動画の文脈を完璧に理解してシーン抽出してくれます。
+      💡 <strong>アドバイス:</strong> 配信者名（初狐羽鹿 等）や声の特徴・キャラクター設定を入力しておくと、Geminiプロンプト生成時に自動置換され、高精度なプロンプトを作成できます。
     </div>
   </div>
   
@@ -493,27 +371,13 @@
   </div>
 
   <div class="card">
-    <p>元動画（MP4）を読み込み、Web版Geminiが出力した見どころテキストをコピペして「仮切り抜き候補リスト」を自動生成します。</p>
+    <p>「参照...」ボタンから対象動画（MP4）を読み込み、Web版Geminiが出力した見どころテキストを【1. Gemini出力コピペエリア】へ貼り付け、<span class="ui-badge">コピペから候補を読み込む</span> をクリックします。</p>
   </div>
 
-  <!-- UI MOCKUP: STEP 1 COPY PASTE UI -->
-  <div class="ui-mockup-window">
-    <div class="ui-mockup-header">
-      <div class="ui-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-      <div class="ui-mockup-title">Step 1：動画読み込み ＆ Geminiコピペ画面イメージ</div>
-    </div>
-    <div class="ui-mockup-body">
-      <div class="mock-row">
-        <span>動画ファイル:</span>
-        <div class="mock-input">C:/きりぬきつーる/動画/配信録画_20260727.mp4</div>
-        <div class="mock-btn-blue">動画選択...</div>
-      </div>
-      <div style="margin:8px 0 4px 0; color:#a6adc8;">Gemini見どころデータ入力欄（コピペ）:</div>
-      <div class="mock-textarea">00:01:23～00:02:15: 神回避の瞬間（大爆笑）&#10;00:05:40～00:06:20: トーク事故シーン</div>
-      <div class="mock-row" style="margin-top:10px;">
-        <div class="mock-btn-blue" style="width:100%; text-align:center;">🚀 候補取り込み ＆ 自動仮切り抜き実行</div>
-      </div>
-    </div>
+  <!-- REAL SCREENSHOT 3: STEP 1 -->
+  <div class="screenshot-box">
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155459.png" alt="Step 1 画面" style="max-height: 350px;">
+    <div class="screenshot-caption">📷 実際の操作画面：Step 1 Gemini出力コピペ ＆ 切り抜き候補一覧</div>
   </div>
   
   <div class="page-footer">きりぬきつーる 完全取扱説明書 | P. 5</div>
@@ -526,44 +390,19 @@
     <span class="page-header-tag">きりぬきつーる マニュアル</span>
   </div>
 
-  <!-- UI MOCKUP: STEP 2 TWO-TIER EDITING UI -->
-  <div class="ui-mockup-window">
-    <div class="ui-mockup-header">
-      <div class="ui-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-      <div class="ui-mockup-title">Step 2：二段構成 プレビュー ＆ 字幕編集画面イメージ</div>
-    </div>
-    <div class="ui-mockup-body">
-      <!-- Top Tier Preview -->
-      <div class="mock-video-preview">
-        <div class="mock-subtitle-overlay">「ここでまさかの神回避！？」</div>
-        <div class="mock-character-overlay">立ち絵_笑顔.png</div>
-      </div>
-      <div class="mock-controls" style="margin-bottom:10px;">
-        <div class="mock-btn-green">▶ 再生</div>
-        <span>00:01:23 / 00:02:15</span>
-        <span style="margin-left:auto; color:#a6e3a1;">🔊 音声準備完了 (WASAPI)</span>
-      </div>
+  <div class="card">
+    <p>プルダウンから【編集対象の候補】を選び、<span class="ui-btn">▶ 再生ボタン</span> を押すと WASAPI エンジンにより<strong>実音を聴きながら動画プレビュー</strong>が作動します。</p>
+  </div>
 
-      <!-- Bottom Tier Controls -->
-      <div class="mock-row">
-        <span>編集候補選択:</span>
-        <div class="mock-input">No.1 [00:01:23〜] 神回避の瞬間 ▼</div>
-      </div>
-      <div class="mock-row">
-        <span>字幕テキスト:</span>
-        <div class="mock-input">ここでまさかの神回避！？</div>
-      </div>
-      <div class="mock-row">
-        <span>文字サイズ: <strong style="color:#89b4fa;">36px</strong></span>
-        <span>文字色: <strong style="color:#f9e2af;">黄 (Yellow)</strong></span>
-        <span>位置Y: <strong style="color:#89b4fa;">500px</strong></span>
-      </div>
-    </div>
+  <!-- REAL SCREENSHOT 4: STEP 2 -->
+  <div class="screenshot-box">
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155742.png" alt="Step 2 画面" style="max-height: 340px;">
+    <div class="screenshot-caption">📷 実際の操作画面：Step 2 プレビュー ＆ 音声準備完了 🔊 画面</div>
   </div>
 
   <div class="card">
-    <h4 style="margin:0 0 6px 0; color:#2563eb;">■ 画面の特長</h4>
-    <p>▶（再生ボタン）を押すと<strong>音声付きで動画プレビュー</strong>が動きます。画面幅を縮めても上下の二段構成に自動調整されるため、ノートPCでも見切れず快適に編集できます。</p>
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 特長</h4>
+    <p>下部の「字幕編集タイムライン」で秒数・テキストを手動調整できます。</p>
   </div>
   
   <div class="page-footer">きりぬきつーる 完全取扱説明書 | P. 6</div>
@@ -576,21 +415,14 @@
     <span class="page-header-tag">きりぬきつーる マニュアル</span>
   </div>
 
-  <!-- UI MOCKUP: STEP 3 BATCH RENDER UI -->
-  <div class="ui-mockup-window">
-    <div class="ui-mockup-header">
-      <div class="ui-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-      <div class="ui-mockup-title">Step 3：一括書き出し画面イメージ</div>
-    </div>
-    <div class="ui-mockup-body">
-      <div style="margin-bottom:6px;">☑ [No.1] 神回避の瞬間.mp4</div>
-      <div style="margin-bottom:10px;">☑ [No.2] トーク事故シーン.mp4</div>
-      <div class="mock-btn-green" style="text-align:center; font-size:12px; padding:8px;">🎬 一括動画書き出し実行 (MP4保存)</div>
-    </div>
+  <!-- REAL SCREENSHOT 5: STEP 3 -->
+  <div class="screenshot-box">
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155815.png" alt="Step 3 画面" style="max-height: 250px;">
+    <div class="screenshot-caption">📷 実際の操作画面：Step 3 書き出し処理キュー ＆ 一括切り抜き実行</div>
   </div>
 
   <div class="card">
-    <h4 style="margin:0 0 6px 0; color:#d97706;">❓ よくある質問・トラブルシューティング (Q&A)</h4>
+    <h4 style="margin:0 0 4px 0; color:#d97706;">❓ よくある質問・トラブルシューティング (Q&A)</h4>
     
     <p style="margin:4px 0; font-weight:bold; color:#d97706;">Q1. 再生ボタンを押しても音が聴こえない</p>
     <div class="alert-warn">
