@@ -171,6 +171,7 @@ class App(ctk.CTk):
         try:
             import pygame
             pygame.mixer.init(frequency=44100, size=-16, channels=2)
+            pygame.mixer.music.set_volume(1.0)
             self.has_pygame_audio = True
         except Exception as e:
             print(f"pygame.mixer init fallback: {e}")
@@ -1231,6 +1232,20 @@ class App(ctk.CTk):
                     winsound.PlaySound(None, winsound.SND_PURGE)
                 except Exception: pass
         else:
+            # Enforce audio extraction if not ready yet
+            vp = self.video_entry.get().strip()
+            if vp and os.path.exists(vp):
+                if not getattr(self, "audio_ready", False) or not hasattr(self, "temp_play_audio") or not os.path.exists(self.temp_play_audio):
+                    if 0 <= self.active_job_index < len(self.jobs):
+                        j = self.jobs[self.active_job_index]
+                        s_t, e_t = j["start"], j["end"]
+                    else:
+                        s_t = 0.0
+                        tot_f = self.preview_cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
+                        fps_val = self.preview_fps or 30.0
+                        e_t = tot_f / fps_val if fps_val > 0 else 30.0
+                    self.prepare_preview_audio(os.path.abspath(vp), s_t, e_t)
+
             self.preview_start_frame = self.job_start_frame
             self.preview_end_frame = self.job_end_frame
             if self.preview_current_frame >= self.preview_end_frame or self.preview_current_frame < self.preview_start_frame:
@@ -1246,6 +1261,7 @@ class App(ctk.CTk):
                         import pygame
                         pygame.mixer.music.stop()
                         pygame.mixer.music.load(self.temp_play_audio)
+                        pygame.mixer.music.set_volume(1.0)
                         pygame.mixer.music.play()
                     except Exception as e:
                         print(f"pygame audio play error: {e}")
