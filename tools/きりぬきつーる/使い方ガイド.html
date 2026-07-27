@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>きりぬきつーる 公式詳細取扱説明書（実機スクリーンショット版）</title>
+<title>きりぬきつーる 完全詳細取扱説明書（最新決定版）</title>
 <style>
   @page {
     size: A4 portrait;
@@ -11,7 +11,7 @@
   body {
     font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     color: #1e293b;
-    line-height: 1.55;
+    line-height: 1.6;
     background-color: #ffffff;
     margin: 0;
     padding: 0;
@@ -198,7 +198,7 @@
   }
   .screenshot-img {
     max-width: 100%;
-    max-height: 380px;
+    max-height: 320px;
     border-radius: 8px;
     border: 1px solid #475569;
     box-shadow: 0 4px 12px rgba(0,0,0,0.18);
@@ -227,6 +227,14 @@
     font-size: 10.5px;
   }
 
+  ol, ul {
+    margin: 4px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+
   .page-footer {
     position: absolute;
     bottom: 0;
@@ -245,12 +253,12 @@
 <!-- ==================== PAGE 1: COVER ==================== -->
 <div class="page">
   <div class="cover-container">
-    <div class="cover-badge">OFFICIAL REAL-UI USER MANUAL</div>
-    <div class="cover-title">🎬 きりぬきつーる<br>完全取扱説明書（実物画面付き）</div>
+    <div class="cover-badge">OFFICIAL COMPREHENSIVE USER MANUAL</div>
+    <div class="cover-title">🎬 きりぬきつーる<br>完全詳細取扱説明書（最新決定版）</div>
     <div class="cover-decor"></div>
     <div class="cover-subtitle">
-      実際のアプリ画面で直感的にわかる！<br>
-      Web版Gemini連携 ＆ 字幕テロップ・立ち絵合成 ショート動画一括作成ガイド
+      配信録画・長尺MP4からバズるショート動画を一括作成！<br>
+      Web版Gemini AIプロンプト連携・Whisper文字起こし・WASAPI音声プレビュー・字幕テロップ＆立ち絵合成のフルガイド
     </div>
     <div class="cover-footer">
       発行: ShinyaNoOekaKitune / バージョン 2026.07
@@ -267,36 +275,36 @@
   <ul class="toc-list">
     <li class="toc-item">
       <div>
-        <div class="toc-title">第1章：ツールの全体概要 ＆ インストーラー画面</div>
-        <div class="toc-desc">ツールのコンセプト・セットアップ画面・フォルダ構造</div>
+        <div class="toc-title">第1章：ツールの全体概要 ＆ インストーラーの動作仕様</div>
+        <div class="toc-desc">開発の目的・スタンドアロン設置・フォルダ構造の運用テクニック</div>
       </div>
       <div class="toc-page">P. 3</div>
     </li>
     <li class="toc-item">
       <div>
-        <div class="toc-title">第2章：全体設定 ＆ パーソナルデータ入力画面</div>
-        <div class="toc-desc">AI精度を高めるプロンプト設定とパーソナルデータ入力欄</div>
+        <div class="toc-title">第2章：全体設定 ＆ Geminiプロンプト最適化設定</div>
+        <div class="toc-desc">AI判定精度を高めるパーソナルデータ4項目とプロンプト生成手順</div>
       </div>
       <div class="toc-page">P. 4</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第3章：動画読み込み ＆ Geminiコピペ仮切り抜き（Step 1）</div>
-        <div class="toc-desc">動画参照ボタンとGeminiデータ取り込み操作画面</div>
+        <div class="toc-desc">動画選択、Gemini見どころデータのコピペ解析、Whisper字幕生成</div>
       </div>
       <div class="toc-page">P. 5</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第4章：字幕タイムライン ＆ 音声プレビュー画面（Step 2）</div>
-        <div class="toc-desc">動画プレビュー画面・音声再生・字幕装飾・タイムライン編集</div>
+        <div class="toc-desc">WASAPIリアルタイム音声再生、セリフ微調整、テロップ・立ち絵装飾</div>
       </div>
       <div class="toc-page">P. 6</div>
     </li>
     <li class="toc-item">
       <div>
         <div class="toc-title">第5章：一括書き出し（Step 3） ＆ Q&Aトラブルシューティング</div>
-        <div class="toc-desc">書き出し処理キュー画面とよくある質問・音量ミキサー解説</div>
+        <div class="toc-desc">書き出しキュー処理、MP4/SRT/CSV出力、音量ミキサー解説・トラブル対処</div>
       </div>
       <div class="toc-page">P. 7</div>
     </li>
@@ -308,29 +316,29 @@
 <!-- ==================== PAGE 3: CHAPTER 1 ==================== -->
 <div class="page">
   <div class="page-header">
-    <h3>📌 第1章：ツールの全体概要 ＆ インストーラー画面</h3>
+    <h3>📌 第1章：ツールの全体概要 ＆ インストーラーの動作仕様</h3>
     <span class="page-header-tag">きりぬきつーる マニュアル</span>
   </div>
   
   <div class="card">
-    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 「きりぬきつーる」とは？</h4>
-    <p>Web版の <strong>Gemini（AIプロンプト）</strong> を経由して取得した「配信や長尺動画の見どころポイント（切り抜き候補データ）」を取り込み、実際の元動画からその該当シーンを自動で仮切り抜きして、字幕テロップや立ち絵（キャラ画像）の装飾を加え、YouTube Shorts / TikTok / Reels 向けのショート動画を誰でもカンタン＆一括で作成できるようにするための支援ツールです。</p>
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 「きりぬきつーる」のコンセプト</h4>
+    <p>YouTube配信のアーカイブや長時間録画（MP4）から、<strong>Web版Gemini AI</strong>を用いて「最もバズる・盛り上がるシーン」を分析抽出し、そのタイムスタンプと文字起こしデータを元に動画を自動カット。さらに字幕テロップ・装飾・キャラクター立ち絵画像を配置して、<strong>YouTube Shorts / TikTok / Instagram Reels 向けの縦型/横型ショート動画を一括作成する全自動支援ツール</strong>です。</p>
   </div>
 
   <!-- REAL SCREENSHOT 1: INSTALLER -->
   <div class="screenshot-box">
-    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 154644.png" alt="インストーラー画面" style="max-height: 260px;">
-    <div class="screenshot-caption">📷 実際の操作画面：セットアップ インストーラー</div>
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 154644.png" alt="インストーラー画面" style="max-height: 230px;">
+    <div class="screenshot-caption">📷 実機画面：セットアップ インストーラー（参照ボタン＆実行ボタン）</div>
   </div>
 
   <div class="card">
-    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 自動生成される主要フォルダの役割</h4>
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 各フォルダの役割 ＆ 運用テクニック</h4>
     <table>
-      <tr><th>フォルダ名</th><th>役割・用途</th></tr>
-      <tr><td><code>動画/</code></td><td>元となる配信録画や長尺MP4動画を保存する場所</td></tr>
-      <tr><td><code>画像/</code></td><td>動画上に重ねるキャラクター立ち絵やロゴ画像を保存する場所</td></tr>
-      <tr><td><code>ショート/</code></td><td>完成した切り抜きMP4動画が自動出力される場所</td></tr>
-      <tr><td><code>temp/</code></td><td>編集・抽出用の一時音声データが自動保存される作業フォルダ</td></tr>
+      <tr><th>フォルダ名</th><th>役割とおすすめの活用法</th></tr>
+      <tr><td><code>動画/</code></td><td>元の長尺MP4動画を置く場所。「参照...」ボタンから直接指定も可能です。</td></tr>
+      <tr><td><code>画像/</code></td><td>キャラクター立ち絵（背景透明PNG）やロゴ・スタンプ画像を配置する場所。</td></tr>
+      <tr><td><code>ショート/</code></td><td>字幕＆装飾付きの完成MP4動画が自動保存される場所。書き出し完了時に自動で開きます。</td></tr>
+      <tr><td><code>temp/</code></td><td>Whisper音声認識や波形生成用の一時フォルダ。自動クリーニングされます。</td></tr>
     </table>
   </div>
   
@@ -340,23 +348,30 @@
 <!-- ==================== PAGE 4: CHAPTER 2 ==================== -->
 <div class="page">
   <div class="page-header">
-    <h3>📌 第2章：全体設定 ＆ パーソナルデータ入力画面</h3>
+    <h3>📌 第2章：全体設定 ＆ Geminiプロンプト最適化設定</h3>
     <span class="page-header-tag">きりぬきつーる マニュアル</span>
   </div>
 
   <div class="card">
-    <p>Web版Geminiによる見どころシーン判定の精度を劇的に高めるため、「Geminiプロンプト設定」および右側の「パーソナルデータ」を設定します。</p>
+    <p>AIが見どころシーンを正確に識別できるよう、画面上部の「Geminiプロンプト設定」タブにて右側の【パーソナルデータ】を設定します。</p>
   </div>
 
   <!-- REAL SCREENSHOT 2: SETTINGS -->
   <div class="screenshot-box">
-    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 154845.png" alt="全体設定画面" style="max-height: 350px;">
-    <div class="screenshot-caption">📷 実際の操作画面：Geminiプロンプト設定 ＆ パーソナルデータ項目</div>
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 154845.png" alt="全体設定画面" style="max-height: 310px;">
+    <div class="screenshot-caption">📷 実機画面：Geminiプロンプト設定 ＆ パーソナルデータ入力詳細</div>
   </div>
 
   <div class="card">
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 必須4項目の設定ポイント</h4>
+    <ul>
+      <li><strong>配信者名・チャンネル名:</strong> 例「初狐羽鹿（ういこ うか）」。名前を呼ばれた際のテロップ判定精度が向上。</li>
+      <li><strong>キャラクター・主な特徴・性格:</strong> 例「狐をモチーフにした明るいセルフ受肉」。トークの盛り上がりを正確識別。</li>
+      <li><strong>現在の主な視聴者層・ターゲット:</strong> 例「20〜30代男女 作業雑談配信」。視聴維持率が伸びる区間を判定。</li>
+      <li><strong>今後狙いたい・獲得したい視聴者層:</strong> 例「20代〜30代女性」。冒頭3秒の引き（フック）を強力に生成。</li>
+    </ul>
     <div class="alert-info">
-      💡 <strong>アドバイス:</strong> 配信者名（初狐羽鹿 等）や声の特徴・キャラクター設定を入力しておくと、Geminiプロンプト生成時に自動置換され、高精度なプロンプトを作成できます。
+      💡 <strong>プロンプトコピー機能:</strong> 入力完了後、<span class="ui-badge">プロンプトをコピー</span> ボタンを押すと自動置換された文章がクリップボードにコピーされ、Web版Geminiへ即座に貼り付けできます！
     </div>
   </div>
   
@@ -371,13 +386,22 @@
   </div>
 
   <div class="card">
-    <p>「参照...」ボタンから対象動画（MP4）を読み込み、Web版Geminiが出力した見どころテキストを【1. Gemini出力コピペエリア】へ貼り付け、<span class="ui-badge">コピペから候補を読み込む</span> をクリックします。</p>
+    <p>「① 切り抜き候補」タブで元の動画を選択し、Web版Geminiが出力したレスポンスを【1. Gemini出力コピペエリア】へ貼り付けます。</p>
   </div>
 
   <!-- REAL SCREENSHOT 3: STEP 1 -->
   <div class="screenshot-box">
-    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155459.png" alt="Step 1 画面" style="max-height: 350px;">
-    <div class="screenshot-caption">📷 実際の操作画面：Step 1 Gemini出力コピペ ＆ 切り抜き候補一覧</div>
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155459.png" alt="Step 1 画面" style="max-height: 310px;">
+    <div class="screenshot-caption">📷 実機画面：Step 1 Gemini出力コピペ ＆ 切り抜き候補一覧（10件自動抽出）</div>
+  </div>
+
+  <div class="card">
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 詳細な操作ステップ</h4>
+    <ol>
+      <li><span class="ui-btn">参照...</span> ボタンをクリックして、元の長尺動画（MP4）を読み込みます。</li>
+      <li>Geminiが回答したタイムスタンプや見どころ分析テキストを全選択してコピペし、<span class="ui-badge">コピペから候補を読み込む</span> をクリック。右側に候補（No.1, No.2...）が自動生成されます。</li>
+      <li><span class="ui-badge">選択した候補の字幕を生成</span> ボタンを押すと、Whisper AIがその区間の声を自動解析し高精度な文字起こしを実行します！</li>
+    </ol>
   </div>
   
   <div class="page-footer">きりぬきつーる 完全取扱説明書 | P. 5</div>
@@ -391,18 +415,23 @@
   </div>
 
   <div class="card">
-    <p>プルダウンから【編集対象の候補】を選び、<span class="ui-btn">▶ 再生ボタン</span> を押すと WASAPI エンジンにより<strong>実音を聴きながら動画プレビュー</strong>が作動します。</p>
+    <p>「② 字幕・編集」タブを選択し、リアルタイム動画・音声プレビューを確認しながらテロップと立ち絵を装飾します。</p>
   </div>
 
   <!-- REAL SCREENSHOT 4: STEP 2 -->
   <div class="screenshot-box">
-    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155742.png" alt="Step 2 画面" style="max-height: 340px;">
-    <div class="screenshot-caption">📷 実際の操作画面：Step 2 プレビュー ＆ 音声準備完了 🔊 画面</div>
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155742.png" alt="Step 2 画面" style="max-height: 300px;">
+    <div class="screenshot-caption">📷 実機画面：Step 2 リアルタイム動画プレビュー ＆ 音声準備完了 (WASAPI) 画面</div>
   </div>
 
   <div class="card">
-    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 特長</h4>
-    <p>下部の「字幕編集タイムライン」で秒数・テキストを手動調整できます。</p>
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 音声プレビュー ＆ タイムライン調整のポイント</h4>
+    <ul>
+      <li><strong>WASAPI実音再生:</strong> <span class="ui-btn">▶ 再生ボタン</span> を押すと `🔊 音声準備完了` になり、実際の発声を聴きながらセリフのタイミングを確認可能。</li>
+      <li><strong>秒数微調整:</strong> 範囲指定（`00:14:01` 〜 `00:14:30`）を変更して <span class="ui-btn">範囲更新</span> で切り抜き範囲を前後調整。</li>
+      <li><strong>セリフ編集:</strong> タイムライン一覧で文字の誤字脱字を手動修整したり、▲ ▼ ボタンで並び順を変更可能。</li>
+      <li><strong>処理キュー追加:</strong> 編集完了後、<span class="ui-badge">＋ 編集した内容で処理キューに追加する</span> ボタンを押して一括出力待ちリストへ追加します。</li>
+    </ul>
   </div>
   
   <div class="page-footer">きりぬきつーる 完全取扱説明書 | P. 6</div>
@@ -417,21 +446,29 @@
 
   <!-- REAL SCREENSHOT 5: STEP 3 -->
   <div class="screenshot-box">
-    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155815.png" alt="Step 3 画面" style="max-height: 250px;">
-    <div class="screenshot-caption">📷 実際の操作画面：Step 3 書き出し処理キュー ＆ 一括切り抜き実行</div>
+    <img class="screenshot-img" src="file:///g:/マイドライブ/【04_素材・ツールライブラリ】/きりぬきツール関連/きりぬきつーる/PDF/images/スクリーンショット 2026-07-27 155815.png" alt="Step 3 画面" style="max-height: 230px;">
+    <div class="screenshot-caption">📷 実機画面：Step 3 書き出し処理キュー一覧 ＆ 一括切り抜き実行</div>
+  </div>
+
+  <div class="card">
+    <h4 style="margin:0 0 4px 0; color:#2563eb;">■ 一括書き出しオプション</h4>
+    <ul>
+      <li>☑ <strong>字幕ファイルを別で書き出す (.srt):</strong> Premiere ProやVrewに読み込める字幕データを出力。</li>
+      <li>☑ <strong>動画に字幕を焼き込む:</strong> テロップ付き完成MP4動画を出力。</li>
+    </ul>
   </div>
 
   <div class="card">
     <h4 style="margin:0 0 4px 0; color:#d97706;">❓ よくある質問・トラブルシューティング (Q&A)</h4>
     
-    <p style="margin:4px 0; font-weight:bold; color:#d97706;">Q1. 再生ボタンを押しても音が聴こえない</p>
+    <p style="margin:2px 0; font-weight:bold; color:#d97706;">Q1. 再生ボタンを押しても音が聴こえない</p>
     <div class="alert-warn">
-      <strong>対策:</strong> Windowsの「音量ミキサー」を開き、<code>きりぬき箇所判定・一括編集ツール</code> の音量が100%になっているか確認してください。
+      <strong>対策:</strong> Windowsの「音量ミキサー」を開き、<code>きりぬき箇所判定・一括編集ツール</code> の音量が100%になっているか確認してください。WASAPI音源が自動接続されます。
     </div>
 
-    <p style="margin:6px 0 4px 0; font-weight:bold; color:#2563eb;">Q2. 画面の幅を狭めたら表示が崩れる？</p>
+    <p style="margin:4px 0 2px 0; font-weight:bold; color:#2563eb;">Q2. ノートPC等で画面幅を小さくしたらレイアウトが崩れる？</p>
     <div class="alert-info">
-      <strong>仕様:</strong> ウィンドウ幅が1150px未満になると、自動的に「1段目：動画プレビュー」「2段目：字幕タイムライン」の<strong>二段構成縦スタック</strong>へ切替わります。
+      <strong>仕様:</strong> 横幅1150px未満になると「1段目：動画プレビュー」「2段目：タイムライン」の縦スタック構造に自動変換されるため、ノートPCでも快適に編集できます。
     </div>
   </div>
 
