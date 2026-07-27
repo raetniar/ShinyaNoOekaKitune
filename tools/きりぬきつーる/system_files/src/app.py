@@ -76,6 +76,8 @@ def rgb_to_ass_hex(rgb: tuple) -> str:
 def preprocess_overlay_image(src_path, scale, angle, opacity):
     from PIL import Image
     try:
+        if not src_path or not os.path.exists(src_path):
+            return None
         with Image.open(src_path) as img:
             img = img.convert("RGBA")
             
@@ -95,7 +97,7 @@ def preprocess_overlay_image(src_path, scale, angle, opacity):
                 a = a.point(lambda p: int(p * opacity))
                 img = Image.merge("RGBA", (r, g, b, a))
                 
-            return img
+            return img.copy()
     except Exception as e:
         print(f"⚠️ Image preprocessing failed: {e}")
         return None
@@ -1190,28 +1192,28 @@ class App(ctk.CTk):
         self.overlay_anchor_menu.set("重心 (中央)")
         self.overlay_anchor_menu.pack(side="left", padx=5)
 
-        # Position X Slider
-        self.overlay_x_lbl = ctk.CTkLabel(self.char_panel, text="位置 X (100 px):", font=ctk.CTkFont(size=11))
+        # Position X Slider (Neutral 0 px aligned at 50% center)
+        self.overlay_x_lbl = ctk.CTkLabel(self.char_panel, text="位置 X (0 px):", font=ctk.CTkFont(size=11))
         self.overlay_x_lbl.pack(anchor="w", padx=10, pady=(3, 0))
-        self.overlay_x_slider = ctk.CTkSlider(self.char_panel, from_=-500.0, to=1500.0, number_of_steps=2000, command=self.on_overlay_x_slider_changed)
-        self.overlay_x_slider.set(100.0)
+        self.overlay_x_slider = ctk.CTkSlider(self.char_panel, from_=-1500.0, to=1500.0, number_of_steps=3000, command=self.on_overlay_x_slider_changed)
+        self.overlay_x_slider.set(0.0)
         self.overlay_x_slider.pack(fill="x", padx=10, pady=2)
 
-        # Position Y Slider
-        self.overlay_y_lbl = ctk.CTkLabel(self.char_panel, text="位置 Y (100 px):", font=ctk.CTkFont(size=11))
+        # Position Y Slider (Neutral 0 px aligned at 50% center)
+        self.overlay_y_lbl = ctk.CTkLabel(self.char_panel, text="位置 Y (0 px):", font=ctk.CTkFont(size=11))
         self.overlay_y_lbl.pack(anchor="w", padx=10, pady=(3, 0))
-        self.overlay_y_slider = ctk.CTkSlider(self.char_panel, from_=-500.0, to=2400.0, number_of_steps=2900, command=self.on_overlay_y_slider_changed)
-        self.overlay_y_slider.set(100.0)
+        self.overlay_y_slider = ctk.CTkSlider(self.char_panel, from_=-1500.0, to=1500.0, number_of_steps=3000, command=self.on_overlay_y_slider_changed)
+        self.overlay_y_slider.set(0.0)
         self.overlay_y_slider.pack(fill="x", padx=10, pady=2)
 
-        # Size slider
+        # Size slider (Neutral 100% (1.0) aligned at 50% center)
         self.overlay_scale_lbl = ctk.CTkLabel(self.char_panel, text="倍率 (100%):", font=ctk.CTkFont(size=11))
         self.overlay_scale_lbl.pack(anchor="w", padx=10, pady=(3, 0))
-        self.overlay_scale_slider = ctk.CTkSlider(self.char_panel, from_=0.1, to=3.0, number_of_steps=290, command=self.on_overlay_scale_slider_changed)
+        self.overlay_scale_slider = ctk.CTkSlider(self.char_panel, from_=-1.0, to=3.0, number_of_steps=400, command=self.on_overlay_scale_slider_changed)
         self.overlay_scale_slider.set(1.0)
         self.overlay_scale_slider.pack(fill="x", padx=10, pady=2)
 
-        # Rotation slider
+        # Rotation slider (Neutral 0° aligned at 50% center)
         self.overlay_angle_lbl = ctk.CTkLabel(self.char_panel, text="角度 (0°):", font=ctk.CTkFont(size=11))
         self.overlay_angle_lbl.pack(anchor="w", padx=10, pady=(3, 0))
         self.overlay_angle_slider = ctk.CTkSlider(self.char_panel, from_=-180.0, to=180.0, number_of_steps=360, command=self.on_overlay_angle_slider_changed)
@@ -1854,7 +1856,8 @@ class App(ctk.CTk):
         self.on_text_style_changed()
 
     def on_overlay_scale_slider_changed(self, v):
-        self.overlay_scale_lbl.configure(text=f"倍率 ({int(float(v)*100)}%):")
+        scale_val = max(0.05, float(v))
+        self.overlay_scale_lbl.configure(text=f"倍率 ({int(scale_val * 100)}%):")
         self.on_text_style_changed()
 
     def on_overlay_angle_slider_changed(self, v):
@@ -2852,33 +2855,36 @@ class App(ctk.CTk):
                     
                     processed = preprocess_overlay_image(opath, scale, angle, opacity)
                     if processed:
-                        preview_ratio = self.current_preview_w / 1080.0
-                        pw = int(processed.width * preview_ratio)
-                        ph = int(processed.height * preview_ratio)
-                        if pw > 0 and ph > 0:
-                            preview_overlay = processed.resize((pw, ph), PIL.Image.Resampling.LANCZOS)
+                        offset_x = (self.current_preview_w - nw) // 2
+                        offset_y = (self.current_preview_h - nh) // 2
+                        scale_ratio_x = nw / 1080.0
+                        scale_ratio_y = nh / 1920.0
+                        
+                        pw = max(1, int(processed.width * scale_ratio_x))
+                        ph = max(1, int(processed.height * scale_ratio_y))
+                        preview_overlay = processed.resize((pw, ph), PIL.Image.Resampling.LANCZOS)
+                        
+                        px_base = offset_x + int(job.get("overlay_x", 100) * scale_ratio_x)
+                        py_base = offset_y + int(job.get("overlay_y", 100) * scale_ratio_y)
+                        anchor = job.get("overlay_anchor", "重心 (中央)")
+                        
+                        if anchor == "重心 (中央)":
+                            px = px_base - pw // 2
+                            py = py_base - ph // 2
+                        elif anchor == "右上":
+                            px = px_base - pw
+                            py = py_base
+                        elif anchor == "左下":
+                            px = px_base
+                            py = py_base - ph
+                        elif anchor == "右下":
+                            px = px_base - pw
+                            py = py_base - ph
+                        else: # "左上"
+                            px = px_base
+                            py = py_base
                             
-                            px_base = int(job.get("overlay_x", 100) * preview_ratio)
-                            py_base = int(job.get("overlay_y", 100) * preview_ratio)
-                            anchor = job.get("overlay_anchor", "重心 (中央)")
-                            
-                            if anchor == "重心 (中央)":
-                                px = px_base - pw // 2
-                                py = py_base - ph // 2
-                            elif anchor == "右上":
-                                px = px_base - pw
-                                py = py_base
-                            elif anchor == "左下":
-                                px = px_base
-                                py = py_base - ph
-                            elif anchor == "右下":
-                                px = px_base - pw
-                                py = py_base - ph
-                            else: # "左上"
-                                px = px_base
-                                py = py_base
-                                
-                            canvas.paste(preview_overlay, (px, py), preview_overlay)
+                        canvas.paste(preview_overlay, (px, py), preview_overlay)
 
         img = ctk.CTkImage(light_image=canvas, dark_image=canvas, size=(self.current_preview_w, self.current_preview_h))
         self.preview_panel.configure(image=img, text="")
@@ -3242,7 +3248,7 @@ class App(ctk.CTk):
         self.jobs[self.active_job_index]["overlay_path"] = self.overlay_path_entry.get().strip()
         self.jobs[self.active_job_index]["overlay_x"] = int(self.overlay_x_slider.get())
         self.jobs[self.active_job_index]["overlay_y"] = int(self.overlay_y_slider.get())
-        self.jobs[self.active_job_index]["overlay_scale"] = float(self.overlay_scale_slider.get())
+        self.jobs[self.active_job_index]["overlay_scale"] = max(0.05, float(self.overlay_scale_slider.get()))
         self.jobs[self.active_job_index]["overlay_angle"] = float(self.overlay_angle_slider.get())
         self.jobs[self.active_job_index]["overlay_opacity"] = float(self.overlay_opacity_slider.get())
         self.jobs[self.active_job_index]["overlay_enabled"] = self.overlay_enabled_var.get()

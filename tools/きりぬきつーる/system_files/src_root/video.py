@@ -13,12 +13,43 @@ imageio_ffmpeg = None
 def init_video_libs():
     """動画編集ライブラリ (MoviePy) のインポート"""
     global VideoFileClip, ColorClip, CompositeVideoClip, imageio_ffmpeg
+    if VideoFileClip is not None:
+        return
     from moviepy.editor import VideoFileClip as _VFC, ColorClip as _CC, CompositeVideoClip as _CVC
     import imageio_ffmpeg as _iff
     VideoFileClip = _VFC
     ColorClip = _CC
     CompositeVideoClip = _CVC
     imageio_ffmpeg = _iff
+
+def preprocess_overlay_image(src_path, scale, angle, opacity):
+    from PIL import Image
+    try:
+        if not src_path or not os.path.exists(src_path):
+            return None
+        with Image.open(src_path) as img:
+            img = img.convert("RGBA")
+            
+            # 1. Scale
+            w, h = img.size
+            new_w = max(10, int(w * scale))
+            new_h = max(10, int(h * scale))
+            img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+            
+            # 2. Rotate
+            if angle != 0:
+                img = img.rotate(-angle, expand=True, resample=Image.Resampling.BICUBIC)
+            
+            # 3. Opacity
+            if opacity < 1.0:
+                r, g, b, a = img.split()
+                a = a.point(lambda p: int(p * opacity))
+                img = Image.merge("RGBA", (r, g, b, a))
+                
+            return img.copy()
+    except Exception as e:
+        print(f"⚠️ Image preprocessing failed: {e}")
+        return None
 
 def detect_loud_segments(clip, threshold_ratio=2.2, min_rms=0.03, window_sec=0.1):
     """音声トラックから大声区間を検出して、開始・終了秒数のリストを返す"""
@@ -136,7 +167,22 @@ def process_single_clip(
     export_ae_csv: bool,
     no_burn_in: bool,
     margin_v: int = 50,
-    loud_zoom: bool = False
+    loud_zoom: bool = False,
+    bold: bool = False,
+    italic: bool = False,
+    outline_width: int = 2,
+    shadow_depth: int = 0,
+    outline_color_hex: str = "&H000000",
+    alignment: int = 2,
+    shadow_alpha: float = 1.0,
+    overlay_path: str = "",
+    overlay_x: int = 100,
+    overlay_y: int = 100,
+    overlay_scale: float = 1.0,
+    overlay_angle: float = 0.0,
+    overlay_opacity: float = 1.0,
+    overlay_enabled: bool = False,
+    overlay_anchor: str = "重心 (中央)"
 ) -> str:
     """
     1件の動画切り出し・合成と、付随する字幕書き出し処理を実行する。
@@ -208,12 +254,62 @@ def process_single_clip(
             print(f"  📁 Ae用CSVを出力しました: {final_csv_path}")
 
         if no_burn_in:
-            if os.path.exists(out):
-                os.remove(out)
-            shutil.move(tmp, out)
-            if os.path.exists(srt):
-                os.remove(srt)
-            print("  -> 字幕の焼き付けをスキップしました (生動画)。")
+            temp_overlay_path = ""
+            has_overlay = False
+            ox = overlay_x
+            oy = overlay_y
+            if overlay_enabled and overlay_path and os.path.exists(overlay_path):
+                processed_img = preprocess_overlay_image(overlay_path, overlay_scale, overlay_angle, overlay_opacity)
+                if processed_img:
+                    w, h = processed_img.width, processed_img.height
+                    if overlay_anchor == "重心 (中央)":
+                        ox = overlay_x - w // 2
+                        oy = overlay_y - h // 2
+                    elif overlay_anchor == "右上":
+                        ox = overlay_x - w
+                        oy = overlay_y
+                    elif overlay_anchor == "左下":
+                        ox = overlay_x
+                        oy = overlay_y - h
+                    elif overlay_anchor == "右下":
+                        ox = overlay_x - w
+                        oy = overlay_y - h
+                    temp_overlay_path = os.path.join(os.path.dirname(out), f"temp_overlay_no_sub_{index}.png")
+                    processed_img.save(temp_overlay_path, "PNG")
+                    has_overlay = True
+
+            if has_overlay:
+                si_info = None
+                if os.name == 'nt':
+                    si_info = subprocess.STARTUPINFO()
+                    si_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+                r = subprocess.run(
+                    [
+                        ffmpeg_exe, "-y",
+                        "-i", tmp,
+                        "-i", temp_overlay_path,
+                        "-filter_complex", f"[0:v][1:v]overlay={ox}:{oy}",
+                        "-c:a", "copy", out
+                    ],
+                    startupinfo=si_info, capture_output=True, text=True
+                )
+                for p in [tmp, temp_overlay_path]:
+                    if p and os.path.exists(p):
+                        try: os.remove(p)
+                        except Exception: pass
+                if os.path.exists(srt):
+                    try: os.remove(srt)
+                    except Exception: pass
+                if r.returncode != 0:
+                    raise RuntimeError(f"ffmpeg overlayエラー: {r.stderr}")
+            else:
+                if os.path.exists(out):
+                    os.remove(out)
+                shutil.move(tmp, out)
+                if os.path.exists(srt):
+                    os.remove(srt)
+                print("  -> 字幕の焼き付けをスキップしました (生動画)。")
         else:
             # ffmpeg subtitlesフィルター用のパスエスケープ処理 (Windows対策)
             srt_ffmpeg = srt.replace("\\", "/")
@@ -221,19 +317,65 @@ def process_single_clip(
                 srt_ffmpeg = srt_ffmpeg.replace(":", "\\:")
             srt_ffmpeg = srt_ffmpeg.replace("'", "'\\\\''")
 
-            style = f"Fontname={font_name},Fontsize={font_size},PrimaryColour={color_hex},OutlineColour=&H000000,BorderStyle=1,Outline=2,Alignment=2,MarginV={margin_v},PlayResX=1080,PlayResY=1920"
+            ass_bold = -1 if bold else 0
+            ass_italic = -1 if italic else 0
+            alpha_val = int((1.0 - max(0.0, min(1.0, shadow_alpha))) * 255)
+            bbggrr = outline_color_hex.replace("&H", "")
+            back_color_hex = f"&H{alpha_val:02X}{bbggrr}"
+            style = f"Fontname={font_name},Fontsize={font_size},PrimaryColour={color_hex},OutlineColour={outline_color_hex},BackColour={back_color_hex},BorderStyle=1,Outline={outline_width},Shadow={shadow_depth},Alignment={alignment},MarginV={margin_v},PlayResX=1080,PlayResY=1920,Bold={ass_bold},Italic={ass_italic}"
+            
+            temp_overlay_path = ""
+            has_overlay = False
+            ox = overlay_x
+            oy = overlay_y
+            if overlay_enabled and overlay_path and os.path.exists(overlay_path):
+                processed_img = preprocess_overlay_image(overlay_path, overlay_scale, overlay_angle, overlay_opacity)
+                if processed_img:
+                    w, h = processed_img.width, processed_img.height
+                    if overlay_anchor == "重心 (中央)":
+                        ox = overlay_x - w // 2
+                        oy = overlay_y - h // 2
+                    elif overlay_anchor == "右上":
+                        ox = overlay_x - w
+                        oy = overlay_y
+                    elif overlay_anchor == "左下":
+                        ox = overlay_x
+                        oy = overlay_y - h
+                    elif overlay_anchor == "右下":
+                        ox = overlay_x - w
+                        oy = overlay_y - h
+                    temp_overlay_path = os.path.join(os.path.dirname(out), f"temp_overlay_{index}.png")
+                    processed_img.save(temp_overlay_path, "PNG")
+                    has_overlay = True
+
             si_info = None
             if os.name == 'nt':
                 si_info = subprocess.STARTUPINFO()
                 si_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
-            r = subprocess.run(
-                [ffmpeg_exe, "-y", "-i", tmp, "-vf", f"subtitles='{srt_ffmpeg}':force_style='{style}'", "-c:a", "copy", out],
-                startupinfo=si_info, capture_output=True, text=True
-            )
-            for p in [srt, tmp]:
-                if os.path.exists(p):
-                    os.remove(p)
+            
+            if has_overlay:
+                filter_complex = f"[0:v]subtitles='{srt_ffmpeg}':force_style='{style}'[v1];[v1][1:v]overlay={ox}:{oy}"
+                r = subprocess.run(
+                    [
+                        ffmpeg_exe, "-y",
+                        "-i", tmp,
+                        "-i", temp_overlay_path,
+                        "-filter_complex", filter_complex,
+                        "-c:a", "copy", out
+                    ],
+                    startupinfo=si_info, capture_output=True, text=True
+                )
+            else:
+                r = subprocess.run(
+                    [ffmpeg_exe, "-y", "-i", tmp, "-vf", f"subtitles='{srt_ffmpeg}':force_style='{style}'", "-c:a", "copy", out],
+                    startupinfo=si_info, capture_output=True, text=True
+                )
+                
+            for p in [srt, tmp, temp_overlay_path]:
+                if p and os.path.exists(p):
+                    try: os.remove(p)
+                    except Exception: pass
             if r.returncode != 0:
                 raise RuntimeError(f"ffmpegエラー: {r.stderr}")
     else:

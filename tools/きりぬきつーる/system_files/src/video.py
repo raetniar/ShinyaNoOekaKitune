@@ -25,6 +25,8 @@ def init_video_libs():
 def preprocess_overlay_image(src_path, scale, angle, opacity):
     from PIL import Image
     try:
+        if not src_path or not os.path.exists(src_path):
+            return None
         with Image.open(src_path) as img:
             img = img.convert("RGBA")
             
@@ -44,7 +46,7 @@ def preprocess_overlay_image(src_path, scale, angle, opacity):
                 a = a.point(lambda p: int(p * opacity))
                 img = Image.merge("RGBA", (r, g, b, a))
                 
-            return img
+            return img.copy()
     except Exception as e:
         print(f"⚠️ Image preprocessing failed: {e}")
         return None
