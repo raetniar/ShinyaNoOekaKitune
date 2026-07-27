@@ -1017,14 +1017,26 @@ class App(ctk.CTk):
                 try: os.remove(self.temp_play_audio)
                 except Exception: pass
             
+            # Check duration via OpenCV VideoCapture
+            cap = cv2.VideoCapture(os.path.abspath(video_path))
+            fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+            total_f = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
+            cap.release()
+            tot_sec = total_f / fps if fps > 0 else 0
+            
+            if tot_sec > 0 and start_time >= tot_sec:
+                start_time = max(0.0, tot_sec - 30.0)
+            
+            duration = max(0.1, end_time - start_time)
+            
             import imageio_ffmpeg
             ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
             
             cmd = [
                 ffmpeg_exe,
                 "-y",
-                "-ss", str(max(0.0, start_time)),
-                "-to", str(end_time),
+                "-ss", f"{max(0.0, start_time):.3f}",
+                "-t", f"{duration:.3f}",
                 "-i", os.path.abspath(video_path),
                 "-map", "0:a:0?",
                 "-vn",
@@ -1048,12 +1060,12 @@ class App(ctk.CTk):
             video_mod.init_video_libs()
             safe_vp = self.get_safe_audio_path(video_path)
             with video_mod.VideoFileClip(safe_vp) as v:
-                duration = v.duration
-                if start_time >= duration or v.audio is None:
+                v_dur = v.duration
+                if start_time >= v_dur or v.audio is None:
                     if hasattr(self, "audio_status_lbl"):
                         self.audio_status_lbl.configure(text="🔇 音声なし", text_color="red")
                     return
-                safe_end = min(duration, end_time)
+                safe_end = min(v_dur, end_time)
                 a = v.subclip(max(0.0, start_time), safe_end).audio
                 if a is not None:
                     a.write_audiofile(self.temp_play_audio, codec="pcm_s16le", fps=44100, logger=None)

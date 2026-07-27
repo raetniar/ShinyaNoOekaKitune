@@ -791,7 +791,7 @@ class App(ctk.CTk):
         select_box = ctk.CTkFrame(hdr_frame, fg_color="transparent")
         select_box.pack(side="right", anchor="e")
         ctk.CTkLabel(select_box, text="編集対象の候補: ", font=ctk.CTkFont(weight="bold")).pack(side="left", padx=2)
-        self.job_select_menu = ctk.CTkOptionMenu(select_box, values=["(候補がありません)"], width=280, command=self.on_job_select_menu_changed)
+        self.job_select_menu = ctk.CTkOptionMenu(select_box, values=["(候補がありません)"], width=220, command=self.on_job_select_menu_changed)
         self.job_select_menu.pack(side="left", padx=2)
 
         self.whisper_btn = ctk.CTkButton(rf, text="🪄 AIで字幕を自動生成 (この範囲のみの音声を解析)", command=self.start_whisper_for_active_job)
@@ -799,23 +799,41 @@ class App(ctk.CTk):
 
         time_ctrl = ctk.CTkFrame(rf)
         time_ctrl.grid(row=2, column=0, columnspan=2, padx=10, pady=3, sticky="ew")
-        self.play_btn = ctk.CTkButton(time_ctrl, text="▶", width=38, command=self.toggle_play)
-        self.play_btn.pack(side="left", padx=(4, 2), pady=3)
-        ctk.CTkButton(time_ctrl, text="🎬外部", width=55, command=self.play_in_external_player).pack(side="left", padx=2, pady=3)
-        self.time_label = ctk.CTkLabel(time_ctrl, text="00:00 / 00:00", width=90)
-        self.time_label.pack(side="left", padx=4, pady=3)
-        self.audio_status_lbl = ctk.CTkLabel(time_ctrl, text="", text_color="orange", font=ctk.CTkFont(size=11))
-        self.audio_status_lbl.pack(side="left", padx=4, pady=3)
-        self.seek_slider = ctk.CTkSlider(time_ctrl, from_=0, to=100, number_of_steps=100, command=self.on_seek_drag)
+        time_ctrl.grid_columnconfigure(0, weight=1)
+        
+        # Row 1 of time_ctrl: Playback & Seek Slider
+        time_row1 = ctk.CTkFrame(time_ctrl, fg_color="transparent")
+        time_row1.pack(fill="x", padx=4, pady=(3, 1))
+        
+        self.play_btn = ctk.CTkButton(time_row1, text="▶", width=38, command=self.toggle_play)
+        self.play_btn.pack(side="left", padx=(2, 2))
+        
+        ctk.CTkButton(time_row1, text="🎬外部", width=50, command=self.play_in_external_player).pack(side="left", padx=2)
+        
+        self.time_label = ctk.CTkLabel(time_row1, text="00:00 / 00:00", width=85, font=("Consolas", 11))
+        self.time_label.pack(side="left", padx=3)
+        
+        self.audio_status_lbl = ctk.CTkLabel(time_row1, text="", text_color="orange", font=ctk.CTkFont(size=11))
+        self.audio_status_lbl.pack(side="left", padx=3)
+        
+        self.seek_slider = ctk.CTkSlider(time_row1, from_=0, to=100, number_of_steps=100, command=self.on_seek_drag)
         self.seek_slider.set(0)
-        self.seek_slider.pack(side="left", padx=4, pady=3, fill="x", expand=True)
-        ctk.CTkLabel(time_ctrl, text="開始:").pack(side="left", padx=(8, 2), pady=3)
-        self.start_entry = ctk.CTkEntry(time_ctrl, placeholder_text="00:00:00", width=78)
-        self.start_entry.pack(side="left", padx=2, pady=3)
-        ctk.CTkLabel(time_ctrl, text="終了:").pack(side="left", padx=(4, 2), pady=3)
-        self.end_entry = ctk.CTkEntry(time_ctrl, placeholder_text="00:00:00", width=78)
-        self.end_entry.pack(side="left", padx=2, pady=3)
-        ctk.CTkButton(time_ctrl, text="更新", width=50, command=self.update_active_job_range).pack(side="left", padx=4, pady=3)
+        self.seek_slider.pack(side="left", padx=(6, 2), fill="x", expand=True)
+        
+        # Row 2 of time_ctrl: Start/End Range Controls
+        time_row2 = ctk.CTkFrame(time_ctrl, fg_color="transparent")
+        time_row2.pack(fill="x", padx=4, pady=(1, 3))
+        
+        ctk.CTkLabel(time_row2, text="⏱ 範囲指定:", font=ctk.CTkFont(size=11, weight="bold")).pack(side="left", padx=(2, 4))
+        ctk.CTkLabel(time_row2, text="開始:").pack(side="left", padx=2)
+        self.start_entry = ctk.CTkEntry(time_row2, placeholder_text="00:00:00", width=74, font=("Consolas", 11))
+        self.start_entry.pack(side="left", padx=2)
+        
+        ctk.CTkLabel(time_row2, text="～ 終了:").pack(side="left", padx=2)
+        self.end_entry = ctk.CTkEntry(time_row2, placeholder_text="00:00:00", width=74, font=("Consolas", 11))
+        self.end_entry.pack(side="left", padx=2)
+        
+        ctk.CTkButton(time_row2, text="範囲更新", width=65, fg_color="gray30", hover_color="gray45", command=self.update_active_job_range).pack(side="left", padx=6)
 
         self.preview_container = ctk.CTkFrame(rf, fg_color="#000000", height=340)
         self.preview_container.grid(row=3, column=0, padx=(10, 4), pady=5, sticky="nsew")
@@ -2325,14 +2343,26 @@ class App(ctk.CTk):
                 try: os.remove(self.temp_play_audio)
                 except Exception: pass
             
+            # Check duration via OpenCV VideoCapture
+            cap = cv2.VideoCapture(os.path.abspath(video_path))
+            fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+            total_f = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
+            cap.release()
+            tot_sec = total_f / fps if fps > 0 else 0
+            
+            if tot_sec > 0 and start_time >= tot_sec:
+                start_time = max(0.0, tot_sec - 30.0)
+            
+            duration = max(0.1, end_time - start_time)
+            
             import imageio_ffmpeg
             ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
             
             cmd = [
                 ffmpeg_exe,
                 "-y",
-                "-ss", str(max(0.0, start_time)),
-                "-to", str(end_time),
+                "-ss", f"{max(0.0, start_time):.3f}",
+                "-t", f"{duration:.3f}",
                 "-i", os.path.abspath(video_path),
                 "-map", "0:a:0?",
                 "-vn",
@@ -2356,12 +2386,12 @@ class App(ctk.CTk):
             video_mod.init_video_libs()
             safe_vp = self.get_safe_audio_path(video_path)
             with video_mod.VideoFileClip(safe_vp) as v:
-                duration = v.duration
-                if start_time >= duration or v.audio is None:
+                v_dur = v.duration
+                if start_time >= v_dur or v.audio is None:
                     if hasattr(self, "audio_status_lbl"):
                         self.audio_status_lbl.configure(text="🔇 音声なし", text_color="red")
                     return
-                safe_end = min(duration, end_time)
+                safe_end = min(v_dur, end_time)
                 a = v.subclip(max(0.0, start_time), safe_end).audio
                 if a is not None:
                     a.write_audiofile(self.temp_play_audio, codec="pcm_s16le", fps=44100, logger=None)
