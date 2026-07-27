@@ -821,7 +821,7 @@ class App(ctk.CTk):
                 start_time = job["start"]
                 end_time = job["end"]
                 
-                with video_mod.VideoFileClip(video_path) as v:
+                with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                     duration = v.duration
                     if start_time >= duration:
                         print(f"⚠️ スキップ: 開始時間 {seconds_to_hms(start_time)} が動画の長さ {seconds_to_hms(duration)} を超えています。")
@@ -892,7 +892,7 @@ class App(ctk.CTk):
                 start_time = job["start"]
                 end_time = job["end"]
                 
-                with video_mod.VideoFileClip(video_path) as v:
+                with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                     duration = v.duration
                     if start_time >= duration:
                         print(f"⚠️ スキップ: 開始時間 {seconds_to_hms(start_time)} が動画の長さ {seconds_to_hms(duration)} を超えています。")
@@ -976,6 +976,24 @@ class App(ctk.CTk):
             try: os.remove(self.temp_preview_link)
             except Exception: pass
 
+    def get_safe_audio_path(self, path):
+        if not path: return ""
+        abs_path = os.path.abspath(path)
+        if not os.path.exists(abs_path): return abs_path
+        try:
+            import ctypes
+            from ctypes import wintypes
+            GetShortPathNameW = ctypes.windll.kernel32.GetShortPathNameW
+            GetShortPathNameW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
+            GetShortPathNameW.restype = wintypes.DWORD
+            buf = ctypes.create_unicode_buffer(1024)
+            ret = GetShortPathNameW(abs_path, buf, 1024)
+            if ret > 0 and ret <= 1024:
+                return buf.value
+        except Exception:
+            pass
+        return abs_path
+
     def prepare_preview_audio(self, video_path, start_time, end_time):
         self.audio_ready = False
         try:
@@ -996,7 +1014,7 @@ class App(ctk.CTk):
                 try: os.remove(self.temp_play_audio)
                 except Exception: pass
             
-            with video_mod.VideoFileClip(video_path) as v:
+            with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                 duration = v.duration
                 if start_time >= duration:
                     print("⚠️ プレビュー音声準備: 開始時間が動画長を超えています。")
@@ -1149,7 +1167,7 @@ class App(ctk.CTk):
                             except Exception: pass
                         
                         vp = self.video_entry.get().strip()
-                        with video_mod.VideoFileClip(vp) as v:
+                        with video_mod.VideoFileClip(self.get_safe_audio_path(vp)) as v:
                             a = v.subclip(cur_sec, end_sec).audio
                             if a is not None:
                                 a.write_audiofile(temp_seek_audio, codec="pcm_s16le", fps=44100, logger=None)
@@ -1316,7 +1334,7 @@ class App(ctk.CTk):
                 try: os.remove(temp_audio)
                 except Exception: pass
                 
-            with video_mod.VideoFileClip(video_path) as v:
+            with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                 duration = v.duration
                 if start_time >= duration:
                     raise ValueError(f"開始時間 ({seconds_to_hms(start_time)}) が動画の長さ ({seconds_to_hms(duration)}) を超えています。")
@@ -1464,7 +1482,7 @@ class App(ctk.CTk):
                     try: os.remove(temp_sub_audio)
                     except Exception: pass
                 
-                with video_mod.VideoFileClip(video_path) as v:
+                with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                     duration = v.duration
                     safe_end = min(duration, abs_end)
                     a = v.subclip(max(0.0, abs_start), safe_end).audio

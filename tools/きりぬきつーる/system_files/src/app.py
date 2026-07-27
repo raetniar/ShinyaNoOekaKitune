@@ -1582,79 +1582,119 @@ class App(ctk.CTk):
 
     def parse_instructions_text(self, content):
         results = []
-        blocks = re.split(r"■\s*(?:厳選)?(?:切り抜き)?(?:箇所)?候補", content)
-        if len(blocks) <= 1:
-            blocks = [content]
-        else:
-            blocks = blocks[1:]
-            
-        time_pattern = r"(\d{1,2}:\d{2}(?::\d{2})?)"
+        if not content: return results
         
-        for block in blocks:
-            lines = block.split('\n')
-            times = []
+        blocks = re.split(r"\n\s*(?=(?:\d+[\.\)]|■|◆|●|★|【|###|---|\b候補|\b切り抜き|\bClip))", content)
+        valid_blocks = [b.strip() for b in blocks if b.strip()]
+        
+        time_pair_pattern = r"(\d{1,2}:\d{2}(?::\d{2})?)\s*(?:～|~|-|→|to|\b)\s*(\d{1,2}:\d{2}(?::\d{2})?)"
+        single_time_pattern = r"(\d{1,2}:\d{2}(?::\d{2})?)"
+        
+        def process_block(block_text):
+            lines = [l.strip() for l in block_text.split("\n") if l.strip()]
+            if not lines: return None
+            
+            start_time = None
+            end_time = None
             title = "no_title"
             intro_telop = ""
             
-            for line in lines:
-                if len(times) < 2:
-                    found_times = re.findall(time_pattern, line)
-                    if found_times:
-                        times.extend(found_times)
+            m_pair = re.search(time_pair_pattern, block_text)
+            if m_pair:
+                start_time = time_to_seconds(m_pair.group(1))
+                end_time = time_to_seconds(m_pair.group(2))
+            else:
+                found_times = re.findall(single_time_pattern, block_text)
+                if len(found_times) >= 2:
+                    start_time = time_to_seconds(found_times[0])
+                    end_time = time_to_seconds(found_times[1])
+                    
+            if start_time is None or end_time is None or start_time >= end_time:
+                return None
                 
-                if any(k in line for k in ["タイトル", "バズるタイトル"]):
-                    m = re.search(r"(?:タイトル|バズるタイトル)[:：]\s*(.+)", line)
+            for line in lines:
+                if any(k in line for k in ["タイトル", "バズるタイトル", "件名", "見出し"]):
+                    m = re.search(r"(?:タイトル|バズるタイトル|件名|見出し)[:：]\s*(.+)", line)
                     if m:
                         raw_title = m.group(1).strip()
-                        raw_title = re.sub(r"\*\*|\[|\]|「|」", "", raw_title)
+                        raw_title = re.sub(r"\*\*|\[|\]|「|」|\"|'", "", raw_title)
                         title = clean_filename(raw_title)
                         
-                if "冒頭テロップ" in line:
-                    m = re.search(r"冒頭テロップ[:：]\s*(.+)", line)
+                if any(k in line for k in ["冒頭テロップ", "テロップ", "要約", "概要"]):
+                    m = re.search(r"(?:冒頭テロップ|テロップ|要約|概要)[:：]\s*(.+)", line)
                     if m:
                         raw_telop = m.group(1).strip()
                         raw_telop = re.sub(r"\*\*|\[|\]|「|」|\"|'", "", raw_telop)
                         intro_telop = raw_telop
-            
-            if len(times) >= 2:
-                start_time = time_to_seconds(times[0])
-                end_time = time_to_seconds(times[1])
-                
-                if title == "no_title":
-                    for line in lines:
-                        clean_l = line.strip()
-                        if clean_l and not clean_l.startswith("■") and "タイムスタンプ" not in clean_l:
+
+            if title == "no_title":
+                for line in lines:
+                    if line and not line.startswith("■") and not re.search(single_time_pattern, line):
+                        clean_l = re.sub(r"\*\*|\[|\]|「|」|\"|'|#|:|-|^\d+[\.\)]", "", line).strip()
+                        if clean_l:
                             title = clean_filename(clean_l[:25])
                             break
+            if title == "no_title":
+                title = f"切り抜き_{len(results)+1}"
                 
-                subtitles = []
-                if intro_telop:
-                    subtitles.append({
-                        "start": 0.0,
-                        "end": 3.0,
-                        "text": intro_telop
-                    })
-                
-                results.append({
-                    "start": start_time,
-                    "end": end_time,
-                    "title": title,
-                    "subtitles": subtitles,
-                    "fontsize": "36",
-                    "color": "#FFFF00",
-                    "intro_telop": intro_telop,
-                    "margin_v": 500,
-                    "bold": False,
-                    "italic": False,
-                    "outline_width": "2",
-                    "shadow_depth": "0",
-                    "outline_color": "#000000",
-                    "alignment": "中央寄せ",
-                    "shadow_alpha": 1.0
-                })
-                
-        return results
+            subtitles = []
+            if intro_telop:
+                subtitles.append({"start": 0.0, "end": 3.0, "text": intro_telop})
 
+            return {
+                "start": start_time,
+                "end": end_time,
+                "title": title,
+                "subtitles": subtitles,
+                "fontsize": "36",
+                "color": "#FFFF00",
+                "intro_telop": intro_telop,
+                "margin_v": 500,
+                "bold": False,
+                "italic": False,
+                "outline_width": "2",
+                "shadow_depth": "0",
+                "outline_color": "#000000",
+                "alignment": "中央寄せ",
+                "shadow_alpha": 1.0
+            }
+        
+        for b in valid_blocks:
+            res = process_block(b)
+            if res:
+                results.append(res)
+                
+        if not results:
+            lines = content.split("\n")
+            for i, line in enumerate(lines):
+                m_pair = re.search(time_pair_pattern, line)
+                if m_pair:
+                    s_sec = time_to_seconds(m_pair.group(1))
+                    e_sec = time_to_seconds(m_pair.group(2))
+                    if s_sec < e_sec:
+                        t_str = f"切り抜き_{len(results)+1}"
+                        if i > 0 and lines[i-1].strip() and not re.search(single_time_pattern, lines[i-1]):
+                            t_str = clean_filename(lines[i-1].strip()[:25])
+                        elif i < len(lines)-1 and lines[i+1].strip() and not re.search(single_time_pattern, lines[i+1]):
+                            t_str = clean_filename(lines[i+1].strip()[:25])
+                        results.append({
+                            "start": s_sec,
+                            "end": e_sec,
+                            "title": t_str,
+                            "subtitles": [],
+                            "fontsize": "36",
+                            "color": "#FFFF00",
+                            "intro_telop": "",
+                            "margin_v": 500,
+                            "bold": False,
+                            "italic": False,
+                            "outline_width": "2",
+                            "shadow_depth": "0",
+                            "outline_color": "#000000",
+                            "alignment": "中央寄せ",
+                            "shadow_alpha": 1.0
+                        })
+        return results
     def apply_paste_instructions(self):
         try:
             text = self.paste_textbox.get("1.0", "end-1c").strip()
@@ -1818,7 +1858,7 @@ class App(ctk.CTk):
                 start_time = job["start"]
                 end_time = job["end"]
                 
-                with video_mod.VideoFileClip(video_path) as v:
+                with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                     duration = v.duration
                     if start_time >= duration:
                         print(f"⚠️ スキップ: 開始時間 {seconds_to_hms(start_time)} が動画の長さ {seconds_to_hms(duration)} を超えています。")
@@ -1896,7 +1936,7 @@ class App(ctk.CTk):
                 start_time = job["start"]
                 end_time = job["end"]
                 
-                with video_mod.VideoFileClip(video_path) as v:
+                with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                     duration = v.duration
                     if start_time >= duration:
                         print(f"⚠️ スキップ: 開始時間 {seconds_to_hms(start_time)} が動画の長さ {seconds_to_hms(duration)} を超えています。")
@@ -2022,7 +2062,7 @@ class App(ctk.CTk):
                 except Exception: pass
             
             video_mod.init_video_libs()
-            with video_mod.VideoFileClip(video_path) as v:
+            with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                 duration = v.duration
                 if start_time >= duration:
                     print("⚠️ プレビュー音声準備: 開始時間が動画長を超えています。")
@@ -2272,7 +2312,7 @@ class App(ctk.CTk):
                         
                         vp = self.video_entry.get().strip()
                         video_mod.init_video_libs()
-                        with video_mod.VideoFileClip(vp) as v:
+                        with video_mod.VideoFileClip(self.get_safe_audio_path(vp)) as v:
                             a = v.subclip(cur_sec, end_sec).audio
                             if a is not None:
                                 a.write_audiofile(temp_seek_audio, codec="pcm_s16le", fps=44100, logger=None)
@@ -2504,7 +2544,7 @@ class App(ctk.CTk):
                 try: os.remove(temp_audio)
                 except Exception: pass
                 
-            with video_mod.VideoFileClip(video_path) as v:
+            with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                 duration = v.duration
                 if start_time >= duration:
                     raise ValueError(f"開始時間 ({seconds_to_hms(start_time)}) が動画の長さ ({seconds_to_hms(duration)}) を超えています。")
@@ -2669,7 +2709,7 @@ class App(ctk.CTk):
                     try: os.remove(temp_sub_audio)
                     except Exception: pass
                 
-                with video_mod.VideoFileClip(video_path) as v:
+                with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
                     duration = v.duration
                     safe_end = min(duration, abs_end)
                     a = v.subclip(max(0.0, abs_start), safe_end).audio
