@@ -2314,40 +2314,68 @@ class App(ctk.CTk):
             winsound.PlaySound(None, winsound.SND_PURGE)
         except Exception: pass
         
-        time.sleep(0.1)
-        self.temp_play_audio = f"temp_play_audio_{self.active_job_index}.wav"
+        time.sleep(0.05)
+        import tempfile
+        import subprocess
+        temp_dir = tempfile.gettempdir()
+        self.temp_play_audio = os.path.join(temp_dir, f"kirinuki_play_audio_{self.active_job_index}.wav")
         
         try:
-            for p in glob.glob("temp_play_audio_*.wav"):
-                if p != self.temp_play_audio:
-                    try: os.remove(p)
-                    except Exception: pass
-            
             if os.path.exists(self.temp_play_audio):
                 try: os.remove(self.temp_play_audio)
                 except Exception: pass
             
+            import imageio_ffmpeg
+            ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+            
+            cmd = [
+                ffmpeg_exe,
+                "-y",
+                "-ss", str(max(0.0, start_time)),
+                "-to", str(end_time),
+                "-i", os.path.abspath(video_path),
+                "-map", "0:a:0?",
+                "-vn",
+                "-acodec", "pcm_s16le",
+                "-ar", "44100",
+                "-ac", "2",
+                self.temp_play_audio
+            ]
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p.communicate()
+            
+            if os.path.exists(self.temp_play_audio) and os.path.getsize(self.temp_play_audio) > 1000:
+                self.audio_ready = True
+                if hasattr(self, "audio_status_lbl"):
+                    self.audio_status_lbl.configure(text="🔊 音声準備完了", text_color="green")
+                return
+        except Exception as e:
+            print(f"FFmpeg direct extraction fallback: {e}")
+            
+        try:
             video_mod.init_video_libs()
-            with video_mod.VideoFileClip(self.get_safe_audio_path(video_path)) as v:
+            safe_vp = self.get_safe_audio_path(video_path)
+            with video_mod.VideoFileClip(safe_vp) as v:
                 duration = v.duration
-                if start_time >= duration:
-                    print("⚠️ プレビュー音声準備: 開始時間が動画長を超えています。")
+                if start_time >= duration or v.audio is None:
                     if hasattr(self, "audio_status_lbl"):
-                        self.audio_status_lbl.configure(text="🔇 範囲外", text_color="red")
+                        self.audio_status_lbl.configure(text="🔇 音声なし", text_color="red")
                     return
                 safe_end = min(duration, end_time)
                 a = v.subclip(max(0.0, start_time), safe_end).audio
                 if a is not None:
                     a.write_audiofile(self.temp_play_audio, codec="pcm_s16le", fps=44100, logger=None)
                     a.close()
-            self.audio_ready = True
+                    self.audio_ready = True
+                    if hasattr(self, "audio_status_lbl"):
+                        self.audio_status_lbl.configure(text="🔊 音声準備完了", text_color="green")
+                else:
+                    if hasattr(self, "audio_status_lbl"):
+                        self.audio_status_lbl.configure(text="🔇 音声なし", text_color="red")
+        except Exception as err:
+            print(f"❌ プレビュー音声作成失敗: {err}")
             if hasattr(self, "audio_status_lbl"):
-                self.audio_status_lbl.configure(text="🔊 音声準備完了", text_color="green")
-            print(f"🔊 プレビュー音声をロードしました: {self.temp_play_audio}")
-        except Exception as e:
-            print(f"プレビュー音声切り出し失敗: {e}")
-            if hasattr(self, "audio_status_lbl"):
-                self.audio_status_lbl.configure(text="🔇 音声抽出失敗", text_color="red")
+                self.audio_status_lbl.configure(text="🔇 音声エラー", text_color="red")
 
     def refresh_job_select_menu(self):
         if not hasattr(self, "job_select_menu"): return
@@ -2585,33 +2613,10 @@ class App(ctk.CTk):
             self.preview_playing = True
             self.play_btn.configure(text="⏸")
             
-            if self.audio_ready and os.path.exists(self.temp_play_audio):
+            if hasattr(self, "temp_play_audio") and os.path.exists(self.temp_play_audio):
                 try:
                     import winsound
-                    import tempfile
-                    cur_sec = self.preview_current_frame / self.preview_fps
-                    start_sec = self.preview_start_frame / self.preview_fps
-                    end_sec = self.preview_end_frame / self.preview_fps
-                    
-                    if (cur_sec - start_sec) > 0.5:
-                        temp_seek_audio = os.path.join(tempfile.gettempdir(), "kirinuki_play_audio_seek.wav")
-                        if os.path.exists(temp_seek_audio):
-                            try: os.remove(temp_seek_audio)
-                            except Exception: pass
-                        
-                        vp = self.video_entry.get().strip()
-                        video_mod.init_video_libs()
-                        with video_mod.VideoFileClip(self.get_safe_audio_path(vp)) as v:
-                            a = v.subclip(cur_sec, end_sec).audio
-                            if a is not None:
-                                a.write_audiofile(temp_seek_audio, codec="pcm_s16le", fps=44100, logger=None)
-                                a.close()
-                        
-                        winsound.PlaySound(temp_seek_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
-                    else:
-                        self.preview_current_frame = self.preview_start_frame
-                        self.preview_cap.set(cv2.CAP_PROP_POS_FRAMES, self.preview_start_frame)
-                        winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
+                    winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
                 except Exception as e:
                     print(f"音声再生失敗: {e}")
                     
