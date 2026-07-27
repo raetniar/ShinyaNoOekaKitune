@@ -633,6 +633,13 @@ class App(ctk.CTk):
         self.bulk_whisper_info = {}
         self.audio_ready = False
         self.temp_play_audio = "temp_play_audio.wav"
+        try:
+            import pygame
+            pygame.mixer.init(frequency=44100, size=-16, channels=2)
+            self.has_pygame_audio = True
+        except Exception as e:
+            print(f"pygame.mixer init fallback: {e}")
+            self.has_pygame_audio = False
         self.loud_zoom_var = ctk.BooleanVar(value=False)
         self.overlay_enabled_var = ctk.BooleanVar(value=False)
 
@@ -2629,10 +2636,16 @@ class App(ctk.CTk):
         if self.preview_playing:
             self.preview_playing = False
             self.play_btn.configure(text="▶")
-            try:
-                import winsound
-                winsound.PlaySound(None, winsound.SND_PURGE)
-            except Exception: pass
+            if getattr(self, "has_pygame_audio", False):
+                try:
+                    import pygame
+                    pygame.mixer.music.stop()
+                except Exception: pass
+            else:
+                try:
+                    import winsound
+                    winsound.PlaySound(None, winsound.SND_PURGE)
+                except Exception: pass
         else:
             self.preview_start_frame = self.job_start_frame
             self.preview_end_frame = self.job_end_frame
@@ -2644,12 +2657,21 @@ class App(ctk.CTk):
             self.play_btn.configure(text="⏸")
             
             if getattr(self, "audio_ready", False) and hasattr(self, "temp_play_audio") and os.path.exists(self.temp_play_audio):
-                try:
-                    import winsound
-                    winsound.PlaySound(None, winsound.SND_PURGE)
-                    winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
-                except Exception as e:
-                    print(f"音声再生失敗: {e}")
+                if getattr(self, "has_pygame_audio", False):
+                    try:
+                        import pygame
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load(self.temp_play_audio)
+                        pygame.mixer.music.play()
+                    except Exception as e:
+                        print(f"pygame audio play error: {e}")
+                else:
+                    try:
+                        import winsound
+                        winsound.PlaySound(None, winsound.SND_PURGE)
+                        winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
+                    except Exception as e:
+                        print(f"winsound audio play error: {e}")
                     
             self.playback_loop()
 
@@ -2661,10 +2683,16 @@ class App(ctk.CTk):
             if not ret or self.preview_current_frame > self.preview_end_frame:
                 self.preview_playing = False
                 self.play_btn.configure(text="▶")
-                try:
-                    import winsound
-                    winsound.PlaySound(None, winsound.SND_PURGE)
-                except Exception: pass
+                if getattr(self, "has_pygame_audio", False):
+                    try:
+                        import pygame
+                        pygame.mixer.music.stop()
+                    except Exception: pass
+                else:
+                    try:
+                        import winsound
+                        winsound.PlaySound(None, winsound.SND_PURGE)
+                    except Exception: pass
                 
                 self.preview_current_frame = self.preview_start_frame
                 self.preview_cap.set(cv2.CAP_PROP_POS_FRAMES, self.preview_start_frame)
