@@ -934,19 +934,64 @@ class App(ctk.CTk):
             self.step2_layout_mode = target_mode
             
             if target_mode == "narrow":
+                # 2-Tier Stacked Vertical Layout for Narrow Windows (二段構成):
+                # Row 3: Video Preview Box (Full Width)
+                # Row 4: Subtitle Timeline Editor (Full Width)
+                # Row 5: Add Queue Button
+                # Row 6: Style/Character Panel
+                self.preview_container.grid_forget()
+                self.sub_scroll.grid_forget()
+                self.add_queue_btn.grid_forget()
                 self.char_panel.grid_forget()
-                self.rf.grid_columnconfigure(2, weight=0, minsize=0)
                 
-                self.char_panel.configure(height=210)
-                self.char_panel.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-                self.rf.grid_rowconfigure(5, weight=0, minsize=210)
+                self.rf.grid_columnconfigure(2, weight=0, minsize=0)
+                self.rf.grid_columnconfigure(0, weight=1)
+                self.rf.grid_columnconfigure(1, weight=1)
+                
+                # Row 3: Video Preview Box (Full Width)
+                self.preview_container.configure(height=340)
+                self.preview_container.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+                self.rf.grid_rowconfigure(3, weight=0, minsize=340)
+                
+                # Row 4: Subtitle Timeline Editor (Full Width)
+                self.sub_scroll.configure(height=260)
+                self.sub_scroll.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+                self.rf.grid_rowconfigure(4, weight=0, minsize=260)
+                
+                # Row 5: Add Queue Button
+                self.add_queue_btn.grid(row=5, column=0, columnspan=2, padx=10, pady=8, sticky="ew")
+                
+                # Row 6: Style/Character Panel
+                self.char_panel.configure(height=220)
+                self.char_panel.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+                self.rf.grid_rowconfigure(6, weight=0, minsize=220)
+                
             else:
+                # Wide Mode: Side-by-side 3 columns
+                self.preview_container.grid_forget()
+                self.sub_scroll.grid_forget()
+                self.add_queue_btn.grid_forget()
                 self.char_panel.grid_forget()
+                
+                self.rf.grid_rowconfigure(4, weight=0, minsize=0)
                 self.rf.grid_rowconfigure(5, weight=0, minsize=0)
+                self.rf.grid_rowconfigure(6, weight=0, minsize=0)
+                
+                self.rf.grid_columnconfigure(0, weight=1)
+                self.rf.grid_columnconfigure(1, weight=1)
+                self.rf.grid_columnconfigure(2, weight=0, minsize=280)
+                
+                self.preview_container.configure(height=340)
+                self.preview_container.grid(row=3, column=0, padx=(10, 4), pady=5, sticky="nsew")
+                
+                self.sub_scroll.configure(height=220)
+                self.sub_scroll.grid(row=3, column=1, padx=(4, 10), pady=5, sticky="nsew")
+                self.rf.grid_rowconfigure(3, weight=1, minsize=340)
+                
+                self.add_queue_btn.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
                 
                 self.char_panel.configure(height=200)
                 self.char_panel.grid(row=1, column=2, rowspan=4, padx=(10, 8), pady=5, sticky="nsew")
-                self.rf.grid_columnconfigure(2, weight=0, minsize=280)
                 
         if width < 880 and not getattr(self, "sidebar_collapsed", False):
             self.toggle_sidebar(force_state=True)
@@ -2543,12 +2588,13 @@ class App(ctk.CTk):
             if self.audio_ready and os.path.exists(self.temp_play_audio):
                 try:
                     import winsound
+                    import tempfile
                     cur_sec = self.preview_current_frame / self.preview_fps
                     start_sec = self.preview_start_frame / self.preview_fps
                     end_sec = self.preview_end_frame / self.preview_fps
                     
                     if (cur_sec - start_sec) > 0.5:
-                        temp_seek_audio = "temp_play_audio_seek.wav"
+                        temp_seek_audio = os.path.join(tempfile.gettempdir(), "kirinuki_play_audio_seek.wav")
                         if os.path.exists(temp_seek_audio):
                             try: os.remove(temp_seek_audio)
                             except Exception: pass
@@ -2561,11 +2607,11 @@ class App(ctk.CTk):
                                 a.write_audiofile(temp_seek_audio, codec="pcm_s16le", fps=44100, logger=None)
                                 a.close()
                         
-                        winsound.PlaySound(self.get_safe_audio_path(temp_seek_audio), winsound.SND_ASYNC | winsound.SND_FILENAME)
+                        winsound.PlaySound(temp_seek_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
                     else:
                         self.preview_current_frame = self.preview_start_frame
                         self.preview_cap.set(cv2.CAP_PROP_POS_FRAMES, self.preview_start_frame)
-                        winsound.PlaySound(self.get_safe_audio_path(self.temp_play_audio), winsound.SND_ASYNC | winsound.SND_FILENAME)
+                        winsound.PlaySound(self.temp_play_audio, winsound.SND_ASYNC | winsound.SND_FILENAME)
                 except Exception as e:
                     print(f"音声再生失敗: {e}")
                     
@@ -2940,7 +2986,8 @@ class App(ctk.CTk):
         abs_start = job["start"] + sub["start"]
         abs_end = job["start"] + sub["end"]
         
-        temp_sub_audio = f"temp_play_audio_sub_{self.active_job_index}.wav"
+        import tempfile
+        temp_sub_audio = os.path.join(tempfile.gettempdir(), f"kirinuki_play_audio_sub_{self.active_job_index}.wav")
         
         def prepare_and_play():
             try:

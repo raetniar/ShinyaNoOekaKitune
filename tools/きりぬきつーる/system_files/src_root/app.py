@@ -1495,7 +1495,8 @@ class App(ctk.CTk):
         abs_start = job["start"] + sub["start"]
         abs_end = job["start"] + sub["end"]
         
-        temp_sub_audio = f"temp_play_audio_sub_{self.active_job_index}.wav"
+        import tempfile
+        temp_sub_audio = os.path.join(tempfile.gettempdir(), f"kirinuki_play_audio_sub_{self.active_job_index}.wav")
         
         def prepare_and_play():
             try:
