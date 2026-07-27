@@ -182,6 +182,7 @@ class App(ctk.CTk):
         self.tab_run = self.tabview.add("切り抜き＆字幕編集（一括）")
         self.tab_prompt = self.tabview.add("Geminiプロンプト設定")
         self.setup_run_tab()
+        self.bind("<Configure>", self.on_window_configure)
         self.setup_prompt_tab()
 
     def setup_run_tab(self):

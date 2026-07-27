@@ -653,6 +653,7 @@ class App(ctk.CTk):
         self.tab_prompt = self.tabview.add("Geminiプロンプト設定")
         self.tab_global = self.tabview.add("全体設定")
         self.setup_run_tab()
+        self.bind("<Configure>", self.on_window_configure)
         self.setup_prompt_tab()
         self.setup_global_tab()
 
@@ -671,7 +672,27 @@ class App(ctk.CTk):
         self.content_wizard.grid_rowconfigure(0, weight=0)
         self.content_wizard.grid_rowconfigure(1, weight=1)
 
-        ctk.CTkLabel(self.sidebar_wizard, text="🎬 きりぬき手順", font=ctk.CTkFont(weight="bold", size=13)).pack(pady=(15, 10))
+        sidebar_hdr = ctk.CTkFrame(self.sidebar_wizard, fg_color="transparent")
+        sidebar_hdr.pack(fill="x", padx=5, pady=(10, 5))
+        
+        self.sidebar_toggle_btn = ctk.CTkButton(
+            sidebar_hdr,
+            text="☰",
+            width=32,
+            height=32,
+            fg_color="transparent",
+            hover_color="#3a3a3a",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            command=self.toggle_sidebar
+        )
+        self.sidebar_toggle_btn.pack(side="left", padx=2)
+        
+        self.sidebar_title_label = ctk.CTkLabel(
+            sidebar_hdr,
+            text="🎬 きりぬき手順",
+            font=ctk.CTkFont(weight="bold", size=13)
+        )
+        self.sidebar_title_label.pack(side="left", padx=5)
 
         self.wizard_buttons = {}
         steps = [
@@ -871,6 +892,64 @@ class App(ctk.CTk):
 
         self.bf = bf
         self.switch_wizard_step("step1")
+
+    def toggle_sidebar(self, force_state=None):
+        if force_state is not None:
+            self.sidebar_collapsed = force_state
+        else:
+            self.sidebar_collapsed = not getattr(self, "sidebar_collapsed", False)
+            
+        if self.sidebar_collapsed:
+            self.sidebar_wizard.configure(width=52)
+            self.tab_run.grid_columnconfigure(0, minsize=52)
+            if hasattr(self, "sidebar_title_label") and self.sidebar_title_label.winfo_ismapped():
+                self.sidebar_title_label.pack_forget()
+            for key, btn in self.wizard_buttons.items():
+                if key == "step1": btn.configure(text="①", width=36)
+                elif key == "step2": btn.configure(text="②", width=36)
+                elif key == "step3": btn.configure(text="③", width=36)
+        else:
+            self.sidebar_wizard.configure(width=180)
+            self.tab_run.grid_columnconfigure(0, minsize=180)
+            if hasattr(self, "sidebar_title_label") and not self.sidebar_title_label.winfo_ismapped():
+                self.sidebar_title_label.pack(side="left", padx=5)
+            for key, btn in self.wizard_buttons.items():
+                if key == "step1": btn.configure(text="① 切り抜き候補", width=160)
+                elif key == "step2": btn.configure(text="② 字幕・編集", width=160)
+                elif key == "step3": btn.configure(text="③ 書き出し・ログ", width=160)
+
+    def on_window_configure(self, event):
+        if event.widget != self: return
+        w = event.width
+        self.update_responsive_layout(w)
+
+    def update_responsive_layout(self, width):
+        if not hasattr(self, "char_panel") or not hasattr(self, "rf"): return
+        
+        is_narrow = (width < 1150)
+        current_mode = getattr(self, "step2_layout_mode", None)
+        target_mode = "narrow" if is_narrow else "wide"
+        
+        if current_mode != target_mode:
+            self.step2_layout_mode = target_mode
+            
+            if target_mode == "narrow":
+                self.char_panel.grid_forget()
+                self.rf.grid_columnconfigure(2, weight=0, minsize=0)
+                
+                self.char_panel.configure(height=210)
+                self.char_panel.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+                self.rf.grid_rowconfigure(5, weight=0, minsize=210)
+            else:
+                self.char_panel.grid_forget()
+                self.rf.grid_rowconfigure(5, weight=0, minsize=0)
+                
+                self.char_panel.configure(height=200)
+                self.char_panel.grid(row=1, column=2, rowspan=4, padx=(10, 8), pady=5, sticky="nsew")
+                self.rf.grid_columnconfigure(2, weight=0, minsize=280)
+                
+        if width < 880 and not getattr(self, "sidebar_collapsed", False):
+            self.toggle_sidebar(force_state=True)
 
     def switch_wizard_step(self, step):
         self.step1_frame.pack_forget()
