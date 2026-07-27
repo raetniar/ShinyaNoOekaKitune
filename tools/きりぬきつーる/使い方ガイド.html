@@ -249,7 +249,7 @@
     <div class="cover-title">🎬 きりぬきつーる<br>完全取扱説明書</div>
     <div class="cover-decor"></div>
     <div class="cover-subtitle">
-      Web版Gemini（AIプロンプト）で取得した見どころを自動切り抜き！<br>
+      Web版Geminiが生成した見どころをコピペして自動仮切り抜き！<br>
       字幕テロップ・立ち絵合成 ショート動画一括作成支援ツール
     </div>
     <div class="cover-footer">
@@ -275,14 +275,14 @@
     <li class="toc-item">
       <div>
         <div class="toc-title">第2章：全体設定 ＆ パーソナルデータの入力（Gemini AI設定）</div>
-        <div class="toc-desc">Web版Geminiとの連携を高める必須4項目と動画情報</div>
+        <div class="toc-desc">Web版Geminiプロンプトの活用・必須4項目と動画情報</div>
       </div>
       <div class="toc-page">P. 4</div>
     </li>
     <li class="toc-item">
       <div>
-        <div class="toc-title">第3章：候補の自動生成（Step 1：動画読み込み ＆ AI判定）</div>
-        <div class="toc-desc">見どころポイントの取り込みとAI切り抜き候補生成フロー</div>
+        <div class="toc-title">第3章：候補の自動生成（Step 1：動画読み込み ＆ Geminiデータコピペ）</div>
+        <div class="toc-desc">動画ファイルの読み込みとGemini見どころデータの仮切り抜きフロー</div>
       </div>
       <div class="toc-page">P. 5</div>
     </li>
@@ -314,7 +314,7 @@
   
   <div class="card">
     <h4 style="margin:0 0 8px 0; color:#2563eb;">■ 「きりぬきつーる」とは？</h4>
-    <p>Web版の<strong>Gemini（AIプロンプト）</strong>を経由して取得した「配信や長尺動画の見どころポイント（切り抜き候補データ）」を取り込み、実際の元動画から該当シーンを自動で切り抜いて、字幕テロップや立ち絵（キャラ画像）の装飾を加え、YouTube Shorts / TikTok / Reels 向けのショート動画を誰でもカンタン＆一括で作成できるようにするための支援ツールです。</p>
+    <p>Web版の<strong>Gemini（AIプロンプト）</strong>を経由して取得した「配信や長尺動画の見どころポイント（切り抜き候補データ）」を取り込み、実際の元動画からその該当シーンを自動で仮切り抜きして、字幕テロップや立ち絵（キャラ画像）の装飾を加え、YouTube Shorts / TikTok / Reels 向けのショート動画を誰でもカンタン＆一括で作成できるようにするための支援ツールです。</p>
   </div>
 
   <div class="card">
@@ -370,22 +370,22 @@
 <!-- ==================== PAGE 5: CHAPTER 3 ==================== -->
 <div class="page">
   <div class="page-header">
-    <h3>📌 第3章：候補の自動生成（Step 1：動画読み込み ＆ AI判定）</h3>
+    <h3>📌 第3章：候補の自動生成（Step 1：動画読み込み ＆ Geminiデータコピペ）</h3>
     <span class="page-header-tag">きりぬきつーる マニュアル</span>
   </div>
 
   <div class="card">
-    <h4 style="margin:0 0 8px 0; color:#2563eb;">■ AI判定の流れ</h4>
+    <h4 style="margin:0 0 8px 0; color:#2563eb;">■ 操作の流れ</h4>
     <div class="flow-box">
-      <span class="flow-step">1. 動画ドラッグ＆ドロップ</span> ➔
-      <span class="flow-step">2. Gemini AI自動判定実行</span> ➔
-      <span class="flow-step">3. 候補取り込み＆字幕データ生成</span>
+      <span class="flow-step">1. 参照ボタンで動画を読み込み</span> ➔
+      <span class="flow-step">2. Geminiの見どころデータをコピペ</span> ➔
+      <span class="flow-step">3. 指定秒数に従い自動仮切り抜き生成</span>
     </div>
 
     <ol>
-      <li>「動画ファイル」入力欄に、編集したいMP4動画をドラッグ＆ドロップします。</li>
-      <li><span class="ui-badge">Gemini / AI自動検出</span> をクリックします。Whisperによる高精度な音声認識とGemini AIが連携し、見どころシーンを取り込みます。</li>
-      <li>画面上に切り抜き候補リスト（No.1, No.2 ...）が自動生成されます。</li>
+      <li><span class="ui-btn">動画選択（参照）</span> ボタンを押して、編集したい元のMP4動画ファイルを読み込みます。</li>
+      <li>Web版Gemini（AI）が生成した「見どころポイント（秒数やタイムスタンプ・テキスト）」を入力欄にコピペし、<span class="ui-badge">候補取り込み / 生成</span> ボタンをクリックします。</li>
+      <li>コピペした指定秒数に従って、動画が自動で仮切り抜きされ、画面上に切り抜き候補リスト（No.1, No.2 ...）が生成されます！</li>
     </ol>
   </div>
   
