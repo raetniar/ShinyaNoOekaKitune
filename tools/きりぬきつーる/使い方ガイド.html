@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>きりぬきつーる 完全使い方マニュアル</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+  body {
+    font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    color: #2b2d42;
+    line-height: 1.5;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-title h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    letter-spacing: 0.5px;
+  }
+  .header-title p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 13px;
+  }
+  .badge-ver {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .step-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+    border-left: 6px solid #1a73e8;
+  }
+  
+  .step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .step-badge {
+    background: #1a73e8;
+    color: white;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-right: 12px;
+    letter-spacing: 0.5px;
+  }
+  
+  .step-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a73e8;
+    margin: 0;
+  }
+
+  ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+  li {
+    margin-bottom: 6px;
+  }
+  
+  .ui-tag {
+    background: #edf2f7;
+    border: 1px solid #cbd5e0;
+    color: #2d3748;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 11px;
+  }
+  
+  .visual-flow {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .flow-item {
+    flex: 1;
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 0 4px;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  
+  .flow-arrow {
+    color: #1a73e8;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .tips-container {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 10px;
+  }
+  .tips-title {
+    color: #166534;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+  }
+  .tips-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #15803d;
+  }
+  
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: #a0aec0;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">
+    <h1>🎬 きりぬきつーる 完全使い方マニュアル</h1>
+    <p>AI自動検出 ＆ 高機能字幕・テロップ・ショート動画作成ツール</p>
+  </div>
+  <div class="badge-ver">初心者ガイド PDF版</div>
+</div>
+
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-badge">STEP 0</span>
+    <h2 class="step-title">インストール ＆ 起動</h2>
+  </div>
+  <ol>
+    <li>ダウンロードしたフォルダ内の <span class="ui-tag">セットアップ.exe</span> をダブルクリック。</li>
+    <li>保存先を確認して <span class="ui-tag">🚀 インストール実行</span> ボタンを押します。</li>
+    <li>デスクトップに作成された <span class="ui-tag">きりぬきつーる</span> アイコンからツールを起動します。</li>
+  </ol>
+</div>
+
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-badge">STEP 1</span>
+    <h2 class="step-title">動画の読み込み ＆ AI見どころ切り抜き候補の自動作成</h2>
+  </div>
+  <ol>
+    <li>元動画（MP4ファイル）をツール画面の「動画ファイル」欄へドラッグ＆ドロップ。</li>
+    <li><span class="ui-tag">Gemini / AI自動検出</span> ボタンをクリック。AIが自動で見どころシーンを検出し候補リストを作成します。</li>
+  </ol>
+  <div class="visual-flow">
+    <div class="flow-item">📥 1. 動画ドラッグ</div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-item">🤖 2. AI自動解析</div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-item">📋 3. 候補リスト生成</div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-badge">STEP 2</span>
+    <h2 class="step-title">字幕テロップ・文字装飾 ＆ 立ち絵（画像）の編集</h2>
+  </div>
+  <ol>
+    <li>ドロップダウンから編集したい候補（<span class="ui-tag">No.1 [00:01:23〜] ...</span>）を選択。</li>
+    <li><span class="ui-tag">▶ 再生ボタン</span> を押し、プレビュー音声を聞きながら字幕タイミングと文字装飾を調整。</li>
+    <li>文字サイズ・カラー・縁取り・影の深さ・位置（Y軸）を調整。</li>
+    <li>キャラクター画像（立ち絵）を配置し、位置（X/Y軸）・拡大率・角度をプレビュー確認しながら設定。</li>
+  </ol>
+  <div class="visual-flow">
+    <div class="flow-item">📺 画面上段：リアルタイム動画プレビュー</div>
+    <div class="flow-arrow">＋</div>
+    <div class="flow-item">🎛 画面下段：字幕・画像タイムライン編集</div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-badge">STEP 3</span>
+    <h2 class="step-title">切り抜き動画の一括書き出し</h2>
+  </div>
+  <ol>
+    <li>出力したい候補のチェックボックスにチェックを入れます。</li>
+    <li><span class="ui-tag">一括動画書き出し</span> を押すと、字幕・装飾付きの切り抜き動画（MP4）が <span class="ui-tag">ショート</span> フォルダへ自動保存されます！</li>
+  </ol>
+</div>
+
+<div class="tips-container">
+  <div class="tips-title">💡 初心者におすすめの便利ポイント</div>
+  <ul class="tips-list">
+    <li><strong>🔊 音声プレビュー対応:</strong> ▶ ボタンを押せば実音を聴きながら字幕位置をぴったり調整可能！</li>
+    <li><strong>📐 自動レスポンシブ構成:</strong> ウィンドウ幅を狭めても「上：動画 / 下：字幕」の二段構成に自動調整されるためノートPCでも快適作業！</li>
+  </ul>
+</div>
+
+<div class="footer">
+  きりぬきつーる Official Manual &copy; 2026 ShinyaNoOekaKitune. All Rights Reserved.
+</div>
+
+</body>
+</html>
