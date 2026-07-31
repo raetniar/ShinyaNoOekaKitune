@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -32,6 +32,8 @@
             --border-radius-lg: 8px;
             --border-radius-md: 4px;
             --border-radius-sm: 3px;
+            --accent-purple: #9146ff;
+            --accent-purple-hover: #772ce8;
             
             /* Light Mode Variables (Aligned exactly to index.html) */
             --bg-main-light: #f8f9fa;
@@ -1771,22 +1773,33 @@
             top: 50%;
             left: 0;
             transform: translateY(-50%);
-            height: 14px;
-            width: 14px;
+            height: 15px;
+            width: 15px;
             background-color: var(--bg-tertiary);
             border: 1.5px solid var(--border-color);
             border-radius: var(--border-radius-sm);
             transition: all var(--transition-speed);
         }
 
+        body.light-mode .checkbox-checkmark {
+            background-color: #ffffff;
+            border-color: #9ca3af;
+        }
+
         .checkbox-container:hover input ~ .checkbox-checkmark {
             border-color: var(--accent-purple);
-            background-color: rgba(145, 70, 255, 0.05);
+            background-color: rgba(145, 70, 255, 0.08);
         }
 
         .checkbox-container input:checked ~ .checkbox-checkmark {
             background-color: var(--accent-purple);
             border-color: var(--accent-purple);
+            box-shadow: 0 0 0 2px rgba(145, 70, 255, 0.25);
+        }
+
+        .checkbox-container input:checked ~ .checkbox-label {
+            color: var(--accent-purple);
+            font-weight: 800;
         }
 
         .checkbox-checkmark:after {
@@ -1802,11 +1815,15 @@
         .checkbox-container .checkbox-checkmark:after {
             left: 4px;
             top: 1px;
-            width: 3px;
-            height: 7px;
+            width: 4px;
+            height: 8px;
             border: solid white;
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--accent-purple);
         }
 
         /* Filename Preview Box */
@@ -2127,7 +2144,7 @@
                     <label class="field-label"><i data-lucide="check-square"></i> 一括出力する用途（複数選択可能）</label>
                     <div class="batch-presets-grid">
                         <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="avatar" checked>
+                            <input type="checkbox" class="batch-preset-checkbox" value="avatar">
                             <span class="checkbox-checkmark"></span>
                             <span class="checkbox-label">アイコン (ICON_)</span>
                         </label>
@@ -2147,7 +2164,7 @@
                             <span class="checkbox-label">情報パネル (PANEL_)</span>
                         </label>
                         <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="emote" checked>
+                            <input type="checkbox" class="batch-preset-checkbox" value="emote">
                             <span class="checkbox-checkmark"></span>
                             <span class="checkbox-label">スタンプ (EMOTE_)</span>
                         </label>
@@ -2157,7 +2174,7 @@
                             <span class="checkbox-label">バッジ (BADGE_)</span>
                         </label>
                         <label class="checkbox-container">
-                            <input type="checkbox" class="batch-preset-checkbox" value="points" checked>
+                            <input type="checkbox" class="batch-preset-checkbox" value="points">
                             <span class="checkbox-checkmark"></span>
                             <span class="checkbox-label">チャネポ (CP_)</span>
                         </label>
