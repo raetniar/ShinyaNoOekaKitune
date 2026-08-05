@@ -4793,11 +4793,18 @@
                 const elToken = document.getElementById('token');
                 const elDateFormat = document.getElementById('date_format');
 
-                if (elUserId && settings.userId) elUserId.value = settings.userId;
-                if (elUserLogin && settings.userLogin) elUserLogin.value = settings.userLogin;
-                if (elClientId) elClientId.value = settings.clientId || '';
-                if (elRedirectUri) elRedirectUri.value = settings.redirectUri || 'http://localhost';
-                if (elToken && settings.token) elToken.value = settings.token;
+// ★機能確認用：APIや個人情報の入力欄にダミー値をセットし上書き防止
+            const elUserId = document.getElementById('user_id');
+            const elUserLogin = document.getElementById('user_login');
+            const elClientId = document.getElementById('client_id');
+            const elRedirectUri = document.getElementById('oauth_redirect_uri');
+            const elToken = document.getElementById('token');
+
+            if (elUserId) { elUserId.value = "機能確認用ダミー (ID)"; elUserId.readOnly = true; elUserId.disabled = true; }
+            if (elUserLogin) { elUserLogin.value = "機能確認用ダミー (Login)"; elUserLogin.readOnly = true; elUserLogin.disabled = true; }
+            if (elClientId) { elClientId.value = "機能確認用ダミー (Client_ID)"; elClientId.readOnly = true; elClientId.disabled = true; }
+            if (elRedirectUri) { elRedirectUri.value = "http://localhost (機能確認用)"; elRedirectUri.readOnly = true; elRedirectUri.disabled = true; }
+            if (elToken) { elToken.value = "oauth:dummy_preview_token_for_demo_only"; elToken.readOnly = true; elToken.disabled = true; }
                 if (elDateFormat && settings.dateFormat) elDateFormat.value = settings.dateFormat;
                 const livePreview = document.getElementById('date_format_live_preview');
                 if (livePreview) livePreview.innerText = uiText('runtime.datePreview', { date: formatDateToken(new Date(), settings.dateFormat) });

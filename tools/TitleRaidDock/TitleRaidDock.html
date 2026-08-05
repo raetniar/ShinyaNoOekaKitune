@@ -242,10 +242,7 @@
             <span class="tool-description-sub">OBSカスタムドック対応・Twitch配信タイトル・カテゴリ・レイド・サポーター・チャット一括管理</span>
         </div>
         <div class="tool-header-actions">
-            <button id="header-theme-toggle" class="header-theme-toggle" title="テーマ切り替え" onclick="toggleTheme()">
-                <i class="fa-solid fa-sun" id="header-theme-icon"></i>
-                <span id="header-theme-text" class="btn-text">ライトモード</span>
-            </button>
+            
             <a href="https://toumei2suisai.booth.pm/items/8164152" target="_blank" rel="noopener noreferrer" class="header-booth-btn">
                 <i class="fa-solid fa-shop"></i> <span class="btn-text">booth</span>
             </a>
@@ -749,6 +746,26 @@
 
     <div id="settingModal" class="modal-overlay" onclick="if(event.target===this)closeModal('settingModal')">
         <div class="modal-content">
+
+            <!-- Web確認用ダミー注意書きバナー -->
+            <div style="background: rgba(145, 70, 255, 0.15); border: 2px solid #9146ff; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center;">
+                <div style="font-weight: bold; color: #c084fc; font-size: 13px; margin-bottom: 6px;">
+                    ⚠️ このツールは機能確認用（Webプレビュー版）です
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-primary, #eeeeee); margin-bottom: 10px; line-height: 1.5;">
+                    実際の配信やOBSで安全にご使用いただくため、Webプレビュー上では個人情報（API ID・OAuth Token等）を入力・上書き保存できないよう保護されています。<br>
+                    実際に使用するには下記から無料でダウンロードをお願いいたします。
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://github.com/MagnestGames/TwitchManager/releases" target="_blank" rel="noopener noreferrer" style="background: #24292e; color: #ffffff; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 11.5px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-brands fa-github"></i> GitHub Releases からDL ↗
+                    </a>
+                    <a href="https://toumei2suisai.booth.pm/items/8654630" target="_blank" rel="noopener noreferrer" style="background: #fc4d50; color: #ffffff; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 11.5px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-shop"></i> Booth から無料DL ↗
+                    </a>
+                </div>
+            </div>
+
             <button type="button" class="modal-close-top" onclick="closeModal('settingModal')" data-i18n-aria="extended.close" aria-label="閉じる">&times;</button>
             <h3 data-i18n="extended.settings">設定</h3>
             <div class="modal-scroll-area">
