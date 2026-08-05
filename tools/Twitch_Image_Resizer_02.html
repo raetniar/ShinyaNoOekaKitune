@@ -3038,6 +3038,7 @@
             document.querySelectorAll('.preview-tab-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const target = e.currentTarget.getAttribute('data-target');
+                    state.userSelectedTab = target;
                     switchPreviewTab(target);
                 });
             });
@@ -3088,11 +3089,15 @@
             }
             elements.namePrefixDisplay.textContent = `${preset.prefix}_`;
             
-            // プリセットの種類に応じて自動で対応するタブに切り替える
-            if (['emote', 'badge', 'points'].includes(presetKey)) {
-                switchPreviewTab('chat');
+            // 手動選択がある場合はそれを優先、無ければプリセットの種類に応じて初期タブを設定
+            if (state.userSelectedTab) {
+                switchPreviewTab(state.userSelectedTab);
             } else {
-                switchPreviewTab('profile');
+                if (['sub_emote', 'sub_badge', 'bits_badge', 'reward_icon', 'emote', 'badge', 'points'].includes(presetKey)) {
+                    switchPreviewTab('chat');
+                } else {
+                    switchPreviewTab('profile');
+                }
             }
         }
 
@@ -3100,19 +3105,27 @@
         function switchPreviewTab(tabKey) {
             const tabBtns = document.querySelectorAll('.preview-tab-btn');
             tabBtns.forEach(btn => {
-                if (btn.getAttribute('data-target') === tabKey) {
+                const target = btn.getAttribute('data-target');
+                if (target === tabKey) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
 
+            const profileView = document.getElementById('mock-profile-view') || elements.mockProfileView;
+            const chatView = document.getElementById('mock-chat-view') || elements.mockChatView;
+
             if (tabKey === 'profile') {
-                elements.mockProfileView.classList.remove('hidden');
-                elements.mockChatView.classList.add('hidden');
+                if (profileView) profileView.style.display = 'flex';
+                if (profileView) profileView.classList.remove('hidden');
+                if (chatView) chatView.style.display = 'none';
+                if (chatView) chatView.classList.add('hidden');
             } else if (tabKey === 'chat') {
-                elements.mockProfileView.classList.add('hidden');
-                elements.mockChatView.classList.remove('hidden');
+                if (profileView) profileView.style.display = 'none';
+                if (profileView) profileView.classList.add('hidden');
+                if (chatView) chatView.style.display = 'flex';
+                if (chatView) chatView.classList.remove('hidden');
             }
         }
 
