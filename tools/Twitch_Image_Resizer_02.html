@@ -653,26 +653,23 @@
 
         /* 8. Canvas Editor Component */
         .canvas-container {
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            position: relative;
             width: 100%;
-            min-height: 220px;
-            max-height: 280px;
+            min-height: 240px;
+            max-height: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            margin-bottom: 8px;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--border-radius-md);
+            padding: 12px;
+            box-sizing: border-box;
+            position: relative;
         }
 
-        #editor-canvas {
-            background-color: transparent;
-            cursor: grab;
-            display: block;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-        }
+        
+
+        
 
         #editor-canvas:active {
             cursor: grabbing;
@@ -3071,10 +3068,28 @@
         function applyPreset() {
             const activeImg = getActiveImage();
             const presetKey = activeImg ? activeImg.presetKey : state.currentPresetKey;
-            const preset = PRESETS[presetKey];
+            const preset = PRESETS[presetKey] || PRESETS.profile_icon;
             
             elements.canvas.width = preset.width;
             elements.canvas.height = preset.height;
+            
+            // キャンバス画面上の表示枠比率を選択プリセットサイズ(比率)にピッタリ合わせる
+            const aspectRatio = preset.width / preset.height;
+            elements.canvas.style.aspectRatio = `${preset.width} / ${preset.height}`;
+            
+            const container = document.querySelector('.canvas-container');
+            if (container) {
+                const maxW = (container.clientWidth || 400) - 24;
+                const maxH = 260;
+                
+                if (maxW / maxH > aspectRatio) {
+                    elements.canvas.style.height = `${maxH}px`;
+                    elements.canvas.style.width = `${Math.round(maxH * aspectRatio)}px`;
+                } else {
+                    elements.canvas.style.width = `${maxW}px`;
+                    elements.canvas.style.height = `${Math.round(maxW / aspectRatio)}px`;
+                }
+            }
             
             elements.currentPresetBadge.textContent = preset.label;
             if (elements.previewModeName) {
