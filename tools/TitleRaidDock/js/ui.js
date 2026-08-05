@@ -4781,12 +4781,19 @@
 
             // ★追加：保存されている設定(IDやToken)を設定画面の入力欄にセットして表示する
             if (settings) {
-                if (settings.userId) document.getElementById('user_id').value = settings.userId;
-                if (settings.userLogin) document.getElementById('user_login').value = settings.userLogin;
-                document.getElementById('client_id').value = settings.clientId || '';
-                document.getElementById('oauth_redirect_uri').value = settings.redirectUri || 'http://localhost';
-                if (settings.token) document.getElementById('token').value = settings.token;
-                if (settings.dateFormat) document.getElementById('date_format').value = settings.dateFormat;
+                const elUserId = document.getElementById('user_id');
+                const elUserLogin = document.getElementById('user_login');
+                const elClientId = document.getElementById('client_id');
+                const elRedirectUri = document.getElementById('oauth_redirect_uri');
+                const elToken = document.getElementById('token');
+                const elDateFormat = document.getElementById('date_format');
+
+                if (elUserId && settings.userId) elUserId.value = settings.userId;
+                if (elUserLogin && settings.userLogin) elUserLogin.value = settings.userLogin;
+                if (elClientId) elClientId.value = settings.clientId || '';
+                if (elRedirectUri) elRedirectUri.value = settings.redirectUri || 'http://localhost';
+                if (elToken && settings.token) elToken.value = settings.token;
+                if (elDateFormat && settings.dateFormat) elDateFormat.value = settings.dateFormat;
                 const livePreview = document.getElementById('date_format_live_preview');
                 if (livePreview) livePreview.innerText = uiText('runtime.datePreview', { date: formatDateToken(new Date(), settings.dateFormat) });
                 const autoAdCheck = document.getElementById('settings_auto_ad');
