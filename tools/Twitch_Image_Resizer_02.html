@@ -2117,6 +2117,41 @@
             border-color: #a970ff;
         }
 
+
+        .editor-card .card-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: nowrap !important;
+            gap: 12px !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        .editor-card .card-header h2 {
+            white-space: nowrap !important;
+            margin: 0 !important;
+            font-size: 0.95rem !important;
+            flex-shrink: 0;
+        }
+        .preset-select-dropdown {
+            background-color: var(--bg-secondary);
+            color: var(--accent-purple);
+            border: 1.5px solid var(--accent-purple);
+            border-radius: var(--border-radius-md);
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-left: auto !important;
+            flex-shrink: 1;
+            max-width: 65%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
 </style>
 
     <!-- omggif for GIF parsing & encoding -->
@@ -3207,11 +3242,6 @@
                     <img class="queue-item-thumb" src="${item.img.src}" alt="Thumb">
                     <div class="queue-item-details">
                         <input type="text" class="queue-item-name-input" value="${item.name}" title="カスタム出力ファイル名">
-                        <select class="queue-item-preset-select">
-                            ${Object.keys(PRESETS).map(key => `
-                                <option value="${key}" ${item.presetKey === key ? 'selected' : ''}>${PRESETS[key].name}</option>
-                            `).join('')}
-                        </select>
                     </div>
                     <button class="queue-item-delete-btn" title="画像をキューから削除">
                         <i data-lucide="trash-2"></i>
@@ -3236,18 +3266,7 @@
                     }
                 });
                 
-                const presetSelect = row.querySelector('.queue-item-preset-select');
-                presetSelect.addEventListener('change', (e) => {
-                    item.presetKey = e.target.value;
-                    zoomToFit(item);
-                    
-                    if (item.id === state.activeImageId) {
-                        elements.presetSelect.value = item.presetKey;
-                        applyPreset();
-                    }
-                    renderQueueList();
-                    draw();
-                });
+                
                 
                 const deleteBtn = row.querySelector('.queue-item-delete-btn');
                 deleteBtn.addEventListener('click', (e) => {
