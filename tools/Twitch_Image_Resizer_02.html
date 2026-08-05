@@ -2014,16 +2014,16 @@
             text-decoration: underline;
         }
 
-        /* Disclaimer Notice Banner */
+        /* Disclaimer Notice Banner (Collapsible) */
         .disclaimer-notice-banner {
             background-color: rgba(239, 68, 68, 0.08);
             border: 1px solid rgba(239, 68, 68, 0.3);
             border-radius: var(--border-radius-md);
-            padding: 10px 14px;
-            margin-bottom: 16px;
+            padding: 8px 12px;
+            margin-bottom: 14px;
             font-size: 0.78rem;
             color: var(--text-primary);
-            line-height: 1.6;
+            transition: all 0.2s ease;
         }
         body.dark-mode .disclaimer-notice-banner {
             background-color: rgba(239, 68, 68, 0.15);
@@ -2036,15 +2036,32 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 4px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+        }
+        .disclaimer-header::-webkit-details-marker {
+            display: none;
         }
         body.dark-mode .disclaimer-header {
             color: #f87171;
         }
+        .disclaimer-arrow {
+            margin-left: auto;
+            font-size: 0.75rem;
+            transition: transform 0.2s ease;
+        }
+        details.disclaimer-notice-banner[open] .disclaimer-arrow {
+            transform: rotate(180deg);
+        }
         .disclaimer-body {
             font-size: 0.78rem;
             opacity: 0.9;
+            line-height: 1.6;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(239, 68, 68, 0.3);
         }
 
         /* Text Overlay Controls */
@@ -2115,18 +2132,19 @@
 
     
     <main class="app-main-layout">
-        <!-- 免責事項・利用上の注意バナー -->
-        <div class="disclaimer-notice-banner">
-            <div class="disclaimer-header">
+        <!-- 免責事項・利用上の注意バナー (アコーディオン開閉式：初期は閉じ) -->
+        <details class="disclaimer-notice-banner">
+            <summary class="disclaimer-header">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <span>使用上のご注意・免責事項</span>
-            </div>
+                <i class="fa-solid fa-chevron-down disclaimer-arrow"></i>
+            </summary>
             <div class="disclaimer-body">
                 ・本文字入れ・画像加工機能は、ご自身で作成された<strong>自作エモート・イラスト</strong>、または<strong>改変・加工の許可がある素材</strong>にのみご使用ください。<br>
                 ・第三者の著作物・画像の無断改変、二次配布、権利侵害行為等に起因するトラブル・損害について、当ツールおよび管理者は一切の責任を負いかねます。<br>
                 ・画像処理・文字合成はすべてお使いのブラウザ内（ローカル環境）で安全に処理され、画像や入力データが外部サーバーへ送信・保存されることはありません。
             </div>
-        </div>
+        </details>
 
         <!-- 左カラム: 画像編集 & コントロールエリア -->
         <section class="editor-column">
