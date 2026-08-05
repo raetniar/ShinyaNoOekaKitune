@@ -25,9 +25,14 @@
                 background-color: var(--bg-panel, #ffffff);
                 border-top-color: var(--border-color, #e5e7eb);
             }
-            body.dark-mode .app-footer {
-                background-color: var(--bg-panel, #1e1e24);
-                border-top-color: var(--border-color, #333338);
+            body.dark-mode .app-footer,
+            body.theme-dark .app-footer,
+            body[data-theme="dark"] .app-footer,
+            body.dark .app-footer,
+            .dark-mode .app-footer,
+            .theme-dark .app-footer {
+                background-color: #18181c !important;
+                border-top-color: #333338 !important;
             }
             .global-ad-banner {
                 display: flex;
@@ -104,19 +109,48 @@
                 opacity: 0.4;
                 color: var(--text-muted, #888888);
             }
-            body.dark-mode .ad-link {
-                color: var(--text-primary, #eeeeee);
+            body.dark-mode .ad-link,
+            body.theme-dark .ad-link,
+            body[data-theme="dark"] .ad-link,
+            body.dark .ad-link,
+            .dark-mode .ad-link,
+            .theme-dark .ad-link {
+                color: #e0e0e0 !important;
             }
-            body.dark-mode .twitch-link {
-                color: var(--text-secondary, #cccccc);
+            body.dark-mode .twitch-link,
+            body.theme-dark .twitch-link,
+            body[data-theme="dark"] .twitch-link,
+            body.dark .twitch-link,
+            .dark-mode .twitch-link,
+            .theme-dark .twitch-link {
+                color: #bbbbbb !important;
             }
-            body.dark-mode .doneru-link {
-                color: var(--text-primary, #eeeeee) !important;
+            body.dark-mode .doneru-link,
+            body.theme-dark .doneru-link,
+            body[data-theme="dark"] .doneru-link,
+            body.dark .doneru-link,
+            .dark-mode .doneru-link,
+            .theme-dark .doneru-link {
+                color: #ffffff !important;
             }
-            body.dark-mode .twitch-link:hover {
-                color: #a970ff;
+            body.dark-mode .ad-divider,
+            body.theme-dark .ad-divider,
+            body[data-theme="dark"] .ad-divider,
+            body.dark .ad-divider,
+            .dark-mode .ad-divider,
+            .theme-dark .ad-divider {
+                color: #888888 !important;
             }
-            body.dark-mode .doneru-link:hover {
+            body.dark-mode .twitch-link:hover,
+            body.theme-dark .twitch-link:hover,
+            body[data-theme="dark"] .twitch-link:hover,
+            body.dark .twitch-link:hover {
+                color: #a970ff !important;
+            }
+            body.dark-mode .doneru-link:hover,
+            body.theme-dark .doneru-link:hover,
+            body[data-theme="dark"] .doneru-link:hover,
+            body.dark .doneru-link:hover {
                 color: #a970ff !important;
             }
             
