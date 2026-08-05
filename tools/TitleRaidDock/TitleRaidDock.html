@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>タイトル・レイドドック (TitleRaidDock)</title>
+    
+    <!-- Google Fonts: Outfit (UI用) + Noto Sans JP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        const twitchManagerAudioSourceMode = new URLSearchParams(location.search).get('audio-source') === '1';
+        if (twitchManagerAudioSourceMode) document.documentElement.classList.add('audio-source-mode');
+        else document.write('<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"><\/script>');
+    </script>
+    <style>
+        html.audio-source-mode, html.audio-source-mode body { margin: 0; min-height: 100%; background: transparent !important; }
+        html.audio-source-mode body { visibility: hidden; }
+
+        /* ==========================================================================
+           Web Tool Common Header Integration
+           ========================================================================== */
+        .tool-header-bar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 16px;
+            padding: 10px 16px;
+            background-color: var(--bg-card, #1b1b1f);
+            border-bottom: 1px solid var(--border-color, #3f3f46);
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000;
+            margin: -15px -15px 10px -15px;
+        }
+
+        body.light-mode .tool-header-bar {
+            background-color: #ffffff;
+            border-bottom-color: #e5e7eb;
+        }
+
+        .tool-title-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tool-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tool-name-heading {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: var(--text-main, #efeff1);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        body.light-mode .tool-name-heading {
+            color: #111111;
+        }
+
+        .tool-description-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted, #adadb8);
+            font-weight: 300;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .tool-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .header-theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color, #3f3f46);
+            color: var(--text-main, #efeff1);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        body.light-mode .header-theme-toggle {
+            color: #111111;
+            border-color: #d1d5db;
+        }
+
+        .header-theme-toggle:hover {
+            background-color: rgba(145, 70, 255, 0.15);
+        }
+
+        .header-booth-btn, .back-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Light Mode BOOTH / Back */
+        body.light-mode .header-booth-btn {
+            color: #111111;
+            background-color: #ffffff;
+            border: 1px solid #111111;
+        }
+        body.light-mode .header-booth-btn:hover {
+            color: #ffffff;
+            background-color: #111111;
+        }
+        body.light-mode .back-home-btn {
+            color: #111111;
+            background-color: #f8f9fa;
+            border: 1px solid #d1d5db;
+        }
+        body.light-mode .back-home-btn:hover {
+            color: #ffffff;
+            background-color: #111111;
+        }
+
+        /* Dark Mode BOOTH / Back */
+        body.dark-mode .header-booth-btn, body:not(.light-mode) .header-booth-btn {
+            color: #ffffff;
+            background-color: #111111;
+            border: 1px solid #ffffff;
+        }
+        body.dark-mode .header-booth-btn:hover, body:not(.light-mode) .header-booth-btn:hover {
+            color: #111111;
+            background-color: #ffffff;
+        }
+        body.dark-mode .back-home-btn, body:not(.light-mode) .back-home-btn {
+            color: #efeff1;
+            background-color: #18181b;
+            border: 1px solid #3a3a3d;
+        }
+        body.dark-mode .back-home-btn:hover, body:not(.light-mode) .back-home-btn:hover {
+            color: #111111;
+            background-color: #ffffff;
+        }
+
+        /* Sticky top wrapper offset for tool-header-bar */
+        .sticky-top-wrapper {
+            top: 48px;
+            margin-top: 0 !important;
+        }
+
+        @media (max-width: 600px) {
+            .tool-header-bar .btn-text {
+                display: none;
+            }
+            .tool-description-sub {
+                display: none;
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="twitch_manager.css">
+</head>
+
+<body>
+
+    <!-- 共通Webツールヘッダー -->
+    <header class="tool-header-bar">
+        <div class="tool-title-area">
+            <div class="tool-title-row">
+                <h1 class="tool-name-heading">タイトル・レイドドック (Title & Raid Dock)</h1>
+            </div>
+            <span class="tool-description-sub">OBSカスタムドック対応・Twitch配信タイトル・カテゴリ・レイド・サポーター・チャット一括管理</span>
+        </div>
+        <div class="tool-header-actions">
+            <button id="header-theme-toggle" class="header-theme-toggle" title="テーマ切り替え" onclick="toggleTheme()">
+                <i class="fa-solid fa-sun" id="header-theme-icon"></i>
+                <span id="header-theme-text" class="btn-text">ライトモード</span>
+            </button>
+            <a href="https://toumei2suisai.booth.pm/items/8164152" target="_blank" rel="noopener noreferrer" class="header-booth-btn">
+                <i class="fa-solid fa-shop"></i> <span class="btn-text">booth</span>
+            </a>
+            <a href="../../index.html" class="back-home-btn">
+                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span>
+            </a>
+        </div>
+    </header>
+
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true" data-i18n="extended.toastDone">完了</div>
+
+    <div class="sticky-top-wrapper">
+        <div class="app-header">
+            <h1 class="app-title app-title-row">◆ <span id="today-date"
+                    style="margin-left: 8px; color: var(--text-muted); font-weight: normal; font-size: 11px;"></span>
+                <button id="ui-btn-copy-date" class="btn-secondary has-tooltip" style="margin-left: 10px; padding: 4px 8px; font-size: 11px; font-weight: bold; background: rgba(145, 70, 255, 0.1); border: 1px solid var(--twitch-purple); color: var(--command-accent); border-radius: 6px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(145, 70, 255, 0.2)'" onmouseout="this.style.background='rgba(145, 70, 255, 0.1)'" onclick="copyRaw('{date}')" data-i18n-tooltip="copyDateTip">● {date}</button>
+            </h1>
+            <div class="app-header-controls">
+                <!-- Birthday/Anniversary Indicator -->
+                <div id="birthday-anniversary-indicator" class="birthday-indicator" style="position: relative; display: inline-block; margin-right: 4px; vertical-align: middle;">
+                    <button id="birthday-indicator-btn" class="btn-head-purple inactive" style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0;" onclick="toggleBirthdayPopover(event)" data-i18n-aria="idList.birthdayTitle" aria-label="今日のお祝い">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+                            <path d="M3 20h18" />
+                        </svg>
+                    </button>
+                    <div id="birthday-popover" class="birthday-popover" style="display: none;"></div>
+                </div>
+                <button id="global-settings-btn" class="btn-head-purple" data-i18n-tooltip="extended.displaySettingsBtnTitle" data-i18n-aria="extended.displaySettingsBtnTitle"
+                    onclick="openActiveCategorySettings()" aria-label="表示設定">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><circle cx="9" cy="6" r="2"></circle><line x1="4" y1="12" x2="20" y2="12"></line><circle cx="15" cy="12" r="2"></circle><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="11" cy="18" r="2"></circle></svg>
+                </button>
+                <div class="language-picker">
+                    <button id="ui-btn-language" class="btn-head-purple" onclick="toggleLanguageMenu(event)"
+                        data-i18n-tooltip="extended.language" data-i18n-aria="extended.language" aria-label="言語" aria-haspopup="true" aria-expanded="false"
+                        style="font-size: 10px; font-weight: bold;">JP</button>
+                    <div id="language-menu" class="language-menu" role="menu" aria-label="言語を選択" data-i18n-aria="extended.languageMenuLabel">
+                        <button type="button" class="language-option" data-lang-option="ja" onclick="chooseLanguage('ja')" role="menuitem">日本語</button>
+                        <button type="button" class="language-option" data-lang-option="en" onclick="chooseLanguage('en')" role="menuitem">English</button>
+                        <button type="button" class="language-option" data-lang-option="zh" onclick="chooseLanguage('zh')" role="menuitem">简体中文</button>
+                    </div>
+                </div>
+                <button id="lock-btn" class="btn-head-purple" data-i18n-tooltip="extended.unlockSort" data-i18n-aria="extended.unlockSort" aria-label="並び替え解除"
+                    onclick="toggleSortLock()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></button>
+                <button id="theme-btn" class="btn-head-purple" data-i18n-tooltip="extended.themeToggle" data-i18n-aria="extended.themeToggle" aria-label="テーマを切り替え"
+                    onclick="toggleTheme()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></button>
+                <button class="btn-head-purple" id="ui-btn-guide" data-i18n-tooltip="extended.guide" data-i18n-aria="extended.guide" aria-label="ヘルプ"
+                    onclick="openModal('guideModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>
+                <button class="btn-head-purple" id="ui-btn-settings" data-i18n-tooltip="extended.settings" data-i18n-aria="extended.settings" aria-label="設定"
+                    onclick="openModal('settingModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+            </div>
+        </div>
+        <div class="tab-nav" id="tab-navigation"></div>
+    </div>
+
+    <div id="main-tab" class="tab-content active">
+        <details class="tab-help">
+            <summary id="ui-info-summary" class="tab-help-summary">
+                <span id="ui-info-summary-text" data-i18n="infoSummary">ヘルプ</span>
+            </summary>
+            <div class="tab-help-body">
+                <p id="ui-main-info-top" style="margin: 0 0 10px 0;"></p>
+                <p id="ui-main-info-bottom" style="margin: 0;"></p>
+            </div>
+        </details>
+
+        <div id="main-container" class="sortable-container"></div>
+
+        <div class="sticky-footer-wrapper">
+            <button id="del-mode-main" class="btn-secondary" style="flex: 2;"
+                onclick="toggleDeleteMode('main-tab')" data-i18n="extended.deleteBtn">削除</button>
+            <button class="btn-secondary btn-add-item" id="ui-add-template-main" style="flex: 5;"
+                onclick="addFriendCategory('main-container')" data-i18n="extended.addTemplateTitle">＋ テンプレートを追加</button>
+            <button class="btn-primary" id="ui-save-main" style="flex: 3;"
+                onclick="saveAllLocal(true)" data-i18n="extended.saveBtn">保存</button>
+        </div>
+    </div>
+
+    <div id="twitch-tab" class="tab-content">
+
+        <details class="tab-help">
+            <summary class="tab-help-summary"><span data-i18n="infoSummary">ヘルプ</span></summary>
+            <div class="tab-help-body"><p data-i18n="extended.twitchHelpText">Twitch連携を使うサポーター集計、予測・投票、チャット設定などをまとめています。各API操作には認証と必要な権限が必要です。</p></div>
+        </details>
+
+        <div class="category-box tw-section" id="tw-box-post-gen">
+            <div class="category-name" onclick="twToggle('tw-box-post-gen')"><span id="tw-l-post-gen" data-i18n="extended.postGenTab">サポーターリスト</span></div>
+            <div class="tw-body">
+                <div style="font-weight: bold; color: var(--command-accent); font-size: 11px; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    <span data-i18n="extended.postGenDesc">イベントログ</span>
+                </div>
+
+                <div class="tw-toggle-card supporter-reset-card" style="margin-bottom:12px;">
+                    <div class="tw-toggle-row">
+                        <span class="field-label supporter-reset-label" data-i18n="extended.resetOnStreamStart">配信開始でリセット</span>
+                        <label class="tw-toggle">
+                            <input type="checkbox" id="supporter-reset-on-stream-start" checked onchange="saveSupporterResetSetting(this.checked)" data-i18n-aria="extended.resetOnStreamStart" aria-label="配信開始でリセット">
+                            <span class="tw-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="supporter-options-panel">
+                    <div class="supporter-options-title" data-i18n="extended.postGenManual">サポート一覧（自動加算）</div>
+                    <div class="supporter-category-grid">
+                        <div class="supporter-option" data-supporter-category="first">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.firstTime">初見</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-first" checked onchange="saveSupporterCategorySetting('first', this.checked)" data-i18n-aria="extended.firstTime" aria-label="初見"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-first-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postFirstPlaceholder" placeholder="例: 〇〇"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="raid">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.raider">レイドした人</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-raid" checked onchange="saveSupporterCategorySetting('raid', this.checked)" data-i18n-aria="extended.raider" aria-label="レイドした人"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-raid-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postRaidPlaceholder" placeholder="例: 〇〇 (10人) https://www.twitch.tv/username"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="follow">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.follows">フォロー</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-follow" checked onchange="saveSupporterCategorySetting('follow', this.checked)" data-i18n-aria="extended.follows" aria-label="フォロー"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-follow-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postFollowPlaceholder" placeholder="例: 〇〇"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="cheer">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.bitsCheer">ビッツ（Cheer）</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-cheer" checked onchange="saveSupporterCategorySetting('cheer', this.checked)" data-i18n-aria="extended.bitsCheer" aria-label="ビッツ（Cheer）"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-cheer-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postCheerPlaceholder" placeholder="例: 〇〇 100"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="sub">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.subs">サブスク</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-sub" checked onchange="saveSupporterCategorySetting('sub', this.checked)" data-i18n-aria="extended.subs" aria-label="サブスク"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-sub-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postSubPlaceholder" placeholder="例: 〇〇 5か月"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="gift">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.gifts">ギフト</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-gift" checked onchange="saveSupporterCategorySetting('gift', this.checked)" data-i18n-aria="extended.gifts" aria-label="ギフト"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-gift-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postGiftPlaceholder" placeholder="例: 〇〇 10個"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="chat">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.supporterChat">チャット</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-chat" checked onchange="saveSupporterCategorySetting('chat', this.checked)" data-i18n-aria="extended.supporterChat" aria-label="チャット"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-chat-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postChatPlaceholder" placeholder="例: 〇〇"></textarea></div>
+                        </div>
+                        <div class="supporter-option" data-supporter-category="point">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.channelPoints">ポイント引き換え</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-cat-point" checked onchange="saveSupporterCategorySetting('point', this.checked)" data-i18n-aria="extended.channelPoints" aria-label="ポイント引き換え"><span class="tw-slider"></span></label>
+                            </div>
+                            <div class="supporter-option-body"><textarea id="pg-i-point-det" oninput="updatePostPreview()" data-i18n-placeholder="extended.postPointPlaceholder" placeholder="例: 〇〇 (スタンプ巨大化)"></textarea></div>
+                        </div>
+                    </div>
+                </div>
+
+                <details class="supporter-details">
+                    <summary data-i18n="extended.supporterExcludedIds">除外するID</summary>
+                    <textarea id="supporter-excluded-users" rows="4" oninput="saveSupporterExcludedUsers(this.value)" data-i18n-placeholder="extended.supporterExcludedPlaceholder" data-i18n-aria="extended.supporterExcludedIds" aria-label="除外するID" placeholder="1行に1つ、Twitch IDを入力"></textarea>
+                </details>
+
+                <details class="supporter-details" open>
+                    <summary data-i18n="extended.postOutputLabel">出力結果</summary>
+                    <div class="supporter-output-body">
+                        <div class="supporter-output-options">
+                            <div class="tw-toggle-row">
+                                <span class="field-label" data-i18n="extended.supporterHonorificToggle">さん付けをする</span>
+                                <label class="tw-toggle"><input type="checkbox" id="supporter-honorific-enabled" onchange="saveSupporterHonorificSetting(this.checked)" data-i18n-aria="extended.supporterHonorificToggle" aria-label="さん付けをする"><span class="tw-slider"></span></label>
+                            </div>
+                        </div>
+                        <textarea id="pg-output" style="height:150px; font-family:monospace; font-size:11px; background:var(--bg-record); border:1px solid var(--border-color); color:var(--text-main);" data-i18n-placeholder="extended.postOutputPlaceholder" data-i18n-aria="extended.postOutputLabel" aria-label="出力結果" placeholder="ここにリストが生成されます" readonly></textarea>
+                        <div class="post-output-actions">
+                            <button class="btn-primary" style="flex:2;padding:10px 0;font-size:12px;" onclick="copyPostText()" id="tw-btn-copy-post" data-i18n="extended.copySupporterList">リストをコピー</button>
+                            <button class="btn-outline" style="flex:2;padding:10px 0;font-size:12px;border-color: var(--info-border); color: var(--info-text); background: var(--info-bg);" onclick="openPastLogs()" id="tw-btn-copy-past-log" data-i18n="extended.openPastLogs">過去ログを開く</button>
+                            <button class="btn-danger-soft" style="flex:1;padding:10px 0;font-size:12px;" onclick="resetStreamStats()" id="tw-btn-reset-post" data-i18n="extended.resetStats">リセット</button>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <div class="tw-pair-grid">
+            <div class="category-box tw-section" id="tw-box-pred" style="flex: 1; min-width: 270px; margin-bottom: 0;">
+                <div class="category-name" onclick="twToggle('tw-box-pred')"><span data-i18n="extended.predictionTab">予測</span></div>
+                <div class="tw-body">
+                    <div class="tw-preset-panel">
+                        <div class="tw-preset-title"><span data-i18n="extended.predictionPreset">予測プリセット</span></div>
+                        <select id="pred-preset-select">
+                            <option value="" data-i18n="extended.savedPresetOptions">-- 保存済みプリセット --</option>
+                        </select>
+                        <div class="tw-preset-actions">
+                            <button class="btn-secondary" onclick="savePredPreset()" data-i18n="extended.saveCurrentBtn">現在の入力を保存</button>
+                            <button class="btn-primary" onclick="loadPredPreset()" data-i18n="extended.readBtn">読み込み</button>
+                            <button class="btn-danger-soft" onclick="deletePredPreset()" data-i18n="extended.deleteBtn">削除</button>
+                        </div>
+                    </div>
+
+                    <label class="field-label" id="tw-l-pred-t" for="pred-title" data-i18n="extended.predictionTitle">タイトル</label>
+                    <input type="text" id="pred-title" data-i18n-placeholder="extended.predictionTitlePlaceholder">
+                    <label class="field-label" id="tw-l-pred-choices" data-i18n="extended.predictionChoicesLabel">選択肢（2～10件）</label>
+                    <div id="pred-outcomes" class="tw-choice-list">
+                        <input type="text" class="pred-outcome" id="pred-o1" data-i18n-placeholder="extended.predictionYes">
+                        <input type="text" class="pred-outcome" id="pred-o2" data-i18n-placeholder="extended.predictionNo">
+                    </div>
+                    <div class="tw-choice-actions">
+                        <button class="btn-secondary" type="button" onclick="addPredictionChoice()" id="tw-btn-pred-add-ch" data-i18n="extended.addChoice">選択肢を追加</button>
+                        <button class="btn-secondary" type="button" onclick="removePredictionChoice()" id="tw-btn-pred-remove-ch" data-i18n="extended.removeChoice" disabled>選択肢を削除</button>
+                    </div>
+                    <label class="field-label" id="tw-l-pred-dur" for="pred-dur" data-i18n="extended.predDuration">予測時間（30～1800秒）</label>
+                    <input type="number" id="pred-dur" value="120" min="30" max="1800" step="1" onchange="this.value=clampInt(this.value,30,1800,120)" style="margin-bottom:10px;">
+                    <button class="btn-primary" style="width:100%;margin-bottom:8px;" onclick="createPrediction(this)" id="tw-btn-pred-create" data-i18n="extended.predictionCreate">予測を作成</button>
+                    <div style="display:flex;gap:8px;margin-bottom:8px;">
+                        <button class="btn-secondary" style="flex:1;" onclick="fetchPredictions(this)" id="tw-btn-pred-get" data-i18n="extended.predictionGet">現在の予測を取得</button>
+                        <button class="btn-secondary" style="flex:1;" onclick="cancelPrediction(this)" id="tw-btn-pred-cancel" data-i18n="extended.cancelBtn">キャンセル</button>
+                    </div>
+                    <div id="tw-pred-result"></div>
+                </div>
+            </div>
+
+            <div class="category-box tw-section" id="tw-box-poll" style="flex: 1; min-width: 270px; margin-bottom: 0;">
+                <div class="category-name" onclick="twToggle('tw-box-poll')"><span data-i18n="extended.pollTab">投票</span></div>
+                <div class="tw-body">
+                    <div class="tw-preset-panel">
+                        <div class="tw-preset-title"><span data-i18n="extended.pollPreset">投票プリセット</span></div>
+                        <select id="poll-preset-select">
+                            <option value="" data-i18n="extended.savedPresetOptions">-- 保存済みプリセット --</option>
+                        </select>
+                        <div class="tw-preset-actions">
+                            <button class="btn-secondary" onclick="savePollPreset()" data-i18n="extended.saveCurrentBtn">現在の入力を保存</button>
+                            <button class="btn-primary" onclick="loadPollPreset()" data-i18n="extended.readBtn">読み込み</button>
+                            <button class="btn-danger-soft" onclick="deletePollPreset()" data-i18n="extended.deleteBtn">削除</button>
+                        </div>
+                    </div>
+
+                    <label class="field-label" id="tw-l-poll-q" for="poll-title" data-i18n="extended.pollQuestion">質問</label>
+                    <input type="text" id="poll-title" data-i18n-placeholder="extended.pollQuestionPlaceholder">
+                    <label class="field-label" id="tw-l-poll-ch" data-i18n="extended.pollChoicesLabel">選択肢（最大5つ）</label>
+                    <div id="poll-choices" class="tw-choice-list">
+                        <input type="text" class="poll-ch" data-i18n-placeholder="extended.pollChoice1">
+                        <input type="text" class="poll-ch" data-i18n-placeholder="extended.pollChoice2">
+                    </div>
+                    <div class="tw-choice-actions">
+                        <button class="btn-secondary" type="button" onclick="addPollChoice()" id="tw-btn-poll-add-ch" data-i18n="extended.addChoice">選択肢を追加</button>
+                        <button class="btn-secondary" type="button" onclick="removePollChoice()" id="tw-btn-poll-remove-ch" data-i18n="extended.removeChoice" disabled>選択肢を削除</button>
+                    </div>
+                    <label class="field-label" id="tw-l-poll-dur" for="poll-dur" data-i18n="extended.pollDuration">投票時間（15～1800秒）</label>
+                    <input type="number" id="poll-dur" value="60" min="15" max="1800" step="1" onchange="this.value=clampInt(this.value,15,1800,60)" style="margin-bottom:10px;">
+                    <button class="btn-primary" style="width:100%;margin-bottom:8px;" onclick="createPoll(this)" id="tw-btn-poll-create" data-i18n="extended.pollCreate">投票を作成</button>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn-secondary" style="flex:1;" onclick="fetchPolls(this)" id="tw-btn-poll-get" data-i18n="extended.pollGet">現在の投票を取得</button>
+                        <button class="btn-secondary" style="flex:1;" onclick="endPoll(this)" id="tw-btn-poll-end" data-i18n="extended.endBtn">終了</button>
+                    </div>
+                    <div id="tw-poll-result" style="margin-top:10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-box tw-section closed" id="tw-box-chat">
+            <div class="category-name" onclick="twToggle('tw-box-chat')"><span id="tw-l-chat" data-i18n="extended.chatControlTab">チャット設定・制御</span></div>
+            <div class="tw-body">
+                <button type="button" class="btn-outline tw-chat-clear-btn has-tooltip" onclick="clearChatImmediately(this)" data-i18n-tooltip="extended.chatClearExecTip"><span class="tw-chat-clear-mark">✦</span><span data-i18n="extended.chatCopyClear">チャットをクリア</span></button>
+
+                <div class="tw-action-grid">
+                    <button class="btn-secondary" style="font-size:10px;padding:6px 0;" onclick="fetchChatSettings(this)" id="tw-btn-chat-get" data-i18n="extended.chatGetSettings">現在の設定取得</button>
+                    <button class="btn-primary" style="font-size:10px;padding:6px 0;" onclick="patchChatSettings(this)" id="tw-btn-chat-set" data-i18n="extended.chatApplySettings">設定を反映</button>
+                </div>
+                <div class="tw-control-grid">
+                    <div class="tw-toggle-card"><div class="tw-toggle-row"><span class="field-label" id="tw-l-emote" data-i18n="extended.chatEmoteOnly">エモート限定</span><label class="tw-toggle"><input type="checkbox" id="cs-emote" aria-labelledby="tw-l-emote" onchange="applyChatToggle(this)"><span class="tw-slider"></span></label></div></div>
+                    <div class="tw-toggle-card"><div class="tw-toggle-row"><span class="field-label" id="tw-l-subonly" data-i18n="extended.chatSubOnly">サブスク限定チャット</span><label class="tw-toggle"><input type="checkbox" id="cs-sub" aria-labelledby="tw-l-subonly" onchange="applyChatToggle(this)"><span class="tw-slider"></span></label></div></div>
+                    <div class="tw-toggle-card"><div class="tw-toggle-row"><span class="field-label" id="tw-l-unique" data-i18n="extended.chatUnique">重複チャットを制限</span><label class="tw-toggle"><input type="checkbox" id="cs-unique" aria-labelledby="tw-l-unique" onchange="applyChatToggle(this)"><span class="tw-slider"></span></label></div></div>
+                    <div class="tw-toggle-card">
+                        <div class="tw-toggle-row"><span class="field-label" id="tw-l-follow" data-i18n="extended.chatFollower">フォロー限定</span><label class="tw-toggle"><input type="checkbox" id="cs-follow" aria-labelledby="tw-l-follow" onchange="applyChatToggle(this)"><span class="tw-slider"></span></label></div>
+                        <div class="tw-time-control"><input type="number" id="cs-follow-dur" aria-labelledby="tw-l-follow" value="0" min="0" max="129600" step="1" onchange="this.value=clampInt(this.value,0,129600,0)"><span data-i18n="extended.unitMinute">分</span></div>
+                    </div>
+                    <div class="tw-toggle-card">
+                        <div class="tw-toggle-row"><span class="field-label" id="tw-l-slow" data-i18n="extended.chatSlow">スローモード</span><label class="tw-toggle"><input type="checkbox" id="cs-slow" aria-labelledby="tw-l-slow" onchange="applyChatToggle(this)"><span class="tw-slider"></span></label></div>
+                        <div class="tw-time-control"><input type="number" id="cs-slow-dur" aria-labelledby="tw-l-slow" value="30" min="3" max="120" step="1" onchange="this.value=clampInt(this.value,3,120,30)"><span data-i18n="extended.unitSecond">秒</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tw-pair-grid">
+            <div class="category-box tw-section closed" id="tw-box-cmd-api" style="flex:1;min-width:270px;margin-bottom:0;">
+                <div class="category-name" onclick="twToggle('tw-box-cmd-api')"><span id="tw-l-cmd-api" data-i18n="extended.autoExecCmds">API操作</span></div>
+                <div class="tw-body">
+                    <div class="tw-muted-note">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        <span data-i18n="extended.apiActionLabel">API連携で実行</span>
+                    </div>
+                    <label class="field-label" style="font-size: 10px; opacity: 0.8;" data-i18n="extended.markerLabel">配信マーカーを作成</label>
+                    <div class="tw-inline-row">
+                        <input type="text" id="tw-marker-desc" data-i18n-placeholder="extended.markerDesc">
+                        <button class="btn-primary" onclick="doApiMarker(this)" style="font-size:11px;padding:6px 12px;" data-i18n="extended.markerCreate">作成</button>
+                    </div>
+                    <label class="field-label" style="font-size: 10px; opacity: 0.8;" data-i18n="extended.announceLabel">チャット告知を送信</label>
+                    <div class="tw-inline-row">
+                        <input type="text" id="tw-announce-msg" data-i18n-placeholder="extended.announceMsg">
+                        <button class="btn-primary" onclick="doApiAnnounce(this)" style="font-size:11px;padding:6px 12px;" data-i18n="extended.announceSend">送信</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-box tw-section closed" id="tw-box-clip" style="flex:1;min-width:270px;margin-bottom:0;display:flex;flex-direction:column;">
+                <div class="category-name" onclick="twToggle('tw-box-clip')"><span id="tw-l-clip" data-i18n="extended.clipTab">クリップ</span></div>
+                <div class="tw-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
+                    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+                        <button class="btn-secondary" style="flex:1;font-size:11px;padding:6px 0;" onclick="fetchClips(this)" id="tw-btn-clip-list" data-i18n="extended.fetchListBtn">一覧を取得</button>
+                        <select id="tw-clip-sort" style="flex:1;background:var(--bg-base);border:1px solid var(--border-color);color:var(--text-main);padding:4px;border-radius:4px;font-size:11px;">
+                            <option value="views" data-i18n="extended.clipSortViews">再生数順</option>
+                            <option value="recent" data-i18n="extended.clipSortRecent">新着順</option>
+                        </select>
+                        <select id="tw-clip-count" style="width:58px;background:var(--bg-base);border:1px solid var(--border-color);color:var(--text-main);padding:4px;border-radius:4px;font-size:11px;">
+                            <option value="5" data-i18n="extended.clipCount5">5件</option>
+                            <option value="10" selected data-i18n="extended.clipCount10">10件</option>
+                            <option value="20" data-i18n="extended.clipCount20">20件</option>
+                        </select>
+                        <button class="btn-primary" style="font-size:10px;padding:5px 8px;white-space:nowrap;" onclick="createClip(this)" id="tw-btn-clip-create" data-i18n="extended.clipCreateBtn">作成</button>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:6px;align-items:center;">
+                        <button class="btn-secondary" style="font-size:10px;padding:4px 8px;flex:1;background:var(--bg-panel);" onclick="loadFavClips()" id="tw-btn-fav-clips" data-i18n="extended.favClips">お気に入り一覧</button>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:10px;align-items:center;">
+                        <input type="text" id="tw-fav-clip-url" data-i18n-placeholder="extended.clipUrlPlaceholder" placeholder="クリップURL" style="flex:1;margin:0;font-size:10px;padding:4px;">
+                        <button class="btn-primary" style="font-size:10px;padding:4px 8px;white-space:nowrap;" onclick="addFavClipManual()" data-i18n="extended.addFavClip">登録</button>
+                    </div>
+                    <div id="tw-clip-result" style="overflow-y:auto;max-width:100%;flex:1;padding-right:4px;min-height:0;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-box tw-section closed" id="tw-box-collab">
+            <div class="category-name" onclick="twToggle('tw-box-collab')"><span id="tw-l-collab-section" data-i18n="extended.collabUrlTab">コラボURL生成</span></div>
+            <div class="tw-body">
+                <label class="field-label" id="tw-l-collab" style="font-size: 10px; opacity: 0.8;" data-i18n="extended.collabInputId">コラボ相手のTwitch ID（カンマ・空白区切り）</label>
+                <div class="tw-input-action-row">
+                    <div class="so-suggest-wrap" id="tw-collab-suggest-wrap">
+                        <input type="text" id="tw-collab" data-suggest="twitch-id" data-suggest-multi="true" data-i18n-placeholder="extended.collabPlaceholder" placeholder="ID1, ID2, ..." style="margin-bottom:0;font-size:11px;" oninput="renderShoutoutSuggestions(true, 'tw-collab')" onfocus="openShoutoutSuggestions('tw-collab')" onblur="setTimeout(closeShoutoutSuggestions, 120)" onkeydown="handleShoutoutSuggestKey(event)">
+                        <div class="so-suggest-panel" id="tw-collab-suggest-panel"></div>
+                    </div>
+                    <button class="btn-primary" onclick="generateMultiUrl()" id="tw-btn-collab" style="font-size:11px;padding:6px 12px;" data-i18n="extended.generateBtn">生成</button>
+                </div>
+                <div class="cmd-service-options" role="radiogroup" aria-label="URLの形式" data-i18n-aria="extended.serviceLabel">
+                    <label class="cmd-service-option">
+                        <input type="radio" name="tw-ms" value="multi" checked>
+                        <span class="cmd-service-card"><span class="cmd-label" data-i18n="extended.serviceMultiName">標準表示</span><span class="cmd-code">multistre.am</span></span>
+                    </label>
+                    <label class="cmd-service-option">
+                        <input type="radio" name="tw-ms" value="theater">
+                        <span class="cmd-service-card"><span class="cmd-label" data-i18n="extended.serviceTheaterName">劇場表示</span><span class="cmd-code">TwitchTheater</span></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="tw-pair-grid">
+            <div class="category-box tw-section closed" id="tw-box-sub" style="flex:1;min-width:270px;margin-bottom:0;">
+                <div class="category-name" onclick="twToggle('tw-box-sub')"><span id="tw-l-sub" data-i18n="extended.subscribersTab">サブスクライバー</span></div>
+                <div class="tw-body">
+                    <button class="btn-secondary" style="width:100%;margin-bottom:10px;" onclick="fetchSubscribers(this)" id="tw-btn-sub" data-i18n="extended.fetchBtn">一覧を取得</button>
+                    <div id="tw-sub-list" class="tw-list"><p class="tw-list-empty" data-i18n="extended.noListInfo">情報がありません</p></div>
+                </div>
+            </div>
+
+            <div class="category-box tw-section closed" id="tw-box-vip" style="flex:1;min-width:270px;margin-bottom:0;">
+                <div class="category-name" onclick="twToggle('tw-box-vip')"><span id="tw-l-vip" data-i18n="extended.vipManagementTab">VIP管理</span></div>
+                <div class="tw-body">
+                    <div style="font-size:11px;margin-bottom:8px;opacity:0.9;display:flex;justify-content:space-between;background:var(--bg-base);border:1px solid var(--border-color);padding:4px 8px;border-radius:4px;" id="tw-vip-slot-info">
+                        <span><span data-i18n="extended.vipSlotPrefix">VIP枠: </span><strong data-i18n="extended.vipSlotDesc">一覧取得後に反映</strong></span>
+                    </div>
+                    <button class="btn-secondary" style="width:100%;margin-bottom:10px;" onclick="fetchVips(this)" id="tw-btn-vip-list" data-i18n="extended.fetchListBtn">一覧を取得</button>
+                    <div id="tw-vip-list" class="tw-list" style="margin-bottom:10px;"><p class="tw-list-empty" data-i18n="extended.noListInfo">情報がありません</p></div>
+                    <label class="field-label" id="tw-l-vip-edit" data-i18n="extended.vipEditLabel">VIP追加・削除（ログインID）</label>
+                    <div style="display:flex;gap:8px;">
+                        <div class="so-suggest-wrap" id="tw-vip-input-suggest-wrap">
+                            <input type="text" id="tw-vip-input" data-suggest="twitch-id" data-i18n-placeholder="extended.vipInputPlaceholder" placeholder="login_id" style="margin-bottom:0;" oninput="renderShoutoutSuggestions(true, 'tw-vip-input')" onfocus="openShoutoutSuggestions('tw-vip-input')" onblur="setTimeout(closeShoutoutSuggestions, 120)" onkeydown="handleShoutoutSuggestKey(event)">
+                            <div class="so-suggest-panel" id="tw-vip-input-suggest-panel"></div>
+                        </div>
+                        <button class="btn-primary" onclick="addVip(this)" id="tw-btn-vip-add" data-i18n="extended.addBtn">追加</button>
+                        <button class="btn-secondary" onclick="removeVip(this)" id="tw-btn-vip-rm" data-i18n="extended.deleteBtn">削除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="cmd-tab" class="tab-content">
+        <div id="cmd-container"></div>
+    </div>
+
+    <div id="raid-tab" class="tab-content">
+        <div id="raidso-container"></div>
+        <div class="sticky-footer-wrapper">
+            <button id="ui-raid-save" class="btn-primary" style="flex: 1;"
+                onclick="saveRaidSoSettings(true)" data-i18n="extended.saveBtn">保存</button>
+        </div>
+    </div>
+
+    <div id="friends-tab" class="tab-content">
+        <details class="tab-help">
+            <summary class="tab-help-summary">
+                <span class="ui-info-summary-text-common" data-i18n="infoSummary">ヘルプ</span>
+            </summary>
+            <div class="tab-help-body">
+                <p class="ui-common-warning" style="margin: 0;"></p>
+            </div>
+        </details>
+
+        <!-- Sort & Filter Toolbar -->
+        <div class="friends-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center; background: var(--bg-header); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: bold;" data-i18n="idList.sortBy">表示順:</span>
+            <select id="friends-sort-select" onchange="changeFriendsSortOrder(this.value)" data-i18n-aria="idList.sortBy" aria-label="表示順" style="flex: 1; font-size: 12px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 8px; border-radius: 6px; cursor: pointer; outline: none;">
+                <option value="name" data-i18n="idList.sortName" selected>名前順 (A-Z)</option>
+                <option value="group" data-i18n="idList.sortGroup">グループ別 (手動)</option>
+                <option value="recent-so" data-i18n="idList.sortRecentSo">直近の応援順</option>
+                <option value="so-count" data-i18n="idList.sortSoCount">応援回数順</option>
+                <option value="birthday" data-i18n="idList.sortBirthday">誕生日が近い順</option>
+            </select>
+        </div>
+
+        <!-- タグで絞り込むアコーディオン -->
+        <details id="friends-tag-filter-details" style="margin-bottom: 10px; background: var(--bg-header); border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--text-main); outline: none;">
+            <summary style="padding: 6px 12px; cursor: pointer; font-weight: bold; list-style: none; display: flex; justify-content: center; align-items: center; position: relative;">
+                <span style="display: flex; align-items: center; gap: 4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    <span data-i18n="idList.filterTags">タグで絞り込む</span>
+                </span>
+                <span id="friends-selected-tags-count" style="font-size: 10px; color: var(--twitch-purple); font-weight: normal; position: absolute; right: 12px;"></span>
+            </summary>
+            <div id="friends-tag-list" style="padding: 8px 12px; border-top: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto;">
+                <!-- JSで動的にチェックボックスを挿入 -->
+            </div>
+        </details>
+
+        <div id="friends-container" class="sortable-container"></div>
+
+        <div class="sticky-footer-wrapper">
+            <button id="del-mode-friends" class="btn-secondary" style="flex: 2;"
+                onclick="toggleDeleteMode('friends-tab')" data-i18n="extended.deleteBtn">削除</button>
+            <button class="btn-secondary btn-add-item" id="ui-add-template-friends" style="flex: 5;"
+                onclick="showAddFriendDialog()" data-i18n="extended.addItemTitle">＋ 追加</button>
+            <button class="btn-primary" id="ui-save-friends" style="flex: 3;"
+                onclick="saveFriendsLocal(true)" data-i18n="extended.saveBtn">保存</button>
+        </div>
+    </div>
+
+    <div id="cp-tab" class="tab-content">
+        <!-- Fixed Header Toolbar -->
+        <div class="cp-toolbar">
+            <div class="cp-toolbar-row">
+                <div style="font-size: 11px; color: var(--text-muted); flex-shrink: 0;" id="cp-status-summary">
+                    <span data-i18n="cpTab.status">取得状態:</span> <strong id="cp-total-count">0</strong>
+                </div>
+                <div class="cp-toolbar-actions">
+                    <select id="cp-sort-select" class="cp-toolbar-select" onchange="changeCpSortOrder(this.value)">
+                        <option value="default" data-i18n="cpTab.sortDefault">ソート: 標準</option>
+                        <option value="app_first" data-i18n="cpTab.sortAppFirst">本ツール作成優先</option>
+                        <option value="external_first" data-i18n="cpTab.sortExternalFirst">Web/他作成優先</option>
+                        <option value="cost_asc" data-i18n="cpTab.sortCostAsc">コスト昇順</option>
+                        <option value="cost_desc" data-i18n="cpTab.sortCostDesc">コスト降順</option>
+                        <option value="name_asc" data-i18n="cpTab.sortNameAsc">名前昇順</option>
+                        <option value="name_desc" data-i18n="cpTab.sortNameDesc">名前降順</option>
+                    </select>
+                    <button type="button" class="cp-btn-tool" onclick="fetchCpRewards(this)">🔄 <span data-i18n="cpTab.reloadBtn">再読み込み</span></button>
+                    <button type="button" class="cp-btn-tool" onclick="openCpGroupModal()">📁 <span data-i18n="cpTab.groupBtn">グループ管理</span></button>
+                    <button type="button" class="cp-btn-tool" onclick="openCpBulkEditModal('all')">⚙️ <span data-i18n="cpTab.bulkBtn">一括編集</span></button>
+                    <button type="button" class="cp-btn-tool is-primary" onclick="openCpRewardModal()">＋ <span data-i18n="cpTab.addBtn">新規作成</span></button>
+                </div>
+            </div>
+            <!-- Dynamic Group Preset Quick Bar -->
+            <div id="cp-group-presets-bar" class="cp-group-bar"></div>
+        </div>
+
+        <!-- Point Rewards Grid List -->
+        <div id="cp-rewards-container" class="cp-rewards-grid"></div>
+    </div>
+
+    <!-- Modal Layouts -->
+    <div id="guideModal" class="modal-overlay" onclick="if(event.target===this)closeModal('guideModal')">
+        <div class="modal-content">
+            <button type="button" class="modal-close-top" onclick="closeModal('guideModal')" data-i18n-aria="extended.close" aria-label="閉じる">&times;</button>
+            <h3 data-i18n="extended.guideTitle">使い方ガイド</h3>
+            <div class="modal-scroll-area">
+                <p data-i18n="extended.guideIntro">このツールは、Twitch配信のタイトルやカテゴリ、サポーターの自動集計、チャット設定などを一括管理できるドック型ツールです。</p>
+                <h4 data-i18n="extended.guideAuthSection">■ Twitch連携と認証</h4>
+                <p data-i18n="extended.guideAuthDesc">設定からTwitchアカウントを連携することで、サポーター自動集計やチャット操作、ポイント作成機能などが有効化されます。</p>
+            </div>
+            <div style="text-align: right; margin-top: 15px;">
+                <button type="button" class="btn-primary" onclick="closeModal('guideModal')" data-i18n="extended.close">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingModal" class="modal-overlay" onclick="if(event.target===this)closeModal('settingModal')">
+        <div class="modal-content">
+            <button type="button" class="modal-close-top" onclick="closeModal('settingModal')" data-i18n-aria="extended.close" aria-label="閉じる">&times;</button>
+            <h3 data-i18n="extended.settings">設定</h3>
+            <div class="modal-scroll-area">
+                <div class="setting-section">
+                    <h4 data-i18n="extended.twitchConnectSettings">Twitch 接続設定</h4>
+                    <div id="twitch-auth-status-container"></div>
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 15px;">
+                <button type="button" class="btn-primary" onclick="closeModal('settingModal')" data-i18n="extended.saveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CP Group Modal -->
+    <div id="cpGroupModal" class="modal-overlay" onclick="if(event.target===this)closeModal('cpGroupModal')">
+        <div class="modal-content" style="max-width: 500px;">
+            <button type="button" class="modal-close-top" onclick="closeModal('cpGroupModal')" data-i18n-aria="extended.close" aria-label="閉じる">&times;</button>
+            <h3 id="cp-group-modal-title" style="margin-top:0; color: var(--command-accent);" data-i18n="cpTab.groupModalTitle">チャンネルポイント グループ管理</h3>
+            <input type="hidden" id="cp-group-edit-id">
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:11px; font-weight:bold; display:block; margin-bottom:4px;" data-i18n="cpTab.groupPresetSelectLabel">作成済みグループプリセット:</label>
+                <select id="cp-group-preset-select" onchange="onSelectCpGroupPreset(this.value)" style="display:block; width:100%; padding:6px; font-size:12px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-item); color:var(--text-main);">
+                    <option value="" data-i18n="cpTab.newGroupOption">＋ 新規グループを作成...</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;" data-i18n="cpTab.groupNameLabel">グループ名:</label>
+                <input type="text" id="cp-group-name-input" placeholder="例: 配信開始用セット" data-i18n-placeholder="cpTab.groupNamePlaceholder" class="cd-input-field" style="display:block; width:100%; padding:6px; font-size:12px; box-sizing:border-box;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font-size:12px; font-weight:bold; margin:0;" data-i18n="cpTab.targetRewardsLabel">対象にするチャンネルポイント:</label>
+                    <div style="display: flex; gap: 6px;">
+                        <button type="button" class="btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="selectAllCpGroupChecklist(true)" data-i18n="cpTab.selectAll">全選択</button>
+                        <button type="button" class="btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="selectAllCpGroupChecklist(false)" data-i18n="cpTab.deselectAll">全解除</button>
+                    </div>
+                </div>
+                <div id="cp-group-rewards-checklist" style="max-height: 180px; overflow-y: auto; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; font-size: 11px; text-align: left; background: var(--bg-card); display: flex; flex-direction: column; gap: 4px;"></div>
+            </div>
+
+            <!-- Automation Settings -->
+            <div style="margin-bottom: 16px; background: var(--bg-item); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px;">
+                <div style="font-size: 12px; font-weight: bold; margin-bottom: 10px; color: var(--command-accent); border-bottom: 1px solid var(--border-color); padding-bottom: 6px;" data-i18n="cpTab.automationTitle">自動化設定 (オートメーション)</div>
+                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 11.5px; text-align: left;">
+                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-align: left; justify-content: flex-start; width: fit-content; margin: 0;">
+                        <input type="checkbox" id="cp-group-auto-stream-start" style="margin: 0; cursor: pointer; width: 16px; height: 16px; accent-color: var(--twitch-purple); flex-shrink: 0;">
+                        <span style="color: var(--text-main); font-weight: 500; text-align: left;" data-i18n="cpTab.autoOnStreamStart">配信開始時に自動ON</span>
+                    </label>
+                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-align: left; justify-content: flex-start; width: fit-content; margin: 0;">
+                        <input type="checkbox" id="cp-group-auto-stream-end" style="margin: 0; cursor: pointer; width: 16px; height: 16px; accent-color: var(--twitch-purple); flex-shrink: 0;">
+                        <span style="color: var(--text-main); font-weight: 500; text-align: left;" data-i18n="cpTab.autoOffStreamEnd">配信終了時に自動OFF</span>
+                    </label>
+                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-align: left; justify-content: flex-start; width: fit-content; margin: 0;">
+                        <input type="checkbox" id="cp-group-auto-raid" style="margin: 0; cursor: pointer; width: 16px; height: 16px; accent-color: var(--twitch-purple); flex-shrink: 0;">
+                        <span style="color: var(--text-main); font-weight: 500; text-align: left;" data-i18n="cpTab.autoOnRaid">レイド受け取り時に自動ON</span>
+                    </label>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left;">
+                        <label style="font-weight: 500; color: var(--text-main); text-align: left;" data-i18n="cpTab.autoOffMinutes">ONにしてから自動OFF (分):</label>
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
+                            <input type="number" id="cp-group-auto-off-min" value="0" min="0" max="1440" class="cd-input-field" style="width: 65px; padding: 4px 6px; font-size: 11.5px; text-align: center; box-sizing: border-box;">
+                            <span style="font-size: 10.5px; color: var(--text-muted);" data-i18n="cpTab.autoOffMinutesHint">※0で無効</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModal('cpGroupModal')" data-i18n="extended.cancelBtn">キャンセル</button>
+                <button type="button" class="btn-primary" onclick="saveCpGroup()" data-i18n="extended.saveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CP Reward Modal (Create & Edit) -->
+    <div id="cpRewardModal" class="modal-overlay" onclick="if(event.target===this)closeModal('cpRewardModal')">
+        <div class="modal-content" style="max-width: 480px;">
+            <button type="button" class="modal-close-top" onclick="closeModal('cpRewardModal')" data-i18n-aria="extended.close" aria-label="閉じる">&times;</button>
+            <h3 id="cp-reward-modal-title" style="margin-top:0; color: var(--command-accent);" data-i18n="cpTab.rewardModalTitleNew">チャンネルポイントの追加・編集</h3>
+            <input type="hidden" id="cp-reward-edit-id">
+
+            <!-- Template Loader Block (Shown when creating new reward) -->
+            <div id="cp-reward-template-wrapper" style="margin-bottom: 12px; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.25); padding: 8px 10px; border-radius: 6px;">
+                <label style="font-size:11px; font-weight:bold; display:block; margin-bottom:4px; color: #c084fc;" data-i18n="cpTab.loadTemplateLabel">既存ポイントから設定を読み込む:</label>
+                <select id="cp-reward-template-select" onchange="applyCpRewardTemplate(this.value)" style="display:block; width:100%; padding:5px 8px; font-size:11px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-item); color:var(--text-main); cursor:pointer; box-sizing:border-box;">
+                    <option value="" data-i18n="cpTab.selectTemplatePlaceholder">-- 既存のチャンネルポイントを選択 --</option>
+                </select>
+                <div style="font-size:10px; color:var(--text-muted); margin-top:4px;" data-i18n="cpTab.loadTemplateHint">※ 選択したポイントのタイトル・コスト・説明文・テーマカラーが自動入力されます。</div>
+            </div>
+            <div style="font-size: 11px; margin-bottom: 10px;">
+                <a href="#" onclick="openTwitchImageResizerTool(); return false;" style="color: var(--twitch-purple); text-decoration: underline; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;" data-i18n="cpTab.imageResizerLinkLabel">🖼️ Twitchスタンプ・アイコン用 画像リサイズツールを開く ↗</a>
+            </div>
+            <div id="cp-reward-id-wrapper" style="margin-bottom: 10px; display: none;">
+                <label style="font-size:11px; font-weight:bold; color: var(--text-muted); display:block; margin-bottom:3px;">報酬ID (ID):</label>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <input type="text" id="cp-reward-id-display" readonly style="font-family: monospace; font-size: 11px; padding: 4px 6px; background: var(--bg-item); border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 4px; flex: 1; box-sizing: border-box;" onclick="this.select()">
+                    <button type="button" class="btn-secondary" style="height: 26px; padding: 0 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="copyCpRewardIdModal()">📋 コピー</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;" data-i18n="cpTab.rewardModalTitleLabel">報酬名 (タイトル):</label>
+                <input type="text" id="cp-reward-title-input" placeholder="例: 悲鳴SEを鳴らす" data-i18n-placeholder="cpTab.rewardModalTitlePlaceholder" class="cd-input-field" style="display:block; width:100%; padding:6px; font-size:12px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:bold; display:flex; align-items:center; gap:8px; cursor:pointer; margin: 0;">
+                    <input type="checkbox" id="cp-reward-user-input-checkbox" style="accent-color: var(--twitch-purple); width: 16px; height: 16px; cursor: pointer; margin: 0;">
+                    <span style="color: var(--text-main);" data-i18n="cpTab.userInputRequiredCheckbox">💬 視聴者テキスト入力を必須化する</span>
+                </label>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;" data-i18n="cpTab.rewardModalCostLabel">消費ポイント数 (コスト):</label>
+                <input type="number" id="cp-reward-cost-input" value="50" min="1" class="cd-input-field" style="display:block; width:100%; padding:6px; font-size:12px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;" data-i18n="cpTab.rewardModalPromptLabel">説明文 (任意):</label>
+                <input type="text" id="cp-reward-prompt-input" placeholder="例: 配信上で効果音が再生されます" data-i18n-placeholder="cpTab.rewardModalPromptPlaceholder" class="cd-input-field" style="display:block; width:100%; padding:6px; font-size:12px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;" data-i18n="cpTab.rewardModalColorLabel">背景テーマカラー:</label>
+                <div class="cp-color-picker-row">
+                    <input type="color" id="cp-reward-color-input" value="#9146FF" oninput="updateCpColorPreview(this.value)" onchange="updateCpColorPreview(this.value)">
+                    <div id="cp-reward-color-swatch-preview" class="cp-swatch-preview" style="background: #9146FF;" title="選択中のカラープレビュー"></div>
+                    <input type="text" id="cp-reward-color-hex-input" value="#9146FF" maxlength="7" oninput="syncCpColorFromHex(this.value)">
+                    <button type="button" class="btn-secondary" style="height: 28px; padding: 0 7px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="pickCpColorWithEyedropper(false)" title="画面から色を取得 (スポイト)">🧪 スポイト</button>
+                    <span>カラーコード / パレット選択</span>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button type="button" class="cp-swatch" style="background:#9146FF; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#9146FF')" title="#9146FF (Twitch Purple)"></button>
+                    <button type="button" class="cp-swatch" style="background:#FF69B4; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#FF69B4')" title="#FF69B4 (Pink)"></button>
+                    <button type="button" class="cp-swatch" style="background:#00C875; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#00C875')" title="#00C875 (Mint)"></button>
+                    <button type="button" class="cp-swatch" style="background:#3B82F6; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#3B82F6')" title="#3B82F6 (Blue)"></button>
+                    <button type="button" class="cp-swatch" style="background:#FF9800; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#FF9800')" title="#FF9800 (Orange)"></button>
+                    <button type="button" class="cp-swatch" style="background:#E93D3A; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#E93D3A')" title="#E93D3A (Red)"></button>
+                    <button type="button" class="cp-swatch" style="background:#26262C; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpRewardColorSwatch('#26262C')" title="#26262C (Dark)"></button>
+                </div>
+                <div style="margin-top: 6px;">
+                    <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px;" data-i18n="cpTab.usedColorsLabel">登録済み報酬のカラー (使用中):</div>
+                    <div id="cp-reward-used-colors-swatches" style="display: flex; gap: 6px; flex-wrap: wrap; min-height: 22px;"></div>
+                </div>
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="font-size:12px; font-weight:bold; display:flex; align-items:center; gap:8px; cursor:pointer; margin: 0;">
+                    <input type="checkbox" id="cp-reward-paused-input" style="accent-color: var(--twitch-purple); width: 16px; height: 16px; cursor: pointer; margin: 0;">
+                    <span style="color: var(--text-main);" data-i18n="cpTab.pauseRewardCheckbox">⏸️ 引き換えを一時停止する (一時中断)</span>
+                </label>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModal('cpRewardModal')" data-i18n="extended.cancelBtn">キャンセル</button>
+                <button type="button" class="btn-primary" onclick="saveCpReward()" data-i18n="extended.saveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-dialog-overlay" class="custom-dialog-overlay">
+        <div class="custom-dialog" role="dialog" aria-modal="true" aria-labelledby="cd-title" style="position: relative;">
+            <button id="cd-btn-close-top" class="modal-close-top" style="display:none;" onclick="document.getElementById('cd-btn-ok').click()" data-i18n-aria="extended.close" aria-label="閉じる">×</button>
+            <h3 id="cd-title" style="margin-top: 0; color: var(--command-accent); font-size: 16px;">Notice</h3>
+            <div id="cd-message"
+                style="margin-bottom: 20px; color: var(--text-main); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere;">
+            </div>
+            <input type="text" id="cd-input" class="cd-input-field" aria-labelledby="cd-title" style="display: none;">
+            <div id="cd-actions" class="custom-dialog-actions">
+                <button id="cd-btn-cancel" class="btn-secondary"
+                    style="display: none; padding: 10px 20px; font-size: 13px;" data-i18n="extended.cancelBtn">キャンセル</button>
+                <button id="cd-btn-neutral" class="btn-secondary" style="display: none; padding: 10px 20px; font-size: 13px;"></button>
+                <button id="cd-btn-ok" class="btn-primary" style="padding: 10px 20px; font-size: 13px;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CP Bulk Edit Modal -->
+    <div id="cpBulkEditModal" class="modal-overlay" onclick="if(event.target===this)closeModal('cpBulkEditModal')">
+        <div class="modal-content" style="max-width: 460px;">
+            <button type="button" class="modal-close-top" onclick="closeModal('cpBulkEditModal')" data-i18n-aria="extended.close" aria-label="閉じる">&times;</button>
+            <h3 id="cp-bulk-modal-title" style="margin-top:0; color: var(--command-accent);" data-i18n="cpTab.bulkEditModalTitle">チャンネルポイントの一括編集</h3>
+            <input type="hidden" id="cp-bulk-mode">
+            <input type="hidden" id="cp-bulk-group-id">
+
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px; background: var(--bg-item); border: 1px solid var(--border-color); padding: 8px; border-radius: 6px;">
+                <span style="color: var(--twitch-purple); font-weight: bold;">※</span> 選択した報酬の「背景色」および「消費ポイント数」を一括で変更できます。<br>
+                <span style="font-size: 10px;" data-i18n="cpTab.bulkExternalNotice">（※Twitchの仕様上、外部作成された報酬は変更されません）</span>
+            </div>
+
+            <!-- Color Section -->
+            <div style="margin-bottom: 14px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <label style="font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 8px;">
+                    <input type="checkbox" id="cp-bulk-enable-color" style="accent-color: var(--twitch-purple); width: 15px; height: 15px;" onchange="toggleCpBulkColorSection(this.checked)">
+                    <span data-i18n="cpTab.enableColorChange">🎨 背景色を変更する</span>
+                </label>
+                <div id="cp-bulk-color-controls" style="opacity: 0.4; pointer-events: none; transition: opacity 0.2s;">
+                    <div class="cp-color-picker-row">
+                        <input type="color" id="cp-bulk-color-input" value="#9146FF" oninput="updateCpBulkColorPreview(this.value)" onchange="updateCpBulkColorPreview(this.value)">
+                        <div id="cp-bulk-color-swatch-preview" class="cp-swatch-preview" style="background: #9146FF;" title="選択中のカラープレビュー"></div>
+                        <input type="text" id="cp-bulk-color-hex-input" value="#9146FF" maxlength="7" oninput="syncCpBulkColorFromHex(this.value)">
+                        <button type="button" class="btn-secondary" style="height: 28px; padding: 0 7px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="pickCpColorWithEyedropper(true)" title="画面から色を取得 (スポイト)">🧪 スポイト</button>
+                        <span>カラーコード / パレット選択</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" class="cp-swatch" style="background:#9146FF; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#9146FF')" title="#9146FF (Twitch Purple)"></button>
+                        <button type="button" class="cp-swatch" style="background:#FF69B4; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#FF69B4')" title="#FF69B4 (Pink)"></button>
+                        <button type="button" class="cp-swatch" style="background:#00C875; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#00C875')" title="#00C875 (Mint)"></button>
+                        <button type="button" class="cp-swatch" style="background:#3B82F6; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#3B82F6')" title="#3B82F6 (Blue)"></button>
+                        <button type="button" class="cp-swatch" style="background:#FF9800; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#FF9800')" title="#FF9800 (Orange)"></button>
+                        <button type="button" class="cp-swatch" style="background:#E93D3A; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#E93D3A')" title="#E93D3A (Red)"></button>
+                        <button type="button" class="cp-swatch" style="background:#26262C; width:22px; height:22px; border-radius:4px; border:1px solid #ffffff; cursor:pointer;" onclick="setCpBulkColorSwatch('#26262C')" title="#26262C (Dark)"></button>
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px;" data-i18n="cpTab.usedColorsLabel">登録済み報酬のカラー (使用中):</div>
+                        <div id="cp-bulk-used-colors-swatches" style="display: flex; gap: 6px; flex-wrap: wrap; min-height: 22px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pause / Resume Section -->
+            <div style="margin-bottom: 14px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <label style="font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 8px;">
+                    <input type="checkbox" id="cp-bulk-enable-pause" style="accent-color: var(--twitch-purple); width: 15px; height: 15px;" onchange="toggleCpBulkPauseSection(this.checked)">
+                    <span data-i18n="cpTab.enablePauseChange">⏸️ 引き換え一時停止 / 再開を変更する</span>
+                </label>
+                <div id="cp-bulk-pause-controls" style="opacity: 0.4; pointer-events: none; transition: opacity 0.2s;">
+                    <input type="hidden" id="cp-bulk-pause-val" value="pause">
+                    <div class="cp-segmented-control" style="width: 100%; height: 32px;">
+                        <button type="button" id="cp-bulk-pause-btn-pause" class="cp-segment-btn is-pause active" style="flex: 1; height: 26px;" onclick="setCpBulkPauseValue('pause')" data-i18n="cpTab.pauseOptionPause">⏸️ 一時停止にする (引き換え中止)</button>
+                        <button type="button" id="cp-bulk-pause-btn-resume" class="cp-segment-btn is-on" style="flex: 1; height: 26px;" onclick="setCpBulkPauseValue('resume')" data-i18n="cpTab.pauseOptionResume">▶️ 引き換え再開する (受付中)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Input Requirement Section -->
+            <div style="margin-bottom: 14px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <label style="font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 8px;">
+                    <input type="checkbox" id="cp-bulk-enable-user-input" style="accent-color: var(--twitch-purple); width: 15px; height: 15px;" onchange="toggleCpBulkUserInputSection(this.checked)">
+                    <span data-i18n="cpTab.bulkChangeUserInput">💬 視聴者コメント必須 (テキスト入力必須) を変更する</span>
+                </label>
+                <div id="cp-bulk-user-input-controls" style="opacity: 0.4; pointer-events: none; transition: opacity 0.2s;">
+                    <input type="hidden" id="cp-bulk-user-input-val" value="true">
+                    <div class="cp-segmented-control" style="width: 100%; height: 32px;">
+                        <button type="button" id="cp-bulk-user-input-btn-true" class="cp-segment-btn is-purple active" style="flex: 1; height: 26px;" onclick="setCpBulkUserInputVal(true)" data-i18n="cpTab.bulkUserInputTrue">💬 必須にする (ON)</button>
+                        <button type="button" id="cp-bulk-user-input-btn-false" class="cp-segment-btn is-off" style="flex: 1; height: 26px;" onclick="setCpBulkUserInputVal(false)" data-i18n="cpTab.bulkUserInputFalse">💬 必須にしない (OFF)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cost Section -->
+            <div style="margin-bottom: 16px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <label style="font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 8px;">
+                    <input type="checkbox" id="cp-bulk-enable-cost" style="accent-color: var(--twitch-purple); width: 15px; height: 15px;" onchange="toggleCpBulkCostSection(this.checked)">
+                    <span data-i18n="cpTab.enableCostChange">💎 報酬額 (消費ポイント数) を変更する</span>
+                </label>
+                <div id="cp-bulk-cost-controls" style="opacity: 0.4; pointer-events: none; transition: opacity 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="number" id="cp-bulk-cost-input" value="50" min="1" max="2000000000" class="cd-input-field" style="width: 100px; padding: 6px; font-size: 12px;">
+                        <span style="font-size: 11px; color: var(--text-main);">pt</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModal('cpBulkEditModal')" data-i18n="extended.cancelBtn">キャンセル</button>
+                <button type="button" class="btn-primary" onclick="applyCpBulkEdit()" data-i18n="cpTab.applyBulkEdit">一括適用</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (twitchManagerAudioSourceMode) {
+            document.body.innerHTML = '<div id="status-text" role="status"></div>';
+            const audioSourceScript = document.createElement('script');
+            audioSourceScript.src = 'js/audio-source.js';
+            document.body.appendChild(audioSourceScript);
+        } else {
+            const appScripts = [
+                'twitch_manager_version.js',
+                'twitch_manager_locales.js',
+                'js/update-check.js',
+                'js/storage.js',
+                'js/api.js',
+                'js/eventsub.js',
+                'js/ui.js',
+                'js/main.js'
+            ];
+            document.write(appScripts.map(source => `<script src="${source}"><\/script>`).join(''));
+        }
+    </script>
+
+    <!-- 共通Webツールフッター -->
+    <script src="../footer.js"></script>
+</body>
+
+</html>
