@@ -70,7 +70,7 @@
                 color: #9146ff;
                 text-decoration: underline;
             }
-            .twitch-link, .doneru-link {
+            .twitch-link {
                 color: var(--text-secondary, #555555);
                 text-decoration: none;
                 font-size: 12px;
@@ -82,9 +82,22 @@
                 color: #9146ff;
                 text-decoration: underline;
             }
+            .doneru-link {
+                color: var(--text-primary, #111111) !important;
+                text-decoration: none !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                transition: color 0.2s;
+                white-space: nowrap !important;
+                background: none !important;
+                background-color: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
             .doneru-link:hover {
-                color: #179bf8;
-                text-decoration: underline;
+                color: #9146ff !important;
+                text-decoration: underline !important;
             }
             .ad-divider {
                 margin: 0 2px;
@@ -94,14 +107,17 @@
             body.dark-mode .ad-link {
                 color: var(--text-primary, #eeeeee);
             }
-            body.dark-mode .twitch-link, body.dark-mode .doneru-link {
+            body.dark-mode .twitch-link {
                 color: var(--text-secondary, #cccccc);
+            }
+            body.dark-mode .doneru-link {
+                color: var(--text-primary, #eeeeee) !important;
             }
             body.dark-mode .twitch-link:hover {
                 color: #a970ff;
             }
             body.dark-mode .doneru-link:hover {
-                color: #38bdf8;
+                color: #a970ff !important;
             }
             
             /* 重なり防止：ツール固有の固定フッターの底上げ */
