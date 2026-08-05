@@ -2393,13 +2393,7 @@
                     </div>
                 </div>
 
-                <!-- リアルタイムファイル名プレビュー枠 -->
-                <div class="filename-preview-box">
-                    <span class="preview-title"><i data-lucide="file-text"></i> 出力ファイル名プレビュー</span>
-                    <div class="preview-names-list" id="filename-preview-list">
-                        <!-- JavaScriptで動的に生成 -->
-                    </div>
-                </div>
+                
 
                 <!-- エクスポートボタンエリア -->
                 <div class="export-actions">
@@ -3712,6 +3706,7 @@
         }
 
         function updateFilenamePreview() {
+            if (!elements.filenamePreviewList) return;
             if (presetSelector && activeImg) { presetSelector.value = activeImg.presetKey || "profile_icon"; }
             elements.filenamePreviewList.innerHTML = '';
             
