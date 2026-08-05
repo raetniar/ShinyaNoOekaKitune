@@ -68,6 +68,27 @@
                 color: #9146ff;
                 text-decoration: underline;
             }
+            .doneru-link {
+                color: var(--text-secondary, #555555);
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 500;
+                transition: color 0.2s;
+            }
+            .doneru-link:hover {
+                color: #179bf8;
+                text-decoration: underline;
+            }
+            body.dark-mode .twitch-link,
+            body.dark-mode .doneru-link {
+                color: var(--text-secondary, #cccccc);
+            }
+            body.dark-mode .twitch-link:hover {
+                color: #a970ff;
+            }
+            body.dark-mode .doneru-link:hover {
+                color: #38bdf8;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -103,6 +124,10 @@
                 <span style="margin: 0 10px; opacity: 0.5; color: var(--text-muted, #888888);">|</span>
                 <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" class="twitch-link">
                     Twitchのフォローもお願いします！
+                </a>
+                <span style="margin: 0 10px; opacity: 0.5; color: var(--text-muted, #888888);">|</span>
+                <a href="https://doneru.jp/uikouka" target="_blank" rel="noopener noreferrer" class="doneru-link">
+                    どねる（Doneruでサポート）
                 </a>
             </div>
         `;
