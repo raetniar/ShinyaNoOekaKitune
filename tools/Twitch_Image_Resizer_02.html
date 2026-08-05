@@ -2094,6 +2094,29 @@
             margin-top: 8px;
         }
 
+
+        .preset-select-dropdown {
+            background-color: var(--bg-secondary);
+            color: var(--accent-purple);
+            border: 1.5px solid var(--accent-purple);
+            border-radius: var(--border-radius-md);
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .preset-select-dropdown:hover {
+            background-color: rgba(145, 70, 255, 0.1);
+        }
+        body.dark-mode .preset-select-dropdown {
+            background-color: #1e1e24;
+            color: #a970ff;
+            border-color: #a970ff;
+        }
+
 </style>
 
     <!-- omggif for GIF parsing & encoding -->
@@ -2178,7 +2201,17 @@
             <div class="card editor-card disabled" id="editor-card">
                 <div class="card-header">
                     <h2><i data-lucide="crop"></i> キャンバス編集</h2>
-                    <span class="preset-badge" id="current-preset-badge">プロフィールアイコン (1:1)</span>
+                    <select id="preset-selector" class="preset-select-dropdown">
+                        <option value="profile_icon">プロフィールアイコン (256x256 - ICON_)</option>
+                        <option value="profile_banner">チャンネルバナー (1200x480 - BANNER_)</option>
+                        <option value="offline_banner">オフラインバナー (1920x1080 - OFFLINE_)</option>
+                        <option value="info_panel">情報パネル (320x160 - PANEL_)</option>
+                        <option value="sub_emote">サブスクスタンプ (112x112 - EMOTE_)</option>
+                        <option value="sub_badge">サブスクバッジ (72x72 - BADGE_)</option>
+                        <option value="bits_badge">ビッツバッジ (72x72 - BITS_)</option>
+                        <option value="reward_icon">報酬アイコン (112x112 - REWARD_)</option>
+                        <option value="clip_thumb">クリップサムネイル (1280x720 - CLIP_)</option>
+                    </select>
                 </div>
                 
                 <div class="canvas-container">
@@ -3409,6 +3442,22 @@
             }
         });
 
+        
+        // キャンバス編集右上のプリセット切り替えプルダウンの連動
+        const presetSelector = document.getElementById('preset-selector');
+        if (presetSelector) {
+            presetSelector.addEventListener('change', (e) => {
+                const activeImg = getActiveImage();
+                if (activeImg) {
+                    activeImg.presetKey = e.target.value;
+                    activeImg.preset = PRESETS[e.target.value] || PRESETS.profile_icon;
+                    if (typeof updateEditorUI === 'function') updateEditorUI();
+                    if (typeof draw === 'function') draw();
+                    if (typeof renderQueue === 'function') renderQueue();
+                }
+            });
+        }
+
         function draw() {
             ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
             
@@ -3629,6 +3678,7 @@
         }
 
         function updateFilenamePreview() {
+            if (presetSelector && activeImg) { presetSelector.value = activeImg.presetKey || "profile_icon"; }
             elements.filenamePreviewList.innerHTML = '';
             
             const activeImg = getActiveImage();
