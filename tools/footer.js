@@ -6,7 +6,7 @@
         style.id = styleId;
         style.textContent = `
             .app-footer {
-                padding: 12px 0;
+                padding: 8px 12px;
                 border-top: 1px solid var(--border-color, #e5e7eb);
                 background-color: var(--bg-panel, #ffffff);
                 text-align: center;
@@ -30,9 +30,9 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
+                gap: 6px 12px;
                 flex-wrap: wrap;
-                padding: 0 15px;
+                padding: 0 8px;
             }
             .ad-badge {
                 background-color: #9146ff;
@@ -42,52 +42,82 @@
                 padding: 2px 6px;
                 border-radius: 4px;
                 display: inline-block;
+                flex-shrink: 0;
             }
             .ad-link {
                 color: var(--text-primary, #111111);
                 text-decoration: none;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 500;
                 transition: color 0.2s;
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
+                max-width: 100%;
+            }
+            #amazon-ad-text {
+                max-width: 360px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: inline-block;
+                vertical-align: middle;
             }
             .ad-link:hover {
                 color: #9146ff;
                 text-decoration: underline;
             }
-            .twitch-link {
+            .twitch-link, .doneru-link {
                 color: var(--text-secondary, #555555);
                 text-decoration: none;
-                font-size: 13px;
-                font-weight: 500;
+                font-size: 12px;
+                font-weight: 600;
                 transition: color 0.2s;
+                white-space: nowrap;
             }
             .twitch-link:hover {
                 color: #9146ff;
                 text-decoration: underline;
             }
             .doneru-link {
-                color: var(--text-secondary, #555555);
-                text-decoration: none;
-                font-size: 13px;
-                font-weight: 500;
-                transition: color 0.2s;
+                color: #0284c7;
             }
             .doneru-link:hover {
-                color: #179bf8;
+                color: #0369a1;
                 text-decoration: underline;
             }
-            body.dark-mode .twitch-link,
-            body.dark-mode .doneru-link {
+            .ad-divider {
+                margin: 0 2px;
+                opacity: 0.4;
+                color: var(--text-muted, #888888);
+            }
+            body.dark-mode .ad-link {
+                color: var(--text-primary, #eeeeee);
+            }
+            body.dark-mode .twitch-link {
                 color: var(--text-secondary, #cccccc);
+            }
+            body.dark-mode .doneru-link {
+                color: #38bdf8;
             }
             body.dark-mode .twitch-link:hover {
                 color: #a970ff;
             }
             body.dark-mode .doneru-link:hover {
-                color: #38bdf8;
+                color: #7dd3fc;
+            }
+            @media (max-width: 768px) {
+                #amazon-ad-text {
+                    max-width: 220px;
+                }
+            }
+            @media (max-width: 540px) {
+                .ad-divider {
+                    display: none;
+                }
+                #amazon-ad-text {
+                    max-width: 160px;
+                }
             }
         `;
         document.head.appendChild(style);
@@ -121,11 +151,11 @@
                 <a id="amazon-ad-link" href="#" target="_blank" rel="noopener noreferrer" class="ad-link">
                     <span class="ad-badge">AD</span><span id="amazon-ad-text">読み込み中...</span>
                 </a>
-                <span style="margin: 0 10px; opacity: 0.5; color: var(--text-muted, #888888);">|</span>
+                <span class="ad-divider">|</span>
                 <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" class="twitch-link">
                     Twitchのフォローもお願いします！
                 </a>
-                <span style="margin: 0 10px; opacity: 0.5; color: var(--text-muted, #888888);">|</span>
+                <span class="ad-divider">|</span>
                 <a href="https://doneru.jp/uikouka" target="_blank" rel="noopener noreferrer" class="doneru-link">
                     どねる（Doneruでサポート）
                 </a>
@@ -171,18 +201,14 @@
 
 // === Warning injection based on script attribute ===
 (function() {
-  // currentScript は実行時に即キャプチャ（コールバック内では null になるため）
   var _script = document.currentScript;
 
   function insertWarning() {
-    // フラグ確認
     var showWarning = _script && _script.getAttribute('data-show-warning') === 'true';
     if (!showWarning) return;
 
-    // 重複挿入防止
     if (document.getElementById('tool-warning-banner')) return;
 
-    // --- スタイル注入 ---
     var styleId = 'common-warning-styles';
     if (!document.getElementById(styleId)) {
       var style = document.createElement('style');
@@ -218,14 +244,11 @@
       document.head.appendChild(style);
     }
 
-    // --- バナー要素作成・挿入 ---
     var warningDiv = document.createElement('div');
     warningDiv.id = 'tool-warning-banner';
     warningDiv.textContent = '当サイト上のツールは、データを取得することはありませんが動作確認用にのみ使用し、個人情報は記載しないようにお願いいたします。ツール自体はBoothにて無料配布して居ります';
-    // body の先頭に fixed で追加
     document.body.insertBefore(warningDiv, document.body.firstChild);
 
-    // --- tool-header-bar の top をバナー高さ分ずらす ---
     function adjustHeaderTop() {
       var banner = document.getElementById('tool-warning-banner');
       var header = document.querySelector('.tool-header-bar');
@@ -234,12 +257,10 @@
       header.style.top = bannerH + 'px';
     }
 
-    // 描画確定後に初回調整（offsetHeight がレイアウト後に確定するため rAF 2重がけ）
     requestAnimationFrame(function() {
       requestAnimationFrame(adjustHeaderTop);
     });
 
-    // ウィンドウリサイズ時にも再調整
     window.addEventListener('resize', adjustHeaderTop);
   }
 
