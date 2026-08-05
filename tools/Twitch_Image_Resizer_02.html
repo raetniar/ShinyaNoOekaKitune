@@ -2245,7 +2245,7 @@
                 </div>
                 <div class="queue-actions">
                     <button id="btn-export-all" class="btn btn-primary btn-lg">
-                        <i data-lucide="folder-zip"></i> キュー内の全画像をまとめて一括保存 (.zip)
+                        <i data-lucide="folder-archive"></i> キュー内の全画像をまとめて一括保存 (.zip)
                     </button>
                 </div>
             </div>
@@ -2425,7 +2425,7 @@
                         <i data-lucide="folder-archive"></i> 選択した用途で保存 (.zip)
                     </button>
                     <button id="btn-export-all-presets" class="btn btn-accent btn-lg" title="キュー内の全画像を、チェックしたすべての用途に一括リサイズしてZIP保存します">
-                        <i data-lucide="folder-zip"></i> キュー全画像を複数用途で保存 (.zip)
+                        <i data-lucide="folder-archive"></i> キュー全画像を複数用途で保存 (.zip)
                     </button>
                 </div>
             </div>
@@ -2849,18 +2849,18 @@
 
         // 各種イベントリスナー登録
         function setupEventListeners() {
-            elements.themeToggle.addEventListener('click', toggleTheme);
-            elements.dropZone.addEventListener('click', () => elements.fileInput.click());
-            elements.fileInput.addEventListener('change', handleFileSelect);
+            elements.themeToggle?.addEventListener('click', toggleTheme);
+            elements.dropZone?.addEventListener('click', () => elements.fileInput.click());
+            elements.fileInput?.addEventListener('change', handleFileSelect);
             
-            elements.dropZone.addEventListener('dragover', (e) => {
+            elements.dropZone?.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 elements.dropZone.classList.add('dragover');
             });
-            elements.dropZone.addEventListener('dragleave', () => {
+            elements.dropZone?.addEventListener('dragleave', () => {
                 elements.dropZone.classList.remove('dragover');
             });
-            elements.dropZone.addEventListener('drop', (e) => {
+            elements.dropZone?.addEventListener('drop', (e) => {
                 e.preventDefault();
                 elements.dropZone.classList.remove('dragover');
                 if (e.dataTransfer.files.length > 0) {
@@ -2868,7 +2868,7 @@
                 }
             });
 
-            elements.presetSelect.addEventListener('change', (e) => {
+            elements.presetSelect?.addEventListener('change', (e) => {
                 state.currentPresetKey = e.target.value;
                 const activeImg = getActiveImage();
                 if (activeImg) {
@@ -2881,7 +2881,7 @@
                 }
             });
 
-            elements.exportNameInput.addEventListener('input', (e) => {
+            elements.exportNameInput?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     const sanitized = e.target.value.replace(/[\/\\?%*:|"<>\s]/g, '_');
@@ -2895,7 +2895,7 @@
                 }
             });
 
-            elements.zoomSlider.addEventListener('input', (e) => {
+            elements.zoomSlider?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.imgScale = parseFloat(e.target.value);
@@ -2904,7 +2904,7 @@
                 }
             });
             
-            elements.btnZoomFit.addEventListener('click', () => {
+            elements.btnZoomFit?.addEventListener('click', () => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     zoomToFit(activeImg);
@@ -2912,7 +2912,7 @@
                 }
             });
 
-            elements.btnRotate.addEventListener('click', () => {
+            elements.btnRotate?.addEventListener('click', () => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.imgRotation = (activeImg.imgRotation + 90) % 360;
@@ -2920,7 +2920,7 @@
                 }
             });
 
-            elements.btnReset.addEventListener('click', () => {
+            elements.btnReset?.addEventListener('click', () => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     resetImageTransform(activeImg);
@@ -2928,7 +2928,7 @@
                 }
             });
 
-            elements.textEnabledCheckbox.addEventListener('change', (e) => {
+            elements.textEnabledCheckbox?.addEventListener('change', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.textEnabled = e.target.checked;
@@ -2941,7 +2941,7 @@
                 }
             });
 
-            elements.textInput.addEventListener('input', (e) => {
+            elements.textInput?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.text = e.target.value;
@@ -2949,7 +2949,7 @@
                 }
             });
 
-            elements.fontSelect.addEventListener('change', (e) => {
+            elements.fontSelect?.addEventListener('change', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.fontFamily = e.target.value;
@@ -2957,7 +2957,7 @@
                 }
             });
 
-            elements.fontSizeSlider.addEventListener('input', (e) => {
+            elements.fontSizeSlider?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.fontSize = parseInt(e.target.value);
@@ -2966,7 +2966,7 @@
                 }
             });
 
-            elements.textColorInput.addEventListener('input', (e) => {
+            elements.textColorInput?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.textColor = e.target.value;
@@ -2975,7 +2975,7 @@
                 }
             });
 
-            elements.strokeColorInput.addEventListener('input', (e) => {
+            elements.strokeColorInput?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.strokeColor = e.target.value;
@@ -2984,7 +2984,7 @@
                 }
             });
 
-            elements.strokeWidthSlider.addEventListener('input', (e) => {
+            elements.strokeWidthSlider?.addEventListener('input', (e) => {
                 const activeImg = getActiveImage();
                 if (activeImg) {
                     activeImg.strokeWidth = parseInt(e.target.value);
@@ -2993,20 +2993,20 @@
                 }
             });
 
-            elements.btnExportSingle.addEventListener('click', exportSingleImage);
-            elements.btnExportMultiPreset.addEventListener('click', exportActiveImageMultiPresets);
-            elements.btnExportAllPresets.addEventListener('click', exportAllQueueMultiPresets);
-            elements.btnExportAll.addEventListener('click', exportAllImagesZip);
+            elements.btnExportSingle?.addEventListener('click', exportSingleImage);
+            elements.btnExportMultiPreset?.addEventListener('click', exportActiveImageMultiPresets);
+            elements.btnExportAllPresets?.addEventListener('click', exportAllQueueMultiPresets);
+            elements.btnExportAll?.addEventListener('click', exportAllImagesZip);
 
             document.querySelectorAll('.batch-preset-checkbox').forEach(cb => {
                 cb.addEventListener('change', updateFilenamePreview);
             });
 
-            elements.canvas.addEventListener('mousedown', handleMouseDown);
+            elements.canvas?.addEventListener('mousedown', handleMouseDown);
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
             
-            elements.canvas.addEventListener('wheel', (e) => {
+            elements.canvas?.addEventListener('wheel', (e) => {
                 const activeImg = getActiveImage();
                 if (!activeImg) return;
                 e.preventDefault();
@@ -3083,7 +3083,7 @@
                 }
             }
             
-            elements.currentPresetBadge.textContent = preset.label;
+            if (elements.currentPresetBadge) if (elements.currentPresetBadge) elements.currentPresetBadge.textContent = preset.label;
             if (elements.previewModeName) {
                 elements.previewModeName.textContent = `${preset.name} プレビュー`;
             }
