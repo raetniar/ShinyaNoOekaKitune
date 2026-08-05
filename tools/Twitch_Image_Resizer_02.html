@@ -3113,19 +3113,27 @@
                 }
             });
 
-            const profileView = document.getElementById('mock-profile-view') || elements.mockProfileView;
-            const chatView = document.getElementById('mock-chat-view') || elements.mockChatView;
+            const profileView = document.getElementById('mock-twitch-profile');
+            const chatView = document.getElementById('mock-twitch-chat');
 
             if (tabKey === 'profile') {
-                if (profileView) profileView.style.display = 'flex';
-                if (profileView) profileView.classList.remove('hidden');
-                if (chatView) chatView.style.display = 'none';
-                if (chatView) chatView.classList.add('hidden');
+                if (profileView) {
+                    profileView.style.setProperty('display', 'flex', 'important');
+                    profileView.classList.remove('hidden');
+                }
+                if (chatView) {
+                    chatView.style.setProperty('display', 'none', 'important');
+                    chatView.classList.add('hidden');
+                }
             } else if (tabKey === 'chat') {
-                if (profileView) profileView.style.display = 'none';
-                if (profileView) profileView.classList.add('hidden');
-                if (chatView) chatView.style.display = 'flex';
-                if (chatView) chatView.classList.remove('hidden');
+                if (profileView) {
+                    profileView.style.setProperty('display', 'none', 'important');
+                    profileView.classList.add('hidden');
+                }
+                if (chatView) {
+                    chatView.style.setProperty('display', 'flex', 'important');
+                    chatView.classList.remove('hidden');
+                }
             }
         }
 
