@@ -1027,16 +1027,6 @@ body.dark-mode .header-booth-btn:hover {
             </div>
         </div>
     </div>
-
-    <div class="global-ad-banner">
-        <div id="global-ad-banner-content" style="display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.5s ease-in-out;">
-            <!-- JS injected ads -->
-        </div>
-        <span style="margin: 0 10px; opacity: 0.5;">|</span>
-        <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" style="flex-shrink: 0;">
-            Twitchのフォローもお願いします！
-        </a>
-    </div>
     
     <script>
 // Elements
@@ -1772,46 +1762,7 @@ function importBackup(e) {
     reader.readAsText(file);
 }
 
-// Ad Rotation Logic
-const ads = [
-    { link: "https://www.amazon.co.jp/cer/c/7e4fe727",text: "AmazonプライムとTwitchを連携すると、お好きな配信者に毎月無料でサブスク（支援）ができます！",badge: "AD"},
-    { link: "https://amzn.to/4uuSkYN",text: "お水",badge: "AD"},
-    { link: "https://amzn.to/4foBOVB",text: "いっぱいしゃべって喉が辛いときにおすすめののど飴",badge: "AD"},
-    { link: "https://amzn.to/4x1PegD", text: "『Blender完全入門』形から質感、光、撮影まで全部できる！", badge: "AD" },
-    { link: "https://amzn.to/4tU7upp", text: "『ビデオサロン 2026年3月号』映像制作の最新情報をチェック", badge: "AD" },
-    { link: "https://amzn.to/43sgXsU", text: "『サムネイルデザインのきほん』伝える、目立たせるためのアイデア", badge: "AD" },
-    { link: "https://amzn.to/3RDRIRQ", text: "『「悩まない」配色の基本』好きな色から考えるデザイン", badge: "AD" },
-    { link: "https://amzn.to/4dqcKMs", text: "『はじめての3Dモデリング Blender 4 超入門』", badge: "AD" },
-    { link: "https://amzn.to/4uqBUR5", text: "『10日でBlender 4入門』ミニチュア作りで楽しくはじめる", badge: "AD" },
-    { link: "https://amzn.to/49QcGTR", text: "『ポケモン公式ぜんこく図鑑 1996-2026』", badge: "AD" }
-];
 
-let currentAdIndex = 0;
-const adBannerContainer = document.getElementById('global-ad-banner-content');
-
-function rotateAd() {
-    if (!adBannerContainer) return;
-    
-    // Fade out
-    adBannerContainer.style.opacity = 0;
-    
-    setTimeout(() => {
-        const ad = ads[currentAdIndex];
-        adBannerContainer.innerHTML = `
-            <a href="${ad.link}" target="_blank" rel="noopener noreferrer">
-                <span class="ad-badge">${ad.badge}</span>${ad.text}
-            </a>
-        `;
-        // Fade in
-        adBannerContainer.style.opacity = 1;
-        
-        currentAdIndex = (currentAdIndex + 1) % ads.length;
-    }, 500);
-}
-
-// Initial run and interval
-rotateAd();
-setInterval(rotateAd, 30000);
 
 // Start
 init();
