@@ -2274,6 +2274,7 @@
                         <button id="btn-zoom-fit" class="btn btn-secondary btn-sm"><i data-lucide="maximize"></i> 枠に合わせる</button>
                         <button id="btn-rotate" class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw"></i> 90°回転</button>
                         <button id="btn-reset" class="btn btn-secondary btn-sm"><i data-lucide="refresh-cw"></i> 位置リセット</button>
+                        <button id="btn-toggle-anim" class="btn btn-secondary btn-sm" title="アニメーションの再生/一時停止"><i data-lucide="play" id="anim-btn-icon"></i> <span id="anim-btn-text">再生/停止</span></button>
                     </div>
                 </div>
             </div>
@@ -2284,12 +2285,7 @@
                     <h2><i data-lucide="sliders"></i> 出力・文字入れ設定</h2>
                 </div>
 
-                <div style="padding: 10px 14px 0 14px; font-size:11px; color:var(--text-secondary);">
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                        <input type="checkbox" id="gif-animated-export-toggle" checked style="accent-color:var(--accent-purple);">
-                        <span>動くGIF画像の場合、アニメーションを維持して文字を合成出力する</span>
-                    </label>
-                </div>
+                
 
                 <!-- 簡易文字入れトグル -->
                 <div class="text-layer-toggle">
@@ -3316,7 +3312,12 @@
             elements.zoomSlider.value = activeImg.imgScale;
             elements.zoomVal.textContent = `${Math.round(activeImg.imgScale * 100)}%`;
             
-            elements.textEnabledCheckbox.checked = activeImg.textEnabled;
+            elements.textEnabledCheckbox.checked = activeImg.textEnabled || false;
+            if (activeImg.textEnabled) {
+                if (elements.textControlsPanel) elements.textControlsPanel.classList.remove('hidden');
+            } else {
+                if (elements.textControlsPanel) elements.textControlsPanel.classList.add('hidden');
+            }
             if (activeImg.textEnabled) {
                 elements.textControlsPanel.classList.remove('hidden');
             } else {
@@ -3447,6 +3448,46 @@
                 else if (pos === 'top-left') { activeImg.textX = -w * 0.3; activeImg.textY = -h * 0.3; }
                 else if (pos === 'bottom-right') { activeImg.textX = w * 0.3; activeImg.textY = h * 0.3; }
                 
+                if (typeof draw === 'function') draw();
+            });
+        }
+
+        
+        // テキスト(文字入れ)有効トグルの完全連動ハンドラー
+        const textEnabledToggle = document.getElementById('text-enabled');
+        const textControlsPanel = document.getElementById('text-controls-panel');
+        if (textEnabledToggle && textControlsPanel) {
+            textEnabledToggle.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                const activeImg = getActiveImage();
+                if (activeImg) {
+                    activeImg.textEnabled = isChecked;
+                }
+                if (isChecked) {
+                    textControlsPanel.classList.remove('hidden');
+                } else {
+                    textControlsPanel.classList.add('hidden');
+                }
+                if (typeof draw === 'function') draw();
+            });
+        }
+
+        // アニメーション再生/停止ボタンの連動
+        let isAnimationPlaying = true;
+        const btnToggleAnim = document.getElementById('btn-toggle-anim');
+        if (btnToggleAnim) {
+            btnToggleAnim.addEventListener('click', () => {
+                isAnimationPlaying = !isAnimationPlaying;
+                const icon = document.getElementById('anim-btn-icon');
+                const textSpan = document.getElementById('anim-btn-text');
+                if (isAnimationPlaying) {
+                    if (icon) icon.setAttribute('data-lucide', 'pause');
+                    if (textSpan) textSpan.textContent = '停止';
+                } else {
+                    if (icon) icon.setAttribute('data-lucide', 'play');
+                    if (textSpan) textSpan.textContent = '再生';
+                }
+                if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
                 if (typeof draw === 'function') draw();
             });
         }
