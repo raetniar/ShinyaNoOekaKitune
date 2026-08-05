@@ -144,6 +144,7 @@
 
     // 広告データ
     const amazonAds = [
+        { url: 'https://amzn.to/4fF77Lx', text: '『伝わる!動画テロップのつくり方』動画テロップの配色やデザイン・演出に悩んだらコレ！' },
         { url: 'https://www.amazon.co.jp/cer/c/7e4fe727', text: 'AmazonプライムとTwitchを連携すると、お好きな配信者に毎月無料でサブスク（支援）ができます！' },
         { url: 'https://amzn.to/4x1PegD', text: '『Blender完全入門』形から質感、光、撮影まで全部できる！' },
         { url: 'https://amzn.to/4tU7upp', text: '『ビデオサロン 2026年3月号』映像制作の最新情報をチェック' },
