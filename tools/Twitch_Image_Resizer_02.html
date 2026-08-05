@@ -2246,7 +2246,18 @@
                     </select>
                 </div>
                 
-                <div class="canvas-container">
+                                <!-- スタンプ名 / ファイル名設定（上部へ配置） -->
+                <div class="file-name-setting-row" style="padding: 10px 14px 0 14px;">
+                    <label for="export-name-input" class="field-label" style="font-size: 11px; font-weight: 700; color: var(--accent-purple); display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                        <i data-lucide="file-text" style="width:14px; height:14px;"></i> スタンプ名 / 出力ファイル名
+                    </label>
+                    <div class="prefix-input-group">
+                        <span class="name-prefix-label" id="name-prefix-display">ICON_</span>
+                        <input type="text" id="export-name-input" placeholder="例: happy_smile">
+                    </div>
+                </div>
+
+                <div class="canvas-container" style="margin-top:8px;">
                     <canvas id="editor-canvas"></canvas>
                     <div class="canvas-overlay-tip">
                         <span><i data-lucide="move"></i> ドラッグ：画像移動 / 文字移動 | ホイール：ズーム</span>
@@ -2273,42 +2284,11 @@
                     <h2><i data-lucide="sliders"></i> 出力・文字入れ設定</h2>
                 </div>
 
-                
-                
-                    <div style="margin-top:8px; font-size:10px; color:var(--text-secondary);">
-                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                            <input type="checkbox" id="gif-animated-export-toggle" checked style="accent-color:var(--accent-purple);">
-                            <span>動くGIF画像の場合、アニメーションを維持して文字を合成出力する</span>
-                        </label>
-                    </div>
-                </div>
-
-<div class="setting-grid-2">
-                    <!-- 出力ファイル名設定 -->
-                    <div class="setting-item">
-                        <label for="export-name-input" class="field-label">スタンプ名 / ファイル名</label>
-                        <div class="prefix-input-group">
-                            <span class="name-prefix-label" id="name-prefix-display">ICON_</span>
-                            <input type="text" id="export-name-input" placeholder="例: happy_smile">
-                        </div>
-                    </div>
-
-                    <!-- プリセット選択 -->
-                    <div class="setting-item">
-                        <label for="preset-select" class="field-label">キャンバス表示用途・サイズ</label>
-                        <div class="select-wrapper">
-                            <select id="preset-select">
-                                <option value="avatar" selected>プロフィールアイコン (256x256 px - ICON_)</option>
-                                <option value="banner">プロフィールバナー (1200x480 px - BANNER_)</option>
-                                <option value="offline">ビデオプレーヤーバナー (1920x1080 px - OFFLINE_)</option>
-                                <option value="panel">情報パネル (320x200 px - PANEL_)</option>
-                                <option value="emote">スタンプ (112 / 56 / 28px - EMOTE_)</option>
-                                <option value="badge">サブスクバッジ (72 / 36 / 18px - BADGE_)</option>
-                                <option value="points">チャンネルポイント (112 / 56 / 28px - CP_)</option>
-                            </select>
-                            <i data-lucide="chevron-down" class="select-arrow"></i>
-                        </div>
-                    </div>
+                <div style="padding: 10px 14px 0 14px; font-size:11px; color:var(--text-secondary);">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="checkbox" id="gif-animated-export-toggle" checked style="accent-color:var(--accent-purple);">
+                        <span>動くGIF画像の場合、アニメーションを維持して文字を合成出力する</span>
+                    </label>
                 </div>
 
                 <!-- 簡易文字入れトグル -->
