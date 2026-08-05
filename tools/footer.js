@@ -5,14 +5,17 @@
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
+            :root {
+                --common-footer-height: 38px;
+            }
             .app-footer {
-                padding: 8px 12px;
+                padding: 6px 12px;
                 border-top: 1px solid var(--border-color, #e5e7eb);
                 background-color: var(--bg-panel, #ffffff);
                 text-align: center;
                 width: 100%;
                 box-sizing: border-box;
-                z-index: 1000;
+                z-index: 10000;
                 position: fixed;
                 bottom: 0;
                 left: 0;
@@ -23,14 +26,14 @@
                 border-top-color: var(--border-color, #e5e7eb);
             }
             body.dark-mode .app-footer {
-                background-color: var(--bg-panel, #222222);
-                border-top-color: var(--border-color, #333333);
+                background-color: var(--bg-panel, #1e1e24);
+                border-top-color: var(--border-color, #333338);
             }
             .global-ad-banner {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 6px 12px;
+                gap: 8px 14px;
                 flex-wrap: wrap;
                 padding: 0 8px;
             }
@@ -67,7 +70,7 @@
                 color: #9146ff;
                 text-decoration: underline;
             }
-            .twitch-link, .doneru-link {
+            .twitch-link {
                 color: var(--text-secondary, #555555);
                 text-decoration: none;
                 font-size: 12px;
@@ -80,11 +83,25 @@
                 text-decoration: underline;
             }
             .doneru-link {
-                color: #0284c7;
+                background-color: #0284c7 !important;
+                color: #ffffff !important;
+                text-decoration: none !important;
+                font-size: 11px !important;
+                font-weight: 700 !important;
+                padding: 3px 10px !important;
+                border-radius: 12px !important;
+                transition: background-color 0.2s, transform 0.1s !important;
+                white-space: nowrap !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 4px !important;
+                box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
             }
             .doneru-link:hover {
-                color: #0369a1;
-                text-decoration: underline;
+                background-color: #0369a1 !important;
+                color: #ffffff !important;
+                text-decoration: none !important;
+                transform: translateY(-1px);
             }
             .ad-divider {
                 margin: 0 2px;
@@ -97,15 +114,15 @@
             body.dark-mode .twitch-link {
                 color: var(--text-secondary, #cccccc);
             }
-            body.dark-mode .doneru-link {
-                color: #38bdf8;
-            }
             body.dark-mode .twitch-link:hover {
                 color: #a970ff;
             }
-            body.dark-mode .doneru-link:hover {
-                color: #7dd3fc;
+            
+            /* 重なり防止：ツール固有の固定フッターの底上げ */
+            .sticky-footer-wrapper, .sticky-bottom-bar {
+                bottom: var(--common-footer-height, 38px) !important;
             }
+
             @media (max-width: 768px) {
                 #amazon-ad-text {
                     max-width: 220px;
@@ -138,6 +155,21 @@
         { url: 'https://amzn.to/49QcGTR', text: '『背景の描き方 決定版』魅力的な背景を描くためのコツ' }
     ];
 
+    function adjustFooterLayout() {
+        const footerEl = document.getElementById('common-app-footer');
+        if (!footerEl) return;
+        const footerHeight = footerEl.offsetHeight || 38;
+        document.documentElement.style.setProperty('--common-footer-height', footerHeight + 'px');
+        
+        // 独自固定操作バーのレイアウト調整
+        document.querySelectorAll('.sticky-footer-wrapper, .sticky-bottom-bar').forEach(el => {
+            el.style.bottom = footerHeight + 'px';
+        });
+
+        // bodyのpaddingBottomを設定
+        document.body.style.paddingBottom = (footerHeight + 80) + 'px';
+    }
+
     // 2. フッターの生成と挿入
     function injectFooter() {
         if (document.getElementById('common-app-footer')) return;
@@ -162,12 +194,14 @@
             </div>
         `;
         
-        // bodyのpaddingBottomを設定して、フッターがコンテンツに重ならないようにする
-        document.body.style.paddingBottom = '60px';
         document.body.appendChild(footer);
+        adjustFooterLayout();
 
         // 広告ローテーション開始
         initAdRotation();
+
+        window.addEventListener('resize', adjustFooterLayout);
+        requestAnimationFrame(() => requestAnimationFrame(adjustFooterLayout));
     }
 
     function initAdRotation() {
@@ -187,6 +221,7 @@
                 adAnchor.href = amazonAds[currentIndex].url;
                 adText.textContent = amazonAds[currentIndex].text;
                 adContainer.style.opacity = '1';
+                adjustFooterLayout();
             }, 500);
         }, 8000);
     }

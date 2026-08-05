@@ -177,6 +177,11 @@
             margin-top: 0 !important;
         }
 
+        /* Offset sticky-footer-wrapper so it stays above common-app-footer */
+        .sticky-footer-wrapper {
+            bottom: var(--common-footer-height, 38px) !important;
+        }
+
         @media (max-width: 600px) {
             .tool-header-bar .btn-text {
                 display: none;
