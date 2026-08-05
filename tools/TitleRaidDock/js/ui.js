@@ -135,11 +135,14 @@
                 const el = document.getElementById(id);
                 if (el && text) el.innerText = text;
             });
-            document.getElementById('ui-backup-title').innerText = L.backupTitle;
-            document.getElementById('ui-backup-copy').innerText = L.backupCopy;
+            const elBackupTitle = document.getElementById('ui-backup-title');
+            if (elBackupTitle) elBackupTitle.innerText = L.backupTitle;
+            const elBackupCopy = document.getElementById('ui-backup-copy');
+            if (elBackupCopy) elBackupCopy.innerText = L.backupCopy;
             const restoreTitleText = document.querySelector('#ui-restore-title [data-i18n="restoreTitle"]');
             if (restoreTitleText) restoreTitleText.innerText = L.restoreTitle;
-            document.getElementById('ui-restore-btn').innerText = L.restoreBtn;
+            const elRestoreBtn = document.getElementById('ui-restore-btn');
+            if (elRestoreBtn) elRestoreBtn.innerText = L.restoreBtn;
             const backupLogTitle = document.getElementById('ui-backup-log-title');
             const cmdText = commandText();
             const raidText = L.raidSo || langMap.ja.raidSo;
@@ -147,8 +150,10 @@
             document.querySelectorAll('[data-raidso-log]').forEach(el => {
                 el.dataset.empty = raidText.noLogs || cmdText.noLogs || '';
             });
-            document.getElementById('ui-btn-guide').setAttribute('data-tooltip', L.tips.guide);
-            document.getElementById('ui-btn-settings').setAttribute('data-tooltip', L.tips.settings);
+            const elBtnGuide = document.getElementById('ui-btn-guide');
+            if (elBtnGuide && L.tips?.guide) elBtnGuide.setAttribute('data-tooltip', L.tips.guide);
+            const elBtnSettings = document.getElementById('ui-btn-settings');
+            if (elBtnSettings && L.tips?.settings) elBtnSettings.setAttribute('data-tooltip', L.tips.settings);
             const dateBtn = document.getElementById('ui-btn-copy-date');
             if (dateBtn) dateBtn.setAttribute("data-tooltip", L.copyDateTip || langMap.ja.copyDateTip);
             
