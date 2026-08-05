@@ -2327,7 +2327,7 @@
                 <div id="text-controls-panel" class="text-controls-panel hidden">
                     <div class="setting-item">
                         <label for="text-input" class="field-label">表示文字</label>
-                        <input type="text" id="text-input" value="TWITCH" placeholder="文字を入力してください">
+                        <input type="text" id="text-input" value="" placeholder="文字を入力してください">
                     </div>
 
                     <div class="setting-grid-2">
@@ -3146,7 +3146,7 @@
                             
                             // テキストレイヤー
                             textEnabled: false,
-                            text: 'TWITCH',
+                            text: '',
                             textX: 0,
                             textY: 0,
                             fontSize: 48,
@@ -3360,7 +3360,8 @@
 
         function drawOverlayTextToCtx(targetCtx, w, h) {
             const activeImg = getActiveImage();
-            const text = overlayInput ? overlayInput.value.trim() : (activeImg ? activeImg.text : '');
+            if (!activeImg || !activeImg.textEnabled) return;
+            const text = (activeImg.text || '').trim();
             if (!text) return;
 
             const pos = posSelect ? posSelect.value : 'bottom';
@@ -3399,9 +3400,8 @@
         function updateOverlayTextState() {
             const activeImg = getActiveImage();
             if (activeImg) {
-                if (overlayInput) {
-                    activeImg.text = overlayInput.value;
-                    activeImg.textEnabled = overlayInput.value.trim() !== '';
+                if (elements.textInput) {
+                    activeImg.text = elements.textInput.value;
                 }
                 if (fontSelect) activeImg.fontFamily = fontSelect.value;
                 if (colorPicker) activeImg.textColor = colorPicker.value;
