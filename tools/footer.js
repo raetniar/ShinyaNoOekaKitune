@@ -10,8 +10,8 @@
             }
             .app-footer {
                 padding: 6px 12px;
-                border-top: 1px solid var(--border-color, #e5e7eb);
-                background-color: var(--bg-panel, #ffffff);
+                border-top: 1px solid #333338;
+                background-color: #18181c;
                 text-align: center;
                 width: 100%;
                 box-sizing: border-box;
@@ -20,19 +20,6 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-            }
-            body.light-mode .app-footer {
-                background-color: var(--bg-panel, #ffffff);
-                border-top-color: var(--border-color, #e5e7eb);
-            }
-            body.dark-mode .app-footer,
-            body.theme-dark .app-footer,
-            body[data-theme="dark"] .app-footer,
-            body.dark .app-footer,
-            .dark-mode .app-footer,
-            .theme-dark .app-footer {
-                background-color: #18181c !important;
-                border-top-color: #333338 !important;
             }
             .global-ad-banner {
                 display: flex;
@@ -53,7 +40,7 @@
                 flex-shrink: 0;
             }
             .ad-link {
-                color: var(--text-primary, #111111);
+                color: #e0e0e0 !important;
                 text-decoration: none;
                 font-size: 12px;
                 font-weight: 500;
@@ -72,11 +59,11 @@
                 vertical-align: middle;
             }
             .ad-link:hover {
-                color: #9146ff;
+                color: #a970ff !important;
                 text-decoration: underline;
             }
             .twitch-link {
-                color: var(--text-secondary, #555555);
+                color: #bbbbbb !important;
                 text-decoration: none;
                 font-size: 12px;
                 font-weight: 600;
@@ -84,11 +71,11 @@
                 white-space: nowrap;
             }
             .twitch-link:hover {
-                color: #9146ff;
+                color: #a970ff !important;
                 text-decoration: underline;
             }
             .doneru-link {
-                color: var(--text-primary, #111111) !important;
+                color: #ffffff !important;
                 text-decoration: none !important;
                 font-size: 12px !important;
                 font-weight: 600 !important;
@@ -101,57 +88,37 @@
                 padding: 0 !important;
             }
             .doneru-link:hover {
-                color: #9146ff !important;
+                color: #a970ff !important;
                 text-decoration: underline !important;
             }
             .ad-divider {
                 margin: 0 2px;
                 opacity: 0.4;
-                color: var(--text-muted, #888888);
-            }
-            body.dark-mode .ad-link,
-            body.theme-dark .ad-link,
-            body[data-theme="dark"] .ad-link,
-            body.dark .ad-link,
-            .dark-mode .ad-link,
-            .theme-dark .ad-link {
-                color: #e0e0e0 !important;
-            }
-            body.dark-mode .twitch-link,
-            body.theme-dark .twitch-link,
-            body[data-theme="dark"] .twitch-link,
-            body.dark .twitch-link,
-            .dark-mode .twitch-link,
-            .theme-dark .twitch-link {
-                color: #bbbbbb !important;
-            }
-            body.dark-mode .doneru-link,
-            body.theme-dark .doneru-link,
-            body[data-theme="dark"] .doneru-link,
-            body.dark .doneru-link,
-            .dark-mode .doneru-link,
-            .theme-dark .doneru-link {
-                color: #ffffff !important;
-            }
-            body.dark-mode .ad-divider,
-            body.theme-dark .ad-divider,
-            body[data-theme="dark"] .ad-divider,
-            body.dark .ad-divider,
-            .dark-mode .ad-divider,
-            .theme-dark .ad-divider {
                 color: #888888 !important;
             }
-            body.dark-mode .twitch-link:hover,
-            body.theme-dark .twitch-link:hover,
-            body[data-theme="dark"] .twitch-link:hover,
-            body.dark .twitch-link:hover {
-                color: #a970ff !important;
+
+            /* ライトモード時の明示的上書き */
+            body.light-mode .app-footer {
+                background-color: #ffffff !important;
+                border-top-color: #e5e7eb !important;
             }
-            body.dark-mode .doneru-link:hover,
-            body.theme-dark .doneru-link:hover,
-            body[data-theme="dark"] .doneru-link:hover,
-            body.dark .doneru-link:hover {
-                color: #a970ff !important;
+            body.light-mode .ad-link {
+                color: #111111 !important;
+            }
+            body.light-mode .ad-link:hover {
+                color: #9146ff !important;
+            }
+            body.light-mode .twitch-link {
+                color: #555555 !important;
+            }
+            body.light-mode .twitch-link:hover {
+                color: #9146ff !important;
+            }
+            body.light-mode .doneru-link {
+                color: #111111 !important;
+            }
+            body.light-mode .doneru-link:hover {
+                color: #9146ff !important;
             }
             
             /* 重なり防止：ツール固有の固定フッターの底上げ */
