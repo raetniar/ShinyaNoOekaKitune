@@ -2242,50 +2242,7 @@
                 </div>
 
                 
-                <!-- 文字入れ・テロップ重ね合わせ設定 -->
-                <div class="text-overlay-section">
-                    <div class="text-overlay-title">
-                        <i data-lucide="type"></i>
-                        <span>文字入れ・テロップ重ね合わせ (動くGIF対応)</span>
-                    </div>
-                    <div class="text-input-row">
-                        <input type="text" id="text-overlay-input" placeholder="例: LOVE, 感謝, 配信中 (空欄で文字なし)" style="flex:1;">
-                    </div>
-                    <div class="text-style-grid">
-                        <div>
-                            <label class="field-label" style="font-size:10px;">文字位置</label>
-                            <select id="text-position-select" style="width:100%; padding:4px; font-size:11px;">
-                                <option value="bottom" selected>下部 (ボトム)</option>
-                                <option value="center">中央 (センター)</option>
-                                <option value="top">上部 (トップ)</option>
-                                <option value="top-left">左上</option>
-                                <option value="bottom-right">右下</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="field-label" style="font-size:10px;">フォント</label>
-                            <select id="text-font-select" style="width:100%; padding:4px; font-size:11px;">
-                                <option value="'Noto Sans JP', sans-serif" selected>ゴシック体 (Noto Sans)</option>
-                                <option value="'M PLUS Rounded 1c', sans-serif">丸ゴシック (M PLUS)</option>
-                                <option value="'Dela Gothic One', cursive">インパクトポップ (Dela Gothic)</option>
-                                <option value="'Shippori Mincho', serif">明朝体 (しっぽり明朝)</option>
-                                <option value="'Outfit', sans-serif">英語アルファベット (Outfit)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="field-label" style="font-size:10px;">文字色 / 縁取り</label>
-                            <div style="display:flex; gap:4px; align-items:center;">
-                                <input type="color" id="text-color-picker" value="#ffffff" title="文字色" style="width:28px; height:24px; padding:0; border:none; cursor:pointer;">
-                                <input type="color" id="text-stroke-picker" value="#9146ff" title="縁取り色" style="width:28px; height:24px; padding:0; border:none; cursor:pointer;">
-                                <select id="text-stroke-width" style="padding:2px; font-size:10px;">
-                                    <option value="0">縁なし</option>
-                                    <option value="2">縁細め</option>
-                                    <option value="4" selected>縁標準</option>
-                                    <option value="7">縁太め</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                
                     <div style="margin-top:8px; font-size:10px; color:var(--text-secondary);">
                         <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
                             <input type="checkbox" id="gif-animated-export-toggle" checked style="accent-color:var(--accent-purple);">
@@ -3455,6 +3412,28 @@
                     if (typeof draw === 'function') draw();
                     if (typeof renderQueue === 'function') renderQueue();
                 }
+            });
+        }
+
+        
+        // 文字位置プリセット切り替え処理
+        const textPosPreset = document.getElementById('text-pos-preset');
+        if (textPosPreset) {
+            textPosPreset.addEventListener('change', (e) => {
+                const activeImg = getActiveImage();
+                if (!activeImg) return;
+                const pos = e.target.value;
+                const h = elements.canvas.height || 400;
+                const w = elements.canvas.width || 400;
+                
+                activeImg.textX = 0;
+                if (pos === 'bottom') activeImg.textY = h * 0.35;
+                else if (pos === 'center') activeImg.textY = 0;
+                else if (pos === 'top') activeImg.textY = -h * 0.35;
+                else if (pos === 'top-left') { activeImg.textX = -w * 0.3; activeImg.textY = -h * 0.3; }
+                else if (pos === 'bottom-right') { activeImg.textX = w * 0.3; activeImg.textY = h * 0.3; }
+                
+                if (typeof draw === 'function') draw();
             });
         }
 
