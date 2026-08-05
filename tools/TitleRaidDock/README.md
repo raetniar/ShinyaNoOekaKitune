@@ -4,7 +4,7 @@ Twitch 配信用の OBS カスタムブラウザドックです。
 
 ## 配布内容
 
-- `TitleRaidDock.html`
+- `TwitchManager.html`
 - `sounds/`
 - `README.md`
 
@@ -13,12 +13,12 @@ Twitch 配信用の OBS カスタムブラウザドックです。
 1. 配布フォルダを任意の場所に置きます。
 2. OBS で `ドック` > `カスタムブラウザドック` を開きます。
 3. 名前に `TitleRaidDock` などを入力します。
-4. URL に `TitleRaidDock.html` の `file:///` 形式の URL を貼り付けます。
+4. URL に `TwitchManager.html` の `file:///` 形式の URL を貼り付けます。
 
 例:
 
 ```text
-file:///C:/Users/ユーザー名/Documents/TitleRaidDock/TitleRaidDock.html
+file:///C:/Users/ユーザー名/Documents/TitleRaidDock/TwitchManager.html
 ```
 
 `C:\Users\...` のような Windows パスをそのまま貼ると、フォルダ一覧が表示されることがあります。OBS には必ず `file:///` で始まる URL を登録してください。

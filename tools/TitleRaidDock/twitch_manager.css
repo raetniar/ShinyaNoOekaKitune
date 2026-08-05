@@ -3567,7 +3567,7 @@ body {
     flex: 0 0 auto !important;
     position: relative !important;
     top: auto !important;
-    margin: -15px -15px 12px -15px !important;
+    margin: 10px 0 12px 0 !important;
     padding: 15px 15px 0 15px !important;
 }
 .tab-content {
@@ -3584,7 +3584,7 @@ body {
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
     padding-right: 4px;
-    padding-bottom: calc(var(--dock-footer-height, 0px) + 14px) !important;
+    padding-bottom: calc(var(--common-footer-height, 45px) + 80px) !important;
 }
 .tab-content.active .sticky-footer-wrapper {
     position: fixed !important;

@@ -4793,14 +4793,7 @@
                 const elToken = document.getElementById('token');
                 const elDateFormat = document.getElementById('date_format');
 
-// ★機能確認用：APIや個人情報の入力欄にダミー値をセットし上書き防止
-            const elUserId = document.getElementById('user_id');
-            const elUserLogin = document.getElementById('user_login');
-            const elClientId = document.getElementById('client_id');
-            const elRedirectUri = document.getElementById('oauth_redirect_uri');
-            const elToken = document.getElementById('token');
 
-            if (elUserId) { elUserId.value = "機能確認用ダミー (ID)"; elUserId.readOnly = true; elUserId.disabled = true; }
             if (elUserLogin) { elUserLogin.value = "機能確認用ダミー (Login)"; elUserLogin.readOnly = true; elUserLogin.disabled = true; }
             if (elClientId) { elClientId.value = "機能確認用ダミー (Client_ID)"; elClientId.readOnly = true; elClientId.disabled = true; }
             if (elRedirectUri) { elRedirectUri.value = "http://localhost (機能確認用)"; elRedirectUri.readOnly = true; elRedirectUri.disabled = true; }
@@ -4830,6 +4823,25 @@
 
             initLanguage();
             initTabNavDrag();
+
+            // ★安全なWeb機能確認用ダミー値の設定（画面表示を絶対に壊さない）
+            setTimeout(() => {
+                const dummyFields = {
+                    'user_id': '機能確認用ダミー (ID)',
+                    'user_login': '機能確認用ダミー (Login)',
+                    'client_id': '機能確認用ダミー (Client_ID)',
+                    'token': 'oauth:dummy_preview_token_for_demo_only',
+                    'oauth_redirect_uri': 'http://localhost (機能確認用)'
+                };
+                Object.entries(dummyFields).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = val;
+                        el.readOnly = true;
+                    }
+                });
+            }, 300);
+
             cleanupTitleTestData();
             cleanupIdListTestData();
             ensureAuthenticatedUserIdList();
