@@ -1862,7 +1862,20 @@
 }
 </style>
 
-</head>
+<script>
+        window.addEventListener('DOMContentLoaded', () => {
+            ['token', 'client_id', 'user_id', 'user_login'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.disabled = true;
+                    el.readOnly = true;
+                    el.style.cursor = 'not-allowed';
+                    el.style.opacity = '0.6';
+                    el.placeholder = 'Web公開デモ版のため入力不可';
+                }
+            });
+        });
+</script></head>
 
 
 

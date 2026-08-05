@@ -1201,16 +1201,17 @@
                     <option value="en">English</option>
                 </select>
             </div>
-            <input type="text" id="obs-host" placeholder="localhost:4455"
-                style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:12px; border-radius:8px; outline:none;">
-            <input type="password" id="obs-pw" placeholder="Password"
-                style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:12px; border-radius:8px; outline:none;">
-            <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px; cursor:pointer; color:#888; font-size:11px;">
-                <input type="checkbox" id="save-pw-toggle" checked style="width:auto; margin:0;">
+            <div style="font-size: 11px; color: #ef4444; margin-bottom: 10px; font-weight: bold;">※Web公開版デモのため、API・パスワード等の入力設定は保護・無効化されています。</div>
+            <input type="text" id="obs-host" placeholder="localhost:4455" disabled readonly
+                style="width:100%; background:#222; border:1px solid #444; color:#888; padding:10px; margin-bottom:12px; border-radius:8px; outline:none; cursor:not-allowed;">
+            <input type="password" id="obs-pw" placeholder="Password (無効化済み)" disabled readonly
+                style="width:100%; background:#222; border:1px solid #444; color:#888; padding:10px; margin-bottom:12px; border-radius:8px; outline:none; cursor:not-allowed;">
+            <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px; cursor:not-allowed; color:#666; font-size:11px;">
+                <input type="checkbox" id="save-pw-toggle" disabled checked style="width:auto; margin:0; cursor:not-allowed;">
                 <span data-i18n="savePwLabel">パスワードをブラウザに保存する</span>
             </label>
-            <button onclick="saveSettings()"
-                style="width:100%; padding:12px; background:var(--ac); border:0; color:#fff; border-radius:8px; font-weight:bold; cursor:pointer;" data-i18n="saveConnectBtn">保存して接続</button>
+            <button onclick="saveSettings()" disabled
+                style="width:100%; padding:12px; background:#444; border:0; color:#888; border-radius:8px; font-weight:bold; cursor:not-allowed;" data-i18n="saveConnectBtn">保存して接続 (入力無効)</button>
             
             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
                 <div style="display: flex; gap: 6px; margin-bottom: 6px;">
