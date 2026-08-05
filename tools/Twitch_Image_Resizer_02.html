@@ -1601,26 +1601,37 @@
         }
 
         .follow-btn {
-            background-color: var(--accent-purple);
-            color: #fff;
-            border: none;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: var(--border-radius-sm);
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            background-color: #9146ff !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 5px 10px !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            border-radius: 4px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
             cursor: pointer;
             transition: background-color 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         .follow-btn:hover {
-            background-color: var(--accent-purple-hover);
+            background-color: #772ce8 !important;
+            color: #ffffff !important;
         }
-        .follow-btn i {
-            width: 10px;
-            height: 10px;
+        .follow-btn i, .follow-btn svg {
+            width: 12px !important;
+            height: 12px !important;
+            stroke: #ffffff !important;
+            color: #ffffff !important;
             fill: currentColor;
+            display: inline-block !important;
+        }
+        body.light-mode .follow-btn, body.dark-mode .follow-btn {
+            background-color: #9146ff !important;
+            color: #ffffff !important;
         }
 
         .profile-panels-section {
@@ -1856,17 +1867,31 @@
             padding-right: 4px;
         }
 
+        .preview-names-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
         .preview-filename-item {
-            font-family: 'Outfit', monospace;
-            font-size: 10px;
-            color: var(--text-secondary);
+            font-family: 'Outfit', monospace, 'Noto Sans JP', sans-serif;
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--text-primary);
             background-color: var(--bg-tertiary);
-            padding: 3px 6px;
+            padding: 5px 8px;
             border-radius: var(--border-radius-sm);
-            border-left: 2px solid var(--accent-purple);
+            border-left: 3px solid var(--accent-purple);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            min-height: 26px;
+            box-sizing: border-box;
         }
 
         /* Button Variants and Layout Adjustments */
