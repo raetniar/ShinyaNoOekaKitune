@@ -170,8 +170,13 @@
             el.style.setProperty('bottom', footerHeight + 'px', 'important');
         });
 
-        // bodyのpaddingBottomを設定
-        document.body.style.paddingBottom = (footerHeight + 80) + 'px';
+        // bodyが100vh固定レイアウト（TitleRaidDock等）でない場合のみbody.paddingBottomを設定
+        const isFullHeightApp = document.querySelector('.tab-content.active') || document.querySelector('.app-header');
+        if (!isFullHeightApp) {
+            document.body.style.paddingBottom = (footerHeight + 80) + 'px';
+        } else {
+            document.body.style.paddingBottom = footerHeight + 'px';
+        }
     }
 
     // 2. フッターの生成と挿入
