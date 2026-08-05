@@ -39,12 +39,21 @@
                 display: inline-block;
                 flex-shrink: 0;
             }
-            .ad-link {
-                color: #e0e0e0 !important;
+            .app-footer a,
+            .app-footer a:link,
+            .app-footer a:visited,
+            .ad-link,
+            .ad-link:link,
+            .ad-link:visited,
+            #amazon-ad-link,
+            #amazon-ad-text {
+                color: #f0f0f5 !important;
                 text-decoration: none;
                 font-size: 12px;
                 font-weight: 500;
                 transition: color 0.2s;
+            }
+            .ad-link {
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
@@ -57,13 +66,17 @@
                 white-space: nowrap;
                 display: inline-block;
                 vertical-align: middle;
+                color: #f0f0f5 !important;
             }
-            .ad-link:hover {
-                color: #a970ff !important;
+            .ad-link:hover,
+            .ad-link:hover #amazon-ad-text {
+                color: #c084fc !important;
                 text-decoration: underline;
             }
-            .twitch-link {
-                color: #bbbbbb !important;
+            .twitch-link,
+            .twitch-link:link,
+            .twitch-link:visited {
+                color: #cccccc !important;
                 text-decoration: none;
                 font-size: 12px;
                 font-weight: 600;
@@ -71,10 +84,12 @@
                 white-space: nowrap;
             }
             .twitch-link:hover {
-                color: #a970ff !important;
+                color: #c084fc !important;
                 text-decoration: underline;
             }
-            .doneru-link {
+            .doneru-link,
+            .doneru-link:link,
+            .doneru-link:visited {
                 color: #ffffff !important;
                 text-decoration: none !important;
                 font-size: 12px !important;
@@ -88,7 +103,7 @@
                 padding: 0 !important;
             }
             .doneru-link:hover {
-                color: #a970ff !important;
+                color: #c084fc !important;
                 text-decoration: underline !important;
             }
             .ad-divider {
@@ -102,19 +117,31 @@
                 background-color: #ffffff !important;
                 border-top-color: #e5e7eb !important;
             }
-            body.light-mode .ad-link {
+            body.light-mode .app-footer a,
+            body.light-mode .app-footer a:link,
+            body.light-mode .app-footer a:visited,
+            body.light-mode .ad-link,
+            body.light-mode .ad-link:link,
+            body.light-mode .ad-link:visited,
+            body.light-mode #amazon-ad-link,
+            body.light-mode #amazon-ad-text {
                 color: #111111 !important;
             }
-            body.light-mode .ad-link:hover {
+            body.light-mode .ad-link:hover,
+            body.light-mode .ad-link:hover #amazon-ad-text {
                 color: #9146ff !important;
             }
-            body.light-mode .twitch-link {
+            body.light-mode .twitch-link,
+            body.light-mode .twitch-link:link,
+            body.light-mode .twitch-link:visited {
                 color: #555555 !important;
             }
             body.light-mode .twitch-link:hover {
                 color: #9146ff !important;
             }
-            body.light-mode .doneru-link {
+            body.light-mode .doneru-link,
+            body.light-mode .doneru-link:link,
+            body.light-mode .doneru-link:visited {
                 color: #111111 !important;
             }
             body.light-mode .doneru-link:hover {
