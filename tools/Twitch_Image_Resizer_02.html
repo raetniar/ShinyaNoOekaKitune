@@ -1952,7 +1952,41 @@
             color: var(--text-secondary);
             opacity: 0.6;
         }
-    </style>
+    
+        .header-doneru-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        body.light-mode .header-doneru-btn {
+            color: #111111;
+            background-color: #f8f9fa;
+            border: 1px solid #d1d5db;
+        }
+        body.light-mode .header-doneru-btn:hover {
+            color: #ffffff;
+            background-color: #179bf8;
+            border-color: #179bf8;
+        }
+        body.dark-mode .header-doneru-btn {
+            color: #efeff1;
+            background-color: #18181b;
+            border: 1px solid #3a3a3d;
+        }
+        body.dark-mode .header-doneru-btn:hover {
+            color: #ffffff;
+            background-color: #0284c7;
+            border-color: #0284c7;
+        }
+</style>
 </head>
 <body class="light-mode">
     <!-- Beta Notice Banner -->

@@ -1505,7 +1505,7 @@
         }
 
         #misc-restore-section.closed #ui-restore-title {
-            margin-bottom: 0 !important;
+            margin-bottom: var(--common-footer-height, 38px) !important;
         }
 
         .tw-copy-grid {
@@ -3589,7 +3589,7 @@ body {
 .tab-content.active .sticky-footer-wrapper {
     position: fixed !important;
     right: 0 !important;
-    bottom: 0 !important;
+    bottom: var(--common-footer-height, 38px) !important;
     left: 0 !important;
     width: 100% !important;
 }

@@ -70,7 +70,7 @@
                 color: #9146ff;
                 text-decoration: underline;
             }
-            .twitch-link {
+            .twitch-link, .doneru-link {
                 color: var(--text-secondary, #555555);
                 text-decoration: none;
                 font-size: 12px;
@@ -82,26 +82,9 @@
                 color: #9146ff;
                 text-decoration: underline;
             }
-            .doneru-link {
-                background-color: #0284c7 !important;
-                color: #ffffff !important;
-                text-decoration: none !important;
-                font-size: 11px !important;
-                font-weight: 700 !important;
-                padding: 3px 10px !important;
-                border-radius: 12px !important;
-                transition: background-color 0.2s, transform 0.1s !important;
-                white-space: nowrap !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 4px !important;
-                box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
-            }
             .doneru-link:hover {
-                background-color: #0369a1 !important;
-                color: #ffffff !important;
-                text-decoration: none !important;
-                transform: translateY(-1px);
+                color: #179bf8;
+                text-decoration: underline;
             }
             .ad-divider {
                 margin: 0 2px;
@@ -111,15 +94,18 @@
             body.dark-mode .ad-link {
                 color: var(--text-primary, #eeeeee);
             }
-            body.dark-mode .twitch-link {
+            body.dark-mode .twitch-link, body.dark-mode .doneru-link {
                 color: var(--text-secondary, #cccccc);
             }
             body.dark-mode .twitch-link:hover {
                 color: #a970ff;
             }
+            body.dark-mode .doneru-link:hover {
+                color: #38bdf8;
+            }
             
             /* 重なり防止：ツール固有の固定フッターの底上げ */
-            .sticky-footer-wrapper, .sticky-bottom-bar {
+            .sticky-footer-wrapper, .sticky-bottom-bar, .tab-content.active .sticky-footer-wrapper {
                 bottom: var(--common-footer-height, 38px) !important;
             }
 
@@ -161,9 +147,9 @@
         const footerHeight = footerEl.offsetHeight || 38;
         document.documentElement.style.setProperty('--common-footer-height', footerHeight + 'px');
         
-        // 独自固定操作バーのレイアウト調整
+        // 独自固定操作バーのレイアウト調整（!important で底上げ）
         document.querySelectorAll('.sticky-footer-wrapper, .sticky-bottom-bar').forEach(el => {
-            el.style.bottom = footerHeight + 'px';
+            el.style.setProperty('bottom', footerHeight + 'px', 'important');
         });
 
         // bodyのpaddingBottomを設定
@@ -189,7 +175,7 @@
                 </a>
                 <span class="ad-divider">|</span>
                 <a href="https://doneru.jp/uikouka" target="_blank" rel="noopener noreferrer" class="doneru-link">
-                    🎁 どねる
+                    どねる
                 </a>
             </div>
         `;
@@ -201,6 +187,7 @@
         initAdRotation();
 
         window.addEventListener('resize', adjustFooterLayout);
+        setInterval(adjustFooterLayout, 1000);
         requestAnimationFrame(() => requestAnimationFrame(adjustFooterLayout));
     }
 
