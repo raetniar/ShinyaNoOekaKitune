@@ -157,7 +157,7 @@
                 </a>
                 <span class="ad-divider">|</span>
                 <a href="https://doneru.jp/uikouka" target="_blank" rel="noopener noreferrer" class="doneru-link">
-                    どねる（Doneruでサポート）
+                    🎁 どねる
                 </a>
             </div>
         `;
