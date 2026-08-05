@@ -3169,13 +3169,14 @@
                         if (filesLoaded === totalFiles) {
                             if (!state.activeImageId && state.queue.length > 0) {
                                 state.activeImageId = state.queue[0].id;
-                                elements.editorCard.classList.remove('disabled');
-                                elements.settingsCard.classList.remove('disabled');
                             }
+                            if (elements.editorCard) elements.editorCard.classList.remove('disabled');
+                            if (elements.settingsCard) elements.settingsCard.classList.remove('disabled');
                             
                             renderQueueList();
                             loadActiveImageState();
-                            draw();
+                            if (typeof applyPreset === 'function') applyPreset();
+                            if (typeof draw === 'function') draw();
                         }
                     };
                     img.src = event.target.result;
@@ -3288,11 +3289,11 @@
         }
 
         function setActiveImage(id) {
-            if (state.activeImageId === id) return;
             state.activeImageId = id;
             renderQueueList();
             loadActiveImageState();
-            draw();
+            if (typeof applyPreset === 'function') applyPreset();
+            if (typeof draw === 'function') draw();
         }
 
         function removeImageFromQueue(id) {
