@@ -21,6 +21,7 @@ const defaultSettings = {
     channelName: 'YouTube User',
     customLiveUrl: '',
     customCommunityUrl: '',
+    defaultStreamKey: '',
     dateFormat: 'M/D',
     customTitleTags: [
         { tag: 'あいさつ', value: '【雑談/挨拶枠】' },

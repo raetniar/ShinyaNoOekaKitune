@@ -106,6 +106,9 @@ function openYtSettingsModal() {
         const chIdInput = document.getElementById('yt-channel-id-input');
         if (chIdInput) chIdInput.value = ytSettings.channelId || "";
 
+        const streamKeyInput = document.getElementById('yt-default-stream-key-input');
+        if (streamKeyInput) streamKeyInput.value = ytSettings.defaultStreamKey || "";
+
         const dateFormatInput = document.getElementById('yt-date-format-input');
         if (dateFormatInput) {
             dateFormatInput.value = ytSettings.dateFormat || "M/D";
@@ -141,11 +144,13 @@ function saveYtSettings() {
     const tokenInput = document.getElementById('yt-oauth-token-input');
     const refreshInput = document.getElementById('yt-refresh-token-input');
     const chIdInput = document.getElementById('yt-channel-id-input');
+    const streamKeyInput = document.getElementById('yt-default-stream-key-input');
     const dateFormatInput = document.getElementById('yt-date-format-input');
 
     if (tokenInput) ytSettings.googleAccessToken = tokenInput.value;
     if (refreshInput) ytSettings.googleRefreshToken = refreshInput.value;
     if (chIdInput) ytSettings.channelId = chIdInput.value;
+    if (streamKeyInput) ytSettings.defaultStreamKey = streamKeyInput.value;
     if (dateFormatInput) ytSettings.dateFormat = dateFormatInput.value || "M/D";
 
     saveYtStorage();
