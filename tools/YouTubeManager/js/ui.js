@@ -214,33 +214,20 @@ function saveNewPreset() {
 }
 
 function openYtTool(type) {
-    const chId = ytSettings.channelId || '';
     let url = 'https://studio.youtube.com';
 
     switch(type) {
         case 'studio':
-            url = chId ? `https://studio.youtube.com/channel/${chId}` : 'https://studio.youtube.com';
+            url = 'https://studio.youtube.com';
             break;
         case 'liveDashboard':
-            if (ytSettings.customLiveUrl) {
-                url = ytSettings.customLiveUrl;
-            } else if (chId) {
-                url = `https://studio.youtube.com/channel/${chId}/videos/live`;
-            } else {
-                url = 'https://studio.youtube.com';
-            }
+            url = ytSettings.customLiveUrl || 'https://studio.youtube.com';
             break;
         case 'analytics':
-            url = chId ? `https://studio.youtube.com/channel/${chId}/analytics` : 'https://analytics.youtube.com';
+            url = 'https://analytics.youtube.com';
             break;
         case 'community':
-            if (ytSettings.customCommunityUrl) {
-                url = ytSettings.customCommunityUrl;
-            } else if (chId) {
-                url = `https://studio.youtube.com/channel/${chId}/posts`;
-            } else {
-                url = 'https://studio.youtube.com';
-            }
+            url = ytSettings.customCommunityUrl || 'https://studio.youtube.com';
             break;
     }
 
