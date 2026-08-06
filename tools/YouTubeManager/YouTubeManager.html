@@ -404,6 +404,13 @@
 
             <div style="font-size:12.5px; line-height:1.6; color:var(--text-main);">
                 <p style="margin-top:0;">YouTubeマネージャーで枠作成・タイトル更新を行うには、YouTube Data API v3 のアクセス許可（OAuth 2.0 アクセストークン）が必要です。</p>
+
+                <div style="background:var(--yt-red-soft); border:1px solid var(--yt-red-border); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:11.5px;">
+                    <strong style="color:var(--yt-red);"><i class="fa-solid fa-lightbulb"></i> 1時間制限と長期（半永久）利用について:</strong><br>
+                    <code>Access Token</code> 単体の有効期限は Google の仕様上 <strong>1時間 (3,600秒)</strong> です。<br>
+                    OAuth 2.0 Playground で一緒に発行される <strong><code>Refresh Token</code>（リフレッシュトークン）</strong> も設定画面に入力しておくと、期限切れのたびにアプリが裏で自動再発行を行い、<strong>何ヶ月も半永久的に自動でログイン状態を維持</strong>できます！
+                </div>
+
                 <p style="font-size:11.5px; color:var(--text-muted); margin-top:-4px;">※OAuth 2.0 Playground は英語表記ですが、操作するのは<strong>画面左側のみ</strong>です。</p>
 
                 <h4 style="color:var(--yt-red); margin:14px 0 6px 0; font-size:13.5px;">【トークン発行の3ステップ (画面左側)】</h4>
@@ -431,13 +438,18 @@
                     <ol style="padding-left:18px; margin:6px 0 0 0; font-size:12px;">
                         <li>自動的に Playground 画面の Step 2 に戻ります。</li>
                         <li>青いボタン <strong>[Exchange authorization code for tokens]</strong> をクリックします。</li>
-                        <li>画面左下に表示される <code>Access token: ya29.a0AR...</code> の長い英文字列を丸ごとコピーします。</li>
-                        <li>YouTubeマネージャーの <code>⚙️ 設定</code> を開き、「Google OAuth 2.0 Access Token」欄に貼り付けて <strong>[保存]</strong> を押せば完了です！</li>
+                        <li>画面左下に表示される以下の2つをコピーします：
+                            <ul style="padding-left:16px; margin:4px 0;">
+                                <li><code>Access token: ya29.a0AR...</code> (短期1時間キー)</li>
+                                <li><code>Refresh token: 1//0...</code> (長期自動更新キー)</li>
+                            </ul>
+                        </li>
+                        <li>YouTubeマネージャーの <code>⚙️ 設定</code> を開き、それぞれの欄に貼り付けて <strong>[保存]</strong> を押せば完了です！</li>
                     </ol>
                 </div>
 
                 <div style="background:rgba(229,72,77,0.1); border-left:3px solid var(--yt-red); padding:10px; font-size:11.5px; border-radius:4px;">
-                    🔒 <strong>安全上の注意:</strong> アクセストークンはあなた個人の配信管理権限を持つ秘密鍵です。配信画面やSNS、公開掲示板等に絶対に掲載しないでください。
+                    🔒 <strong>安全上の注意:</strong> アクセストークン・リフレッシュトークンはあなた個人の配信管理権限を持つ秘密鍵です。配信画面やSNS、公開掲示板等に絶対に掲載しないでください。
                 </div>
             </div>
 
