@@ -375,7 +375,13 @@
             <input type="password" id="yt-refresh-token-input" placeholder="1//0... リフレッシュトークンを入力 (半永久的に自動維持したい場合)">
 
             <label class="field-label">YouTube チャンネルID (例: UCxxxxxxxx... 任意)</label>
-            <input type="text" id="yt-channel-id-input" placeholder="UCxxxxxxxx... (LIVEコントロール・コミュニティ直リンク用)">
+            <input type="text" id="yt-channel-id-input" placeholder="UCxxxxxxxx... (直リンク用)">
+
+            <label class="field-label">LIVEコントロール画面 カスタムURL (任意)</label>
+            <input type="text" id="yt-custom-live-url-input" placeholder="例: https://studio.youtube.com/channel/.../livestreaming/dashboard">
+
+            <label class="field-label">コミュニティ投稿画面 カスタムURL (任意)</label>
+            <input type="text" id="yt-custom-community-url-input" placeholder="例: https://www.youtube.com/channel/.../posts?pdc=OAk%3D">
 
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                 <button type="button" class="btn-outline" onclick="window.open('https://developers.google.com/oauthplayground', '_blank')">

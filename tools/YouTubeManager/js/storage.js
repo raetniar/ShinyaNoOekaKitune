@@ -18,6 +18,8 @@ const defaultSettings = {
     googleRefreshToken: '',
     channelId: '',
     channelName: 'YouTube User',
+    customLiveUrl: '',
+    customCommunityUrl: '',
     defaultPrivacy: 'unlisted',
     defaultCategory: '20', // Gaming
     autoSync: false

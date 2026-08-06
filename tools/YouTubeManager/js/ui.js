@@ -222,13 +222,25 @@ function openYtTool(type) {
             url = chId ? `https://studio.youtube.com/channel/${chId}` : 'https://studio.youtube.com';
             break;
         case 'liveDashboard':
-            url = 'https://studio.youtube.com/live';
+            if (ytSettings.customLiveUrl) {
+                url = ytSettings.customLiveUrl;
+            } else if (chId) {
+                url = `https://studio.youtube.com/channel/${chId}/videos/live`;
+            } else {
+                url = 'https://studio.youtube.com';
+            }
             break;
         case 'analytics':
             url = chId ? `https://studio.youtube.com/channel/${chId}/analytics` : 'https://analytics.youtube.com';
             break;
         case 'community':
-            url = chId ? `https://www.youtube.com/channel/${chId}/community` : 'https://studio.youtube.com/channel/community';
+            if (ytSettings.customCommunityUrl) {
+                url = ytSettings.customCommunityUrl;
+            } else if (chId) {
+                url = `https://studio.youtube.com/channel/${chId}/posts`;
+            } else {
+                url = 'https://studio.youtube.com';
+            }
             break;
     }
 

@@ -97,6 +97,12 @@ function openYtSettingsModal() {
         const chIdInput = document.getElementById('yt-channel-id-input');
         if (chIdInput) chIdInput.value = ytSettings.channelId || "";
 
+        const liveUrlInput = document.getElementById('yt-custom-live-url-input');
+        if (liveUrlInput) liveUrlInput.value = ytSettings.customLiveUrl || "";
+
+        const communityUrlInput = document.getElementById('yt-custom-community-url-input');
+        if (communityUrlInput) communityUrlInput.value = ytSettings.customCommunityUrl || "";
+
         const statusEl = document.getElementById('yt-auth-status-display');
         if (statusEl) {
             if (ytSettings.googleAccessToken || ytSettings.googleRefreshToken) {
@@ -123,10 +129,14 @@ function saveYtSettings() {
     const tokenInput = document.getElementById('yt-oauth-token-input');
     const refreshInput = document.getElementById('yt-refresh-token-input');
     const chIdInput = document.getElementById('yt-channel-id-input');
+    const liveUrlInput = document.getElementById('yt-custom-live-url-input');
+    const communityUrlInput = document.getElementById('yt-custom-community-url-input');
 
     if (tokenInput) ytSettings.googleAccessToken = tokenInput.value;
     if (refreshInput) ytSettings.googleRefreshToken = refreshInput.value;
     if (chIdInput) ytSettings.channelId = chIdInput.value;
+    if (liveUrlInput) ytSettings.customLiveUrl = liveUrlInput.value;
+    if (communityUrlInput) ytSettings.customCommunityUrl = communityUrlInput.value;
 
     saveYtStorage();
     showToast("設定を保存しました");
