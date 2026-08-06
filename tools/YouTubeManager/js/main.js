@@ -105,11 +105,14 @@ function openYtSettingsModal() {
         const chIdInput = document.getElementById('yt-channel-id-input');
         if (chIdInput) chIdInput.value = ytSettings.channelId || "";
 
-        const liveUrlInput = document.getElementById('yt-custom-live-url-input');
-        if (liveUrlInput) liveUrlInput.value = ytSettings.customLiveUrl || "";
+        const dateFormatInput = document.getElementById('yt-date-format-input');
+        if (dateFormatInput) {
+            dateFormatInput.value = ytSettings.dateFormat || "M/D";
+            handleDateFormatPreview(dateFormatInput.value);
+        }
 
-        const communityUrlInput = document.getElementById('yt-custom-community-url-input');
-        if (communityUrlInput) communityUrlInput.value = ytSettings.customCommunityUrl || "";
+        const datePresetSelect = document.getElementById('date-format-preset-select');
+        if (datePresetSelect) datePresetSelect.value = ytSettings.dateFormat || "M/D";
 
         const statusEl = document.getElementById('yt-auth-status-display');
         if (statusEl) {
@@ -137,16 +140,15 @@ function saveYtSettings() {
     const tokenInput = document.getElementById('yt-oauth-token-input');
     const refreshInput = document.getElementById('yt-refresh-token-input');
     const chIdInput = document.getElementById('yt-channel-id-input');
-    const liveUrlInput = document.getElementById('yt-custom-live-url-input');
-    const communityUrlInput = document.getElementById('yt-custom-community-url-input');
+    const dateFormatInput = document.getElementById('yt-date-format-input');
 
     if (tokenInput) ytSettings.googleAccessToken = tokenInput.value;
     if (refreshInput) ytSettings.googleRefreshToken = refreshInput.value;
     if (chIdInput) ytSettings.channelId = chIdInput.value;
-    if (liveUrlInput) ytSettings.customLiveUrl = liveUrlInput.value;
-    if (communityUrlInput) ytSettings.customCommunityUrl = communityUrlInput.value;
+    if (dateFormatInput) ytSettings.dateFormat = dateFormatInput.value || "M/D";
 
     saveYtStorage();
+    renderCommonTagBar();
     showToast("設定を保存しました");
     closeYtSettingsModal();
 }

@@ -200,10 +200,23 @@
                 <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '({weekday})')">+ 曜日 (({weekday}))</button>
                 <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{fullDate}')">+ 年月日 ({fullDate})</button>
                 <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{time}')">+ 時間 ({time})</button>
-            </div>
+            <!-- 共通タグバー (全タイトル共通・開閉対応 - TwitchManager同等) -->
+            <details id="common-tag-bar-section" style="padding: 6px 10px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;" open>
+                <summary style="font-size: 11px; color: var(--text-muted); cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; font-weight: bold;">
+                    <span>▼ 共通タグ (選択中のタイトル・概要欄へワンタップ挿入)</span>
+                    <button type="button" style="font-size:10.5px; padding:2px 8px;" class="btn-outline" onclick="event.stopPropagation(); openTitleTagModal()">⚙️ 設定</button>
+                </summary>
+                <div id="common-tag-chip-bar" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
+            </details>
 
             <label class="field-label">配信概要欄（説明文）</label>
             <textarea id="yt-current-desc" placeholder="ご視聴ありがとうございます！チャット欄でマナーを守ってご参加ください。"></textarea>
+
+            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; margin-top:-4px;">
+                <span style="font-size:11px; color:var(--text-muted); align-self:center; margin-right:2px;">概要欄用タグ:</span>
+                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-desc', '{date}')">+ 日付 ({date})</button>
+                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-desc', '{time}')">+ 時間 ({time})</button>
+            </div>
 
             <div style="display:flex; gap:10px; margin-bottom:10px;">
                 <div style="flex:1;">
@@ -411,6 +424,26 @@
                 </button>
             </div>
 
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+
+            <div style="font-weight: bold; color: var(--text-main); margin-bottom: 8px; font-size: 13px;">表示設定</div>
+            <label class="field-label">日付の表示形式 ({date}用) ※自由にカスタマイズできます</label>
+            <select id="date-format-preset-select" onchange="applyDateFormatPreset(this.value)" style="margin-bottom:6px;">
+                <option value="M/D">M/D (例: 5/12)</option>
+                <option value="MM/DD">MM/DD (例: 05/12)</option>
+                <option value="MM月DD日">MM月DD日 (例: 05月12日)</option>
+                <option value="M月D日">M月D日 (例: 5月12日)</option>
+                <option value="M/D(W)">M/D(W) (例: 5/12(火))</option>
+                <option value="YYYY/MM/DD">YYYY/MM/DD (例: 2026/05/12)</option>
+                <option value="YYYY年MM月DD日">YYYY年MM月DD日 (例: 2026年05月12日)</option>
+                <option value="YY/MM/DD">YY/MM/DD (例: 26/05/12)</option>
+            </select>
+            <input type="text" id="yt-date-format-input" value="M/D" oninput="handleDateFormatPreview(this.value)" placeholder="例: M/D">
+            <div style="font-size: 12px; color: #00c875; font-weight: bold; margin-bottom: 4px;" id="date_format_live_preview">プレビュー: 8/6</div>
+            <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                利用可能な変数: YYYY(年4桁), YY(年2桁), MM(月2桁), M(月), DD(日2桁), D(日), WW(曜日), W(曜日略)
+            </div>
+
             <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
                 Google OAuth 2.0 認証トークンを設定することで、YouTube Data API v3 経由で直接配信枠の作成や更新を行えます。詳しい手順は上記のヘルプから確認できます。
             </div>
@@ -556,6 +589,37 @@
             <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
                 <button type="button" class="btn-outline" onclick="closeFriendModal()">キャンセル</button>
                 <button type="button" class="btn-primary-yt" onclick="saveFriendModalItem()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 配信タイトル 識別タグ・単語セット設定モーダル -->
+    <div id="titleTagModal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 520px;">
+            <div class="modal-header">
+                <span class="modal-title">🏷️ 配信タイトル 共通タグ・言葉セット設定</span>
+                <button type="button" class="btn-outline" onclick="closeTitleTagModal()" style="padding:2px 8px;">✕</button>
+            </div>
+
+            <div style="font-size: 11.5px; color: var(--text-muted); background: var(--bg-base); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 6px; margin-bottom: 12px; line-height: 1.5;">
+                タイトル入力欄でワンタップで挿入できる共通タグやテンプレート単語を自由に作成・管理できます。
+            </div>
+
+            <div style="font-weight: bold; font-size: 12px; color: var(--text-main); margin-bottom: 8px;">カスタム共通タグ一覧</div>
+            <div id="title-tag-list-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+            
+            <button type="button" class="btn-outline" style="width: 100%; padding: 6px; font-size: 11px; margin-bottom: 16px;" onclick="addCustomTitleTagRow()">＋ 新しい共通タグを追加</button>
+
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6; white-space: pre-line; background: var(--bg-base); padding: 8px 10px; border-radius: 6px; margin-bottom: 12px;">
+                【標準システムタグ】
+                ・{date} : 設定した日付形式で自動置換 (例: 8/6)
+                ・{time} : 現在時刻 (例: 18:30)
+                ・{コラボ} : IDリストで登録中のコラボ相手名
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="button" class="btn-outline" onclick="closeTitleTagModal()">キャンセル</button>
+                <button type="button" class="btn-primary-yt" onclick="saveTitleTagModalSettings()">保存して反映</button>
             </div>
         </div>
     </div>

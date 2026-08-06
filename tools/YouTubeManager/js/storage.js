@@ -21,6 +21,12 @@ const defaultSettings = {
     channelName: 'YouTube User',
     customLiveUrl: '',
     customCommunityUrl: '',
+    dateFormat: 'M/D',
+    customTitleTags: [
+        { tag: 'あいさつ', value: '【雑談/挨拶枠】' },
+        { tag: '初見歓迎', value: '【初見歓迎】' },
+        { tag: '参加型', value: '【参加型】' }
+    ],
     defaultPrivacy: 'unlisted',
     defaultCategory: '20', // Gaming
     autoSync: false

@@ -5,34 +5,87 @@
 
 let currentTab = 'broadcasts';
 
+/* Date Format Token Parsing (TwitchManager Identical) */
+function formatDateToken(date = new Date(), format = ytSettings.dateFormat || 'M/D') {
+    const yyyy = String(date.getFullYear());
+    const yy = yyyy.slice(-2);
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const m = String(date.getMonth() + 1);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const d = String(date.getDate());
+    
+    const weekdaysShort = ['日', '月', '火', '水', '木', '金', '土'];
+    const weekdaysLong = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+    const wShort = weekdaysShort[date.getDay()];
+    const wLong = weekdaysLong[date.getDay()];
+
+    return format.replace(/(YYYY|YY|MM|M|DD|D|WW|W)/g, match => {
+        switch (match) {
+            case 'YYYY': return yyyy;
+            case 'YY': return yy;
+            case 'MM': return mm;
+            case 'M': return m;
+            case 'DD': return dd;
+            case 'D': return d;
+            case 'WW': return wLong;
+            case 'W': return wShort;
+            default: return match;
+        }
+    });
+}
+
+function handleDateFormatPreview(value) {
+    ytSettings.dateFormat = value || 'M/D';
+    const livePreview = document.getElementById('date_format_live_preview');
+    if (livePreview) {
+        livePreview.innerText = `プレビュー: ${formatDateToken(new Date(), ytSettings.dateFormat)}`;
+    }
+}
+
+function applyDateFormatPreset(value) {
+    const input = document.getElementById('yt-date-format-input');
+    if (input) {
+        input.value = value;
+        handleDateFormatPreview(value);
+    }
+}
+
 /* Dynamic Date & Variable Tag Formatting Helper */
 function formatTitleWithDynamicTags(text) {
     if (!text) return "";
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const month2 = String(month).padStart(2, '0');
-    const day = now.getDate();
-    const day2 = String(day).padStart(2, '0');
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    const weekday = weekdays[now.getDay()];
+    const formattedDate = formatDateToken(now, ytSettings.dateFormat || 'M/D');
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
-    return text
-        .replace(/\{date\}/g, `${month}/${day}`)
-        .replace(/\{fullDate\}/g, `${year}/${month2}/${day2}`)
-        .replace(/\{year\}/g, String(year))
-        .replace(/\{month\}/g, String(month))
-        .replace(/\{month2\}/g, month2)
-        .replace(/\{day\}/g, String(day))
-        .replace(/\{day2\}/g, day2)
-        .replace(/\{weekday\}/g, weekday)
+    let result = text
+        .replace(/\{date\}/g, formattedDate)
         .replace(/\{time\}/g, `${hours}:${minutes}`);
+
+    // Replace custom tags ({あいさつ}, {初見歓迎}, etc.)
+    if (ytSettings.customTitleTags) {
+        ytSettings.customTitleTags.forEach(t => {
+            if (t.tag && t.value) {
+                const regex = new RegExp(`\\{${t.tag}\\}`,'g');
+                result = result.replace(regex, t.value);
+            }
+        });
+    }
+
+    return result;
 }
 
+let lastFocusedInputId = 'yt-current-title';
+
+document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.id && (e.target.id.includes('title') || e.target.id.includes('desc'))) {
+        lastFocusedInputId = e.target.id;
+    }
+});
+
 function insertTagToInput(inputId, tag) {
-    const input = document.getElementById(inputId);
+    const targetId = inputId || lastFocusedInputId || 'yt-current-title';
+    const input = document.getElementById(targetId);
     if (!input) return;
 
     const start = input.selectionStart || input.value.length;
@@ -42,6 +95,99 @@ function insertTagToInput(inputId, tag) {
     input.value = val.substring(0, start) + tag + val.substring(end);
     input.selectionStart = input.selectionEnd = start + tag.length;
     input.focus();
+}
+
+/* Render Common Tag Chips Bar (TwitchManager Identical) */
+function renderCommonTagBar() {
+    const container = document.getElementById('common-tag-chip-bar');
+    if (!container) return;
+
+    let html = '';
+
+    // Standard system tags
+    const stdTags = [
+        { name: '{date}', insert: '{date}' },
+        { name: '{time}', insert: '{time}' }
+    ];
+
+    stdTags.forEach(t => {
+        html += `<button type="button" class="btn-outline" style="font-size:10.5px; padding:3px 8px; border-radius:12px; border-color:var(--yt-red); color:var(--yt-red);" onclick="insertTagToInput(null, '${t.insert}')">+ ${t.name}</button>`;
+    });
+
+    // Custom title tags
+    if (ytSettings.customTitleTags) {
+        ytSettings.customTitleTags.forEach(t => {
+            html += `<button type="button" class="btn-outline" style="font-size:10.5px; padding:3px 8px; border-radius:12px;" onclick="insertTagToInput(null, '{${t.tag}}')">+ {${t.tag}}</button>`;
+        });
+    }
+
+    // ID List group chips
+    ytFriends.forEach(cat => {
+        if (cat.category) {
+            html += `<button type="button" class="btn-outline" style="font-size:10.5px; padding:3px 8px; border-radius:12px; opacity:0.85;" onclick="insertTagToInput(null, ' ${cat.category}')">+ {${cat.category}} <span style="font-size:9px; color:var(--text-muted);">@ID一覧</span></button>`;
+        }
+    });
+
+    container.innerHTML = html;
+}
+
+/* Title Tag Settings Modal */
+function openTitleTagModal() {
+    renderTitleTagModalRows();
+    const modal = document.getElementById('titleTagModal');
+    if (modal) modal.classList.add('show');
+}
+
+function closeTitleTagModal() {
+    const modal = document.getElementById('titleTagModal');
+    if (modal) modal.classList.remove('show');
+}
+
+function renderTitleTagModalRows() {
+    const container = document.getElementById('title-tag-list-container');
+    if (!container) return;
+
+    const tags = ytSettings.customTitleTags || [];
+    container.innerHTML = tags.map((t, idx) => `
+        <div style="display:flex; gap:6px; align-items:center;">
+            <input type="text" value="${escapeHtml(t.tag)}" placeholder="タグ名 (例: あいさつ)" style="flex:1; font-size:11px; margin-bottom:0;" id="tag-name-${idx}">
+            <input type="text" value="${escapeHtml(t.value)}" placeholder="置換後のテキスト" style="flex:2; font-size:11px; margin-bottom:0;" id="tag-val-${idx}">
+            <button type="button" class="btn-outline" style="color:var(--danger); padding:4px 8px; font-size:11px;" onclick="removeCustomTitleTagRow(${idx})">✕</button>
+        </div>
+    `).join('');
+}
+
+function addCustomTitleTagRow() {
+    if (!ytSettings.customTitleTags) ytSettings.customTitleTags = [];
+    ytSettings.customTitleTags.push({ tag: '', value: '' });
+    renderTitleTagModalRows();
+}
+
+function removeCustomTitleTagRow(idx) {
+    if (!ytSettings.customTitleTags) return;
+    ytSettings.customTitleTags.splice(idx, 1);
+    renderTitleTagModalRows();
+}
+
+function saveTitleTagModalSettings() {
+    const container = document.getElementById('title-tag-list-container');
+    if (container) {
+        const rows = container.children;
+        const updated = [];
+        for (let i = 0; i < rows.length; i++) {
+            const tagName = document.getElementById(`tag-name-${i}`)?.value.trim();
+            const tagVal = document.getElementById(`tag-val-${i}`)?.value;
+            if (tagName) {
+                updated.push({ tag: tagName, value: tagVal || '' });
+            }
+        }
+        ytSettings.customTitleTags = updated;
+    }
+
+    saveYtStorage();
+    closeTitleTagModal();
+    renderCommonTagBar();
+    showToast("共通タグ設定を保存しました");
 }
 
 function showToast(message) {
@@ -137,6 +283,8 @@ function renderPresetsTab() {
 
 /* Render Broadcasts Tab */
 function renderBroadcastsTab() {
+    renderCommonTagBar();
+
     // Current Broadcast Form
     const titleInput = document.getElementById('yt-current-title');
     const descInput = document.getElementById('yt-current-desc');
