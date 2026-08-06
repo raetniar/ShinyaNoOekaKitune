@@ -183,6 +183,17 @@
         </div>
     </div>
 
+    <!-- 共通タグバー (タブバー直下、全画面共通 - TwitchManager完全同等) -->
+    <div id="common-tag-bar-wrapper" style="padding: 8px 12px 0 12px; background: var(--bg-base);">
+        <details id="common-tag-bar-section" style="padding: 6px 10px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px;" open>
+            <summary style="font-size: 11px; color: var(--text-muted); cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; font-weight: bold;">
+                <span>▼ 共通タグ (選択中のタイトル・概要欄へワンタップ挿入)</span>
+                <button type="button" style="font-size:10.5px; padding:2px 8px;" class="btn-outline" onclick="event.stopPropagation(); openTitleTagModal()">⚙️ 設定</button>
+            </summary>
+            <div id="common-tag-chip-bar" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
+        </details>
+    </div>
+
     <!-- Tab 1: Broadcasts (配信枠) -->
     <div id="broadcasts-tab" class="tab-content active">
         <div class="card-item">
@@ -200,14 +211,7 @@
                 <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '({weekday})')">+ 曜日 (({weekday}))</button>
                 <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{fullDate}')">+ 年月日 ({fullDate})</button>
                 <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{time}')">+ 時間 ({time})</button>
-            <!-- 共通タグバー (全タイトル共通・開閉対応 - TwitchManager同等) -->
-            <details id="common-tag-bar-section" style="padding: 6px 10px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;" open>
-                <summary style="font-size: 11px; color: var(--text-muted); cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; font-weight: bold;">
-                    <span>▼ 共通タグ (選択中のタイトル・概要欄へワンタップ挿入)</span>
-                    <button type="button" style="font-size:10.5px; padding:2px 8px;" class="btn-outline" onclick="event.stopPropagation(); openTitleTagModal()">⚙️ 設定</button>
-                </summary>
-                <div id="common-tag-chip-bar" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
-            </details>
+            </div>
 
             <label class="field-label">配信概要欄（説明文）</label>
             <textarea id="yt-current-desc" placeholder="ご視聴ありがとうございます！チャット欄でマナーを守ってご参加ください。"></textarea>
