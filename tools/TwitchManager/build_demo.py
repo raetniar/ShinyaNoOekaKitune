@@ -113,6 +113,23 @@ head_content = """<!DOCTYPE html>
                     }
                 }
 
+                if (path.includes('/videos')) {
+                    const now = Date.now();
+                    const day = 24 * 3600 * 1000;
+                    return {
+                        data: [
+                            { id: 'v101', title: '【DEMO】雑談＆今週の配信予定発表！', duration: '2h45m10s', created_at: new Date(now - 1 * day).toISOString(), type: 'archive' },
+                            { id: 'v102', title: '【DEMO】ランク耐久配信！マスター達成へ', duration: '4h20m30s', created_at: new Date(now - 2 * day).toISOString(), type: 'archive' },
+                            { id: 'v103', title: '【DEMO】新作ゲーム完全初見プレイ！ #01', duration: '3h50m00s', created_at: new Date(now - 4 * day).toISOString(), type: 'archive' },
+                            { id: 'v104', title: '【DEMO】視聴者参加型！カスタムマッチ開催', duration: '2h35m45s', created_at: new Date(now - 5 * day).toISOString(), type: 'archive' },
+                            { id: 'v105', title: '【DEMO】深夜のお絵描き＆作業配信', duration: '3h10m15s', created_at: new Date(now - 7 * day).toISOString(), type: 'archive' },
+                            { id: 'v106', title: '【DEMO】歌枠！アニソン＆ボカロリクエスト', duration: '2h05m50s', created_at: new Date(now - 9 * day).toISOString(), type: 'archive' },
+                            { id: 'v107', title: '【DEMO】コラボ雑談枠！ゲストと一緒に配信', duration: '3h30m20s', created_at: new Date(now - 12 * day).toISOString(), type: 'archive' },
+                            { id: 'v108', title: '【DEMO】レトロゲーム攻略！難関クリア目指す', duration: '4h15m00s', created_at: new Date(now - 15 * day).toISOString(), type: 'archive' }
+                        ]
+                    };
+                }
+
                 if (path.includes('/streams') || path.includes('/users') || path.includes('/channels') || path.includes('/validate')) {
                     return { data: [{ id: '501391907', user_id: '501391907', login: 'demo_user', display_name: 'demo_user', title: '【DEMO】配信タイトルプレビュー', game_name: 'Just Chatting', type: 'live' }], client_id: 'demo_client_id', login: 'demo_user', user_id: '501391907' };
                 }
