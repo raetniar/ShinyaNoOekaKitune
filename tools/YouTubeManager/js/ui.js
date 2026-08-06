@@ -99,8 +99,8 @@ function insertTagToInput(inputId, tag) {
 
 /* Render Common Tag Chips Bar (TwitchManager Identical) */
 function renderCommonTagBar() {
-    const container = document.getElementById('common-tag-chip-bar');
-    if (!container) return;
+    const containers = document.querySelectorAll('.common-tag-chip-bar, #common-tag-chip-bar');
+    if (!containers || containers.length === 0) return;
 
     let html = '';
 
@@ -122,13 +122,17 @@ function renderCommonTagBar() {
     }
 
     // ID List group chips
-    ytFriends.forEach(cat => {
-        if (cat.category) {
-            html += `<button type="button" class="btn-outline" style="font-size:10.5px; padding:3px 8px; border-radius:12px; opacity:0.85;" onclick="insertTagToInput(null, ' ${cat.category}')">+ {${cat.category}} <span style="font-size:9px; color:var(--text-muted);">@ID一覧</span></button>`;
-        }
-    });
+    if (typeof ytFriends !== 'undefined' && Array.isArray(ytFriends)) {
+        ytFriends.forEach(cat => {
+            if (cat.category) {
+                html += `<button type="button" class="btn-outline" style="font-size:10.5px; padding:3px 8px; border-radius:12px; opacity:0.85;" onclick="insertTagToInput(null, ' ${cat.category}')">+ {${cat.category}} <span style="font-size:9px; color:var(--text-muted);">@ID一覧</span></button>`;
+            }
+        });
+    }
 
-    container.innerHTML = html;
+    containers.forEach(c => {
+        c.innerHTML = html;
+    });
 }
 
 /* Title Tag Settings Modal */
