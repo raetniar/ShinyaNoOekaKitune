@@ -5,10 +5,10 @@
    ========================================================================== */
 
 :root {
-    --yt-red: #FF0000;
-    --yt-red-hover: #CC0000;
-    --yt-red-soft: rgba(255, 0, 0, 0.12);
-    --yt-red-border: rgba(255, 0, 0, 0.35);
+    --yt-red: #e5484d;
+    --yt-red-hover: #d33d42;
+    --yt-red-soft: rgba(229, 72, 77, 0.14);
+    --yt-red-border: rgba(229, 72, 77, 0.35);
 
     --bg-base: #0f0f0f;
     --bg-card: #181818;
