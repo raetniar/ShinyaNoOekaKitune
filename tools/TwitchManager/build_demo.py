@@ -3,7 +3,7 @@ import re
 import shutil
 
 source_dir = r"G:\マイドライブ\【04_素材・ツールライブラリ】\自作ツール\OBS_TwitchManager\GIT\TwitchManager"
-target_dir = r"g:\マイドライブ\【04_素材・ツールライブラリ】\GIT_HTML\tools\TitleRaidDock"
+target_dir = r"g:\マイドライブ\【04_素材・ツールライブラリ】\GIT_HTML\tools\TwitchManager"
 
 source_path = os.path.join(source_dir, "TwitchManagerDock.html")
 target_path = os.path.join(target_dir, "TwitchManager.html")
