@@ -222,13 +222,13 @@ function openYtTool(type) {
             url = chId ? `https://studio.youtube.com/channel/${chId}` : 'https://studio.youtube.com';
             break;
         case 'liveDashboard':
-            url = chId ? `https://studio.youtube.com/channel/${chId}/livestreaming/dashboard` : 'https://studio.youtube.com/livestreaming/dashboard';
+            url = 'https://studio.youtube.com/live';
             break;
         case 'analytics':
             url = chId ? `https://studio.youtube.com/channel/${chId}/analytics` : 'https://analytics.youtube.com';
             break;
         case 'community':
-            url = chId ? `https://www.youtube.com/channel/${chId}/community` : 'https://www.youtube.com';
+            url = chId ? `https://www.youtube.com/channel/${chId}/community` : 'https://studio.youtube.com/channel/community';
             break;
     }
 
