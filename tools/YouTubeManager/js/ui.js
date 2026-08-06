@@ -272,6 +272,9 @@ function renderPresetsTab() {
                     <button type="button" class="btn-outline" onclick="applyPresetToActiveForm('${preset.id}')">
                         <i class="fa-solid fa-copy"></i> フォームへコピー
                     </button>
+                    <button type="button" class="btn-outline" onclick="openEditPresetModal('${preset.id}')">
+                        <i class="fa-solid fa-pen-to-square"></i> 編集
+                    </button>
                     <button type="button" class="btn-outline" style="color:var(--danger); border-color:rgba(248,113,113,0.3);" onclick="deletePreset('${preset.id}')">
                         <i class="fa-solid fa-trash"></i> 削除
                     </button>
@@ -721,13 +724,56 @@ function applyPresetToActiveForm(presetId) {
     switchTab('broadcasts');
 }
 
-/* Add New Preset Modal */
+/* Add & Edit Preset Modal Handlers */
+let editingPresetId = null;
+
 function openAddPresetModal() {
+    editingPresetId = null;
+    const titleEl = document.getElementById('preset-modal-title');
+    if (titleEl) titleEl.innerText = "📌 新しいプリセットを追加";
+
+    const nameInput = document.getElementById('new-preset-name');
+    const titleInput = document.getElementById('new-preset-title');
+    const descInput = document.getElementById('new-preset-desc');
+    const privacySelect = document.getElementById('new-preset-privacy');
+    const playlistSelect = document.getElementById('new-preset-playlist');
+
+    if (nameInput) nameInput.value = '';
+    if (titleInput) titleInput.value = '';
+    if (descInput) descInput.value = '';
+    if (privacySelect) privacySelect.value = 'unlisted';
+    if (playlistSelect) playlistSelect.value = '';
+
+    const modal = document.getElementById('preset-modal');
+    if (modal) modal.classList.add('show');
+}
+
+function openEditPresetModal(presetId) {
+    const preset = ytPresets.find(p => p.id === presetId);
+    if (!preset) return;
+
+    editingPresetId = presetId;
+    const titleEl = document.getElementById('preset-modal-title');
+    if (titleEl) titleEl.innerText = "✏️ プリセットを編集";
+
+    const nameInput = document.getElementById('new-preset-name');
+    const titleInput = document.getElementById('new-preset-title');
+    const descInput = document.getElementById('new-preset-desc');
+    const privacySelect = document.getElementById('new-preset-privacy');
+    const playlistSelect = document.getElementById('new-preset-playlist');
+
+    if (nameInput) nameInput.value = preset.name || '';
+    if (titleInput) titleInput.value = preset.title || '';
+    if (descInput) descInput.value = preset.description || '';
+    if (privacySelect) privacySelect.value = preset.privacy || 'unlisted';
+    if (playlistSelect) playlistSelect.value = preset.playlistId || '';
+
     const modal = document.getElementById('preset-modal');
     if (modal) modal.classList.add('show');
 }
 
 function closeAddPresetModal() {
+    editingPresetId = null;
     const modal = document.getElementById('preset-modal');
     if (modal) modal.classList.remove('show');
 }
@@ -737,34 +783,47 @@ function saveNewPreset() {
     const titleInput = document.getElementById('new-preset-title');
     const descInput = document.getElementById('new-preset-desc');
     const privacySelect = document.getElementById('new-preset-privacy');
-    const playlistInput = document.getElementById('new-preset-playlist');
+    const playlistSelect = document.getElementById('new-preset-playlist');
 
     if (!nameInput?.value || !titleInput?.value) {
         alert("プリセット名とタイトルは必須です。");
         return;
     }
 
-    const newPreset = {
-        id: `preset-${Date.now()}`,
-        name: nameInput.value,
-        title: titleInput.value,
-        description: descInput?.value || '',
-        privacy: privacySelect?.value || 'unlisted',
-        playlistId: playlistInput?.value ? `PL_${Date.now()}` : '',
-        playlistTitle: playlistInput?.value || '',
-        category: '20'
-    };
+    const selectedPlId = playlistSelect?.value || '';
+    const selectedPlObj = ytPlaylists.find(p => p.id === selectedPlId);
 
-    ytPresets.push(newPreset);
+    if (editingPresetId) {
+        // Edit existing preset
+        const idx = ytPresets.findIndex(p => p.id === editingPresetId);
+        if (idx !== -1) {
+            ytPresets[idx].name = nameInput.value;
+            ytPresets[idx].title = titleInput.value;
+            ytPresets[idx].description = descInput?.value || '';
+            ytPresets[idx].privacy = privacySelect?.value || 'unlisted';
+            ytPresets[idx].playlistId = selectedPlId;
+            ytPresets[idx].playlistTitle = selectedPlObj ? selectedPlObj.title : selectedPlId;
+        }
+        showToast(`プリセット「${nameInput.value}」を更新しました`);
+    } else {
+        // Create new preset
+        const newPreset = {
+            id: `preset-${Date.now()}`,
+            name: nameInput.value,
+            title: titleInput.value,
+            description: descInput?.value || '',
+            privacy: privacySelect?.value || 'unlisted',
+            playlistId: selectedPlId,
+            playlistTitle: selectedPlObj ? selectedPlObj.title : selectedPlId,
+            category: '20'
+        };
+        ytPresets.push(newPreset);
+        showToast(`新プリセット「${newPreset.name}」を追加しました`);
+    }
+
     saveYtStorage();
     closeAddPresetModal();
     renderPresetsTab();
-    showToast(`新プリセット「${newPreset.name}」を追加しました`);
-
-    nameInput.value = '';
-    titleInput.value = '';
-    if (descInput) descInput.value = '';
-    if (playlistInput) playlistInput.value = '';
 }
 
 function openYtTool(type) {
