@@ -40,6 +40,32 @@ body.light-mode, body.light-theme, html.light-mode, html.light-theme {
 
 * {
     box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: var(--yt-red) transparent;
+}
+
+/* Sleek Custom Scrollbars (YouTube Red Theme) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--yt-red);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--yt-red-hover);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 html, body {
