@@ -5,6 +5,45 @@
 
 let currentTab = 'broadcasts';
 
+/* Dynamic Date & Variable Tag Formatting Helper */
+function formatTitleWithDynamicTags(text) {
+    if (!text) return "";
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const month2 = String(month).padStart(2, '0');
+    const day = now.getDate();
+    const day2 = String(day).padStart(2, '0');
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    const weekday = weekdays[now.getDay()];
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    return text
+        .replace(/\{date\}/g, `${month}/${day}`)
+        .replace(/\{fullDate\}/g, `${year}/${month2}/${day2}`)
+        .replace(/\{year\}/g, String(year))
+        .replace(/\{month\}/g, String(month))
+        .replace(/\{month2\}/g, month2)
+        .replace(/\{day\}/g, String(day))
+        .replace(/\{day2\}/g, day2)
+        .replace(/\{weekday\}/g, weekday)
+        .replace(/\{time\}/g, `${hours}:${minutes}`);
+}
+
+function insertTagToInput(inputId, tag) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const start = input.selectionStart || input.value.length;
+    const end = input.selectionEnd || input.value.length;
+    const val = input.value;
+
+    input.value = val.substring(0, start) + tag + val.substring(end);
+    input.selectionStart = input.selectionEnd = start + tag.length;
+    input.focus();
+}
+
 function showToast(message) {
     const toast = document.getElementById('toast');
     if (!toast) return;
@@ -387,11 +426,14 @@ async function createStreamFromPreset(presetId) {
     const preset = ytPresets.find(p => p.id === presetId);
     if (!preset) return;
 
+    const formattedTitle = formatTitleWithDynamicTags(preset.title);
+    const formattedDesc = formatTitleWithDynamicTags(preset.description);
+
     try {
         showToast(`【${preset.name}】でYouTube配信枠を生成中...`);
         const res = await createYouTubeBroadcast({
-            title: preset.title,
-            description: preset.description,
+            title: formattedTitle,
+            description: formattedDesc,
             privacy: preset.privacy,
             playlistId: preset.playlistId
         });
@@ -423,8 +465,8 @@ function applyPresetToActiveForm(presetId) {
     const privacySelect = document.getElementById('yt-current-privacy');
     const playlistSelect = document.getElementById('yt-current-playlist');
 
-    if (titleInput) titleInput.value = preset.title;
-    if (descInput) descInput.value = preset.description;
+    if (titleInput) titleInput.value = formatTitleWithDynamicTags(preset.title);
+    if (descInput) descInput.value = formatTitleWithDynamicTags(preset.description);
     if (privacySelect) privacySelect.value = preset.privacy;
     if (playlistSelect && preset.playlistId) playlistSelect.value = preset.playlistId;
 

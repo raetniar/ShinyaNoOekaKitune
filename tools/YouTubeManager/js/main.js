@@ -46,19 +46,23 @@ function initFormEvents() {
     const pushBtn = document.getElementById('yt-push-btn');
     if (pushBtn) {
         pushBtn.addEventListener('click', async function() {
-            const title = document.getElementById('yt-current-title')?.value;
-            const desc = document.getElementById('yt-current-desc')?.value;
+            const rawTitle = document.getElementById('yt-current-title')?.value;
+            const rawDesc = document.getElementById('yt-current-desc')?.value;
             const privacy = document.getElementById('yt-current-privacy')?.value;
+            const playlistId = document.getElementById('yt-current-playlist')?.value;
 
-            if (!title) {
+            if (!rawTitle) {
                 alert("配信タイトルを入力してください。");
                 return;
             }
 
+            const title = formatTitleWithDynamicTags(rawTitle);
+            const desc = formatTitleWithDynamicTags(rawDesc);
+
             try {
                 showToast("YouTubeの配信設定を更新中...");
                 const activeId = ytSettings.activeBroadcastId || "demo-broadcast-id";
-                await updateYouTubeBroadcast(activeId, { title, description: desc, privacy });
+                await updateYouTubeBroadcast(activeId, { title, description: desc, privacy, playlistId });
                 showToast("YouTubeの配信情報を更新しました！");
             } catch (e) {
                 showToast(`更新完了: ${e.message}`);
@@ -69,13 +73,17 @@ function initFormEvents() {
     const newBroadcastBtn = document.getElementById('yt-create-new-btn');
     if (newBroadcastBtn) {
         newBroadcastBtn.addEventListener('click', async function() {
-            const title = document.getElementById('yt-current-title')?.value || "【YouTube】新規ライブ配信";
-            const desc = document.getElementById('yt-current-desc')?.value || "";
+            const rawTitle = document.getElementById('yt-current-title')?.value || "【YouTube】新規ライブ配信";
+            const rawDesc = document.getElementById('yt-current-desc')?.value || "";
             const privacy = document.getElementById('yt-current-privacy')?.value || "unlisted";
+            const playlistId = document.getElementById('yt-current-playlist')?.value;
+
+            const title = formatTitleWithDynamicTags(rawTitle);
+            const desc = formatTitleWithDynamicTags(rawDesc);
 
             try {
                 showToast("新しいYouTube配信枠を作成中...");
-                const res = await createYouTubeBroadcast({ title, description: desc, privacy });
+                const res = await createYouTubeBroadcast({ title, description: desc, privacy, playlistId });
                 showToast(`配信枠を生成しました！ (ID: ${res.broadcastId})`);
             } catch (e) {
                 showToast(`枠作成完了: ${e.message}`);
