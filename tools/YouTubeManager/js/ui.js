@@ -66,6 +66,10 @@ function renderPresetsTab() {
             ? `<span class="card-badge badge-public">公開</span>`
             : (preset.privacy === 'unlisted' ? `<span class="card-badge badge-unlisted">限定公開</span>` : `<span class="card-badge badge-private">非公開</span>`);
 
+        const playlistBadge = (preset.playlistTitle || preset.playlistId) 
+            ? `<div style="font-size:11px; color:var(--yt-red); margin-bottom:8px; font-weight:bold;"><i class="fa-solid fa-list-check"></i> 再生リスト: ${escapeHtml(preset.playlistTitle || preset.playlistId)}</div>`
+            : '';
+
         return `
             <div class="preset-card" id="preset-card-${preset.id}">
                 <div class="card-header">
@@ -73,7 +77,8 @@ function renderPresetsTab() {
                     <div>${privacyBadge}</div>
                 </div>
                 <div style="font-weight:bold; margin-bottom:6px; color:var(--text-main); font-size:13px;">${escapeHtml(preset.title)}</div>
-                <div style="font-size:11.5px; color:var(--text-muted); white-space:pre-wrap; max-height:80px; overflow:hidden; margin-bottom:12px; line-height:1.4;">${escapeHtml(preset.description || '')}</div>
+                <div style="font-size:11.5px; color:var(--text-muted); white-space:pre-wrap; max-height:80px; overflow:hidden; margin-bottom:8px; line-height:1.4;">${escapeHtml(preset.description || '')}</div>
+                ${playlistBadge}
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button type="button" class="btn-primary-yt" onclick="createStreamFromPreset('${preset.id}')">
                         <i class="fa-solid fa-plus-circle"></i> このプリセットで枠作成
@@ -135,9 +140,11 @@ async function createStreamFromPreset(presetId) {
         const res = await createYouTubeBroadcast({
             title: preset.title,
             description: preset.description,
-            privacy: preset.privacy
+            privacy: preset.privacy,
+            playlistId: preset.playlistId
         });
-        showToast(`配信枠を作成しました！ (ID: ${res.broadcastId})`);
+        const plMsg = preset.playlistTitle ? ` (再生リスト「${preset.playlistTitle}」へ追加)` : '';
+        showToast(`配信枠を作成しました！${plMsg}`);
         switchTab('broadcasts');
     } catch (e) {
         showToast(`配信枠作成: ${e.message}`);
@@ -162,10 +169,12 @@ function applyPresetToActiveForm(presetId) {
     const titleInput = document.getElementById('yt-current-title');
     const descInput = document.getElementById('yt-current-desc');
     const privacySelect = document.getElementById('yt-current-privacy');
+    const playlistSelect = document.getElementById('yt-current-playlist');
 
     if (titleInput) titleInput.value = preset.title;
     if (descInput) descInput.value = preset.description;
     if (privacySelect) privacySelect.value = preset.privacy;
+    if (playlistSelect && preset.playlistId) playlistSelect.value = preset.playlistId;
 
     showToast(`プリセット「${preset.name}」をフォームに反映しました`);
     switchTab('broadcasts');
@@ -187,6 +196,7 @@ function saveNewPreset() {
     const titleInput = document.getElementById('new-preset-title');
     const descInput = document.getElementById('new-preset-desc');
     const privacySelect = document.getElementById('new-preset-privacy');
+    const playlistInput = document.getElementById('new-preset-playlist');
 
     if (!nameInput?.value || !titleInput?.value) {
         alert("プリセット名とタイトルは必須です。");
@@ -199,6 +209,8 @@ function saveNewPreset() {
         title: titleInput.value,
         description: descInput?.value || '',
         privacy: privacySelect?.value || 'unlisted',
+        playlistId: playlistInput?.value ? `PL_${Date.now()}` : '',
+        playlistTitle: playlistInput?.value || '',
         category: '20'
     };
 
@@ -211,6 +223,7 @@ function saveNewPreset() {
     nameInput.value = '';
     titleInput.value = '';
     if (descInput) descInput.value = '';
+    if (playlistInput) playlistInput.value = '';
 }
 
 function openYtTool(type) {

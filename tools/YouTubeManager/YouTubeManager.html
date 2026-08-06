@@ -217,6 +217,13 @@
                 </div>
             </div>
 
+            <label class="field-label">自動追加する再生リスト (Playlist)</label>
+            <select id="yt-current-playlist">
+                <option value="">(再生リストに追加しない)</option>
+                <option value="PL_mc_survival_demo" selected>🎬 マインクラフト配信再生リスト</option>
+                <option value="PL_ace_attorney_demo">🎬 逆転裁判実況まとめ</option>
+            </select>
+
             <label class="field-label">OBS配信キー (Stream Key)</label>
             <div style="display:flex; gap:6px; margin-bottom:12px;">
                 <input type="text" id="yt-stream-key" value="live_109283749283749_demo_key" readonly style="margin-bottom:0; font-family:monospace;">
@@ -312,17 +319,9 @@
                     <strong>🎥 YouTube Studio</strong>
                     <div style="font-size:10.5px; color:var(--text-muted);">ダッシュボード・動画管理</div>
                 </button>
-                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('liveDashboard')">
-                    <strong>🔴 ライブコントロールルーム</strong>
-                    <div style="font-size:10.5px; color:var(--text-muted);">livestreaming/dashboard ↗</div>
-                </button>
                 <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('analytics')">
                     <strong>📊 アナリティクス</strong>
                     <div style="font-size:10.5px; color:var(--text-muted);">視聴者数・再生時間</div>
-                </button>
-                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('community')">
-                    <strong>💬 コミュニティ投稿</strong>
-                    <div style="font-size:10.5px; color:var(--text-muted);">コミュニティ・告知 ↗</div>
                 </button>
             </div>
         </div>
@@ -376,12 +375,6 @@
 
             <label class="field-label">YouTube チャンネルID (例: UCxxxxxxxx... 任意)</label>
             <input type="text" id="yt-channel-id-input" placeholder="UCxxxxxxxx... (直リンク用)">
-
-            <label class="field-label">LIVEコントロール画面 カスタムURL (任意)</label>
-            <input type="text" id="yt-custom-live-url-input" placeholder="例: https://studio.youtube.com/channel/.../livestreaming/dashboard">
-
-            <label class="field-label">コミュニティ投稿画面 カスタムURL (任意)</label>
-            <input type="text" id="yt-custom-community-url-input" placeholder="例: https://www.youtube.com/channel/.../posts?pdc=OAk%3D">
 
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                 <button type="button" class="btn-outline" onclick="window.open('https://developers.google.com/oauthplayground', '_blank')">
@@ -491,6 +484,9 @@
                 <option value="unlisted" selected>🔗 限定公開</option>
                 <option value="private">🔒 非公開</option>
             </select>
+
+            <label class="field-label">追加先 再生リスト名またはID (任意)</label>
+            <input type="text" id="new-preset-playlist" placeholder="例: マインクラフト配信再生リスト">
 
             <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
                 <button type="button" class="btn-outline" onclick="closeAddPresetModal()">キャンセル</button>

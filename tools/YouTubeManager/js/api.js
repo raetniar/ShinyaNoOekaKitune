@@ -102,6 +102,15 @@ async function createYouTubeBroadcast(broadcastData) {
     // C. Bind broadcast to stream
     await youtubeApiRequest(`/liveBroadcasts/bind?id=${broadcastId}&part=id,contentDetails&streamId=${streamRes.id}`, 'POST');
 
+    // D. Optionally add to playlist if playlistId specified
+    if (broadcastData.playlistId) {
+        try {
+            await addVideoToPlaylist(broadcastData.playlistId, broadcastId);
+        } catch (e) {
+            console.warn("Could not add broadcast to playlist", e);
+        }
+    }
+
     return {
         broadcastId: broadcastId,
         broadcast: broadcastRes,
@@ -134,7 +143,17 @@ async function updateYouTubeBroadcast(broadcastId, updateData) {
         }
     };
 
-    return await youtubeApiRequest('/liveBroadcasts?part=snippet,status', 'PUT', body);
+    const updated = await youtubeApiRequest('/liveBroadcasts?part=snippet,status', 'PUT', body);
+
+    if (updateData.playlistId) {
+        try {
+            await addVideoToPlaylist(updateData.playlistId, broadcastId);
+        } catch (e) {
+            console.warn("Could not add updated broadcast to playlist", e);
+        }
+    }
+
+    return updated;
 }
 
 /**
@@ -158,4 +177,29 @@ async function fetchMyChannelDetails() {
         return ch;
     }
     return null;
+}
+
+/**
+ * 5. 動画/配信枠を再生リストに追加 (playlistItems.insert)
+ */
+async function addVideoToPlaylist(playlistId, videoId) {
+    if (!playlistId || !videoId) return null;
+    const body = {
+        snippet: {
+            playlistId: playlistId,
+            resourceId: {
+                kind: 'youtube#video',
+                videoId: videoId
+            }
+        }
+    };
+    return await youtubeApiRequest('/playlistItems?part=snippet', 'POST', body);
+}
+
+/**
+ * 6. 自分の再生リスト一覧を取得 (playlists.list)
+ */
+async function fetchMyPlaylists() {
+    const res = await youtubeApiRequest('/playlists?part=snippet&mine=true&maxResults=50', 'GET');
+    return res.items || [];
 }

@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
     SETTINGS: 'yt_manager_settings',
     PRESETS: 'yt_manager_presets',
     TITLES: 'yt_manager_titles',
+    PLAYLISTS: 'yt_manager_playlists',
     FRIENDS: 'yt_manager_friends',
     MEMO: 'yt_manager_memo',
     ACTIVE_BROADCAST: 'yt_manager_active_broadcast'
@@ -33,6 +34,8 @@ const defaultPresets = [
         description: "ご視聴ありがとうございます！\nチャット欄でマナーを守って楽しくご参加ください。\n\n◆ 参加ルール\n1. 他のプレイヤーの建築を壊さないこと\n2. 煽り行為・暴言は禁止です",
         privacy: 'public',
         category: '20',
+        playlistId: 'PL_mc_survival_demo',
+        playlistTitle: 'マインクラフト配信再生リスト',
         tags: 'Minecraft,マイクラ,参加型,ゲーム実況'
     },
     {
@@ -42,6 +45,8 @@ const defaultPresets = [
         description: "カプコンの名作『逆転裁判』を初見でじっくり攻略中！\nネタバレ・指示厨コメントはお控えいただけますようご協力お願いいたします。",
         privacy: 'unlisted',
         category: '20',
+        playlistId: 'PL_ace_attorney_demo',
+        playlistTitle: '逆転裁判実況まとめ',
         tags: '逆転裁判,ゲーム実況,初見プレイ'
     },
     {
@@ -51,6 +56,8 @@ const defaultPresets = [
         description: "皆さんこんばんは！\nお茶やお酒を片手にゆっくりしていってくださいね🍵\nマシュマロ質問箱への投稿も受け付けています！",
         privacy: 'public',
         category: '22',
+        playlistId: '',
+        playlistTitle: '',
         tags: '雑談,VTuber,おしゃべり'
     }
 ];
