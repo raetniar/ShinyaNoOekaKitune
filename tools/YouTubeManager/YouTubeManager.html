@@ -203,24 +203,10 @@
             </div>
 
             <label class="field-label">配信タイトル</label>
-            <input type="text" id="yt-current-title" placeholder="例: 【マインクラフト】サバイバル配信！ {month}/{day}({weekday})">
-
-            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; margin-top:-4px;">
-                <span style="font-size:11px; color:var(--text-muted); align-self:center; margin-right:2px;">自動タグ:</span>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{month}/{day}')">+ 日付 ({month}/{day})</button>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '({weekday})')">+ 曜日 (({weekday}))</button>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{fullDate}')">+ 年月日 ({fullDate})</button>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-title', '{time}')">+ 時間 ({time})</button>
-            </div>
+            <input type="text" id="yt-current-title" placeholder="例: 【マインクラフト】サバイバル配信！ {date}">
 
             <label class="field-label">配信概要欄（説明文）</label>
             <textarea id="yt-current-desc" placeholder="ご視聴ありがとうございます！チャット欄でマナーを守ってご参加ください。"></textarea>
-
-            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; margin-top:-4px;">
-                <span style="font-size:11px; color:var(--text-muted); align-self:center; margin-right:2px;">概要欄用タグ:</span>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-desc', '{date}')">+ 日付 ({date})</button>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('yt-current-desc', '{time}')">+ 時間 ({time})</button>
-            </div>
 
             <div style="display:flex; gap:10px; margin-bottom:10px;">
                 <div style="flex:1;">
@@ -536,14 +522,7 @@
             <input type="text" id="new-preset-name" placeholder="例: 逆転裁判用">
 
             <label class="field-label">配信タイトルテンプレート</label>
-            <input type="text" id="new-preset-title" placeholder="例: 【逆転裁判】初見プレイ！ {month}/{day}({weekday}) #01">
-
-            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; margin-top:-4px;">
-                <span style="font-size:11px; color:var(--text-muted); align-self:center; margin-right:2px;">自動タグ:</span>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('new-preset-title', '{month}/{day}')">+ 日付 ({month}/{day})</button>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('new-preset-title', '({weekday})')">+ 曜日 (({weekday}))</button>
-                <button type="button" class="btn-outline" style="font-size:10px; padding:2px 6px;" onclick="insertTagToInput('new-preset-title', '{fullDate}')">+ 年月日 ({fullDate})</button>
-            </div>
+            <input type="text" id="new-preset-title" placeholder="例: 【逆転裁判】初見プレイ！ {date} #01">
 
             <label class="field-label">配信概要欄テンプレート</label>
             <textarea id="new-preset-desc" placeholder="概要欄や説明文テンプレートを入力してください。"></textarea>
