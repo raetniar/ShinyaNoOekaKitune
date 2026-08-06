@@ -705,22 +705,14 @@
     }
     window.initCustomSlider = initCustomSlider;
 
-    function disableAuthInputs() {
-        ['token', 'client_id', 'user_id', 'user_login', 'oauth_token', 'client_secret'].forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.disabled = true;
-                input.readOnly = true;
-                input.style.cursor = 'not-allowed';
-                input.style.opacity = '0.6';
-                input.style.background = 'var(--bg-base, #111)';
-                input.placeholder = 'Web公開デモ版のため入力・変更不可';
-            }
-        });
-    }
-
     function attachAuthInputListeners() {
-        disableAuthInputs();
+        const token = document.getElementById('token');
+        const client = document.getElementById('client_id');
+        [token, client].forEach(input => {
+            if (!input || input.dataset.v5AuthListener === 'true') return;
+            input.dataset.v5AuthListener = 'true';
+            input.addEventListener('input', () => updateSettingsAuthStatus());
+        });
     }
 
     ready(() => {
