@@ -393,42 +393,48 @@
 
     <!-- Connection Help Modal -->
     <div class="modal-overlay" id="help-modal">
-        <div class="modal-container" style="max-width: 580px;">
+        <div class="modal-container" style="max-width: 600px;">
             <div class="modal-header">
-                <span class="modal-title">❓ YouTube認証 (Google OAuth 2.0) 接続ガイド</span>
+                <span class="modal-title">❓ YouTube認証 (OAuth 2.0 Playground) 接続ガイド</span>
                 <button type="button" class="btn-outline" onclick="closeYtHelpModal()" style="padding:2px 8px;">✕</button>
             </div>
 
             <div style="font-size:12.5px; line-height:1.6; color:var(--text-main);">
-                <p style="margin-top:0;">YouTubeマネージャーで枠作成・タイトル更新を行うには、YouTube Data API v3 のアクセス許可（OAuth 2.0 トークン）が必要です。</p>
+                <p style="margin-top:0;">YouTubeマネージャーで枠作成・タイトル更新を行うには、YouTube Data API v3 のアクセス許可（OAuth 2.0 アクセストークン）が必要です。</p>
+                <p style="font-size:11.5px; color:var(--text-muted); margin-top:-4px;">※OAuth 2.0 Playground は英語表記ですが、操作するのは<strong>画面左側のみ</strong>です。</p>
 
-                <h4 style="color:var(--yt-red); margin:14px 0 6px 0; font-size:13.5px;">【接続手順 5ステップ】</h4>
-                <ol style="padding-left:20px; margin:0 0 14px 0;">
-                    <li>右上の <strong>⚙️ 設定</strong> アイコンを開きます。</li>
-                    <li><a href="https://developers.google.com/oauthplayground" target="_blank" style="color:var(--yt-red); font-weight:bold;">OAuth 2.0 Playground ↗</a> を別タブで開きます。</li>
-                    <li>API Scope一覧から <code>https://www.googleapis.com/auth/youtube</code> にチェックを入れ「Authorize APIs」を押します。</li>
-                    <li>配信で使用する YouTube チャンネルの Google アカウントでログイン・許可します。</li>
-                    <li>発行された <strong>Access Token</strong> をコピーし、設定画面のアクセストークン欄に貼り付けて「保存」を押します。</li>
-                </ol>
+                <h4 style="color:var(--yt-red); margin:14px 0 6px 0; font-size:13.5px;">【トークン発行の3ステップ (画面左側)】</h4>
+                
+                <div style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:10px;">
+                    <strong style="color:var(--yt-red);">Step 1: 権限(Scope)の選択</strong>
+                    <ol style="padding-left:18px; margin:6px 0 0 0; font-size:12px;">
+                        <li><a href="https://developers.google.com/oauthplayground" target="_blank" style="color:var(--yt-red); font-weight:bold;">OAuth 2.0 Playground ↗</a> を別タブで開きます。</li>
+                        <li>画面左側リストから <code>YouTube Data API v3</code> をクリックして開きます。</li>
+                        <li>リスト内の <code>https://www.googleapis.com/auth/youtube</code> にチェックを入れます。<br><span style="font-size:11px; color:var(--text-muted);">(※一番下の「Input your own scopes」欄に直接貼り付けてもOKです)</span></li>
+                        <li>青いボタン <strong>[Authorize APIs]</strong> をクリックします。</li>
+                    </ol>
+                </div>
 
-                <h4 style="color:var(--yt-red); margin:14px 0 6px 0; font-size:13.5px;">【主な許可権限 (Scope)】</h4>
-                <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin-bottom:14px;">
-                    <tr style="border-bottom:1px solid var(--border-color); text-align:left;">
-                        <th style="padding:4px;">機能</th>
-                        <th style="padding:4px;">権限 (Scope)</th>
-                    </tr>
-                    <tr style="border-bottom:1px solid var(--border-color);">
-                        <td style="padding:4px;">配信予約枠の生成・更新</td>
-                        <td style="padding:4px;"><code>https://www.googleapis.com/auth/youtube</code></td>
-                    </tr>
-                    <tr style="border-bottom:1px solid var(--border-color);">
-                        <td style="padding:4px;">配信キー・Stream設定</td>
-                        <td style="padding:4px;"><code>https://www.googleapis.com/auth/youtube</code></td>
-                    </tr>
-                </table>
+                <div style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:10px;">
+                    <strong style="color:var(--yt-red);">Step 2: Googleアカウントでログイン・承認</strong>
+                    <ol style="padding-left:18px; margin:6px 0 0 0; font-size:12px;">
+                        <li>配信で使用する YouTube チャンネルの Google アカウントを選択します。</li>
+                        <li>アクセスリクエスト画面で <strong>[続行]</strong> または <strong>[許可]</strong> をクリックします。</li>
+                    </ol>
+                </div>
+
+                <div style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px;">
+                    <strong style="color:var(--yt-red);">Step 3: トークンの発行とコピー</strong>
+                    <ol style="padding-left:18px; margin:6px 0 0 0; font-size:12px;">
+                        <li>自動的に Playground 画面の Step 2 に戻ります。</li>
+                        <li>青いボタン <strong>[Exchange authorization code for tokens]</strong> をクリックします。</li>
+                        <li>画面左下に表示される <code>Access token: ya29.a0AR...</code> の長い英文字列を丸ごとコピーします。</li>
+                        <li>YouTubeマネージャーの <code>⚙️ 設定</code> を開き、「Google OAuth 2.0 Access Token」欄に貼り付けて <strong>[保存]</strong> を押せば完了です！</li>
+                    </ol>
+                </div>
 
                 <div style="background:rgba(229,72,77,0.1); border-left:3px solid var(--yt-red); padding:10px; font-size:11.5px; border-radius:4px;">
-                    🔒 <strong>注意:</strong> アクセストークンはあなた個人の配信管理権限を持つ秘密鍵です。配信画面やSNS、公開掲示板等に絶対に掲載しないでください。
+                    🔒 <strong>安全上の注意:</strong> アクセストークンはあなた個人の配信管理権限を持つ秘密鍵です。配信画面やSNS、公開掲示板等に絶対に掲載しないでください。
                 </div>
             </div>
 
