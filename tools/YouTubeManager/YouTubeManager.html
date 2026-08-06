@@ -368,8 +368,11 @@
 
             <div id="yt-auth-status-display"></div>
 
-            <label class="field-label">Google OAuth 2.0 Access Token</label>
-            <input type="password" id="yt-oauth-token-input" placeholder="Google OAuth 2.0 アクセストークンを入力">
+            <label class="field-label">Google OAuth 2.0 Access Token (短期・1時間)</label>
+            <input type="password" id="yt-oauth-token-input" placeholder="ya29.a0AR... アクセストークンを入力">
+
+            <label class="field-label">Google OAuth 2.0 Refresh Token (長期・自動更新用 任意)</label>
+            <input type="password" id="yt-refresh-token-input" placeholder="1//0... リフレッシュトークンを入力 (半永久的に自動維持したい場合)">
 
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                 <button type="button" class="btn-outline" onclick="window.open('https://developers.google.com/oauthplayground', '_blank')">

@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
 const defaultSettings = {
     googleClientId: '',
     googleAccessToken: '',
+    googleRefreshToken: '',
     channelId: '',
     channelName: 'YouTube User',
     defaultPrivacy: 'unlisted',

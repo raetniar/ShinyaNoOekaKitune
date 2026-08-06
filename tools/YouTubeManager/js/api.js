@@ -5,9 +5,32 @@
 
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
 
-async function youtubeApiRequest(endpoint, method = 'GET', body = null) {
+async function refreshAccessTokenIfPossible() {
+    if (!ytSettings.googleRefreshToken) return false;
+    try {
+        const res = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: ytSettings.googleRefreshToken
+            })
+        });
+        const data = await res.json();
+        if (data.access_token) {
+            ytSettings.googleAccessToken = data.access_token;
+            saveYtStorage();
+            return true;
+        }
+    } catch(e) {
+        console.error("Failed to auto-refresh Google access token", e);
+    }
+    return false;
+}
+
+async function youtubeApiRequest(endpoint, method = 'GET', body = null, isRetry = false) {
     const token = ytSettings.googleAccessToken;
-    if (!token) {
+    if (!token && !ytSettings.googleRefreshToken) {
         throw new Error("Google Access Token is missing. Please connect your Google account in Settings.");
     }
 
@@ -25,6 +48,12 @@ async function youtubeApiRequest(endpoint, method = 'GET', body = null) {
 
     const response = await fetch(url, options);
     if (!response.ok) {
+        if ((response.status === 401 || response.status === 403) && !isRetry) {
+            const refreshed = await refreshAccessTokenIfPossible();
+            if (refreshed) {
+                return await youtubeApiRequest(endpoint, method, body, true);
+            }
+        }
         const errorData = await response.json().catch(() => ({}));
         const msg = errorData?.error?.message || `YouTube API Error (${response.status})`;
         throw new Error(msg);

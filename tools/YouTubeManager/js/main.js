@@ -91,12 +91,15 @@ function openYtSettingsModal() {
         const tokenInput = document.getElementById('yt-oauth-token-input');
         if (tokenInput) tokenInput.value = ytSettings.googleAccessToken || "";
 
+        const refreshInput = document.getElementById('yt-refresh-token-input');
+        if (refreshInput) refreshInput.value = ytSettings.googleRefreshToken || "";
+
         const statusEl = document.getElementById('yt-auth-status-display');
         if (statusEl) {
-            if (ytSettings.googleAccessToken) {
+            if (ytSettings.googleAccessToken || ytSettings.googleRefreshToken) {
                 statusEl.className = 'auth-status is-ready';
                 statusEl.style.cssText = 'background: rgba(0, 200, 117, 0.15); border: 1px solid #00c875; color: #00c875; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 12px;';
-                statusEl.innerText = `連携済み: ${ytSettings.channelName || 'Google Account'}`;
+                statusEl.innerText = `連携済み: ${ytSettings.channelName || 'Google Account'} ${ytSettings.googleRefreshToken ? '(自動更新オン)' : '(1時間トークン)'}`;
             } else {
                 statusEl.className = 'auth-status';
                 statusEl.style.cssText = 'background: rgba(255, 0, 0, 0.1); border: 1px solid var(--yt-red); color: var(--yt-red); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 12px;';
@@ -115,10 +118,10 @@ function closeYtSettingsModal() {
 
 function saveYtSettings() {
     const tokenInput = document.getElementById('yt-oauth-token-input');
-    if (tokenInput) {
-        ytSettings.googleAccessToken = tokenInput.value;
-        saveYtStorage();
-        showToast("設定を保存しました");
-    }
+    const refreshInput = document.getElementById('yt-refresh-token-input');
+    if (tokenInput) ytSettings.googleAccessToken = tokenInput.value;
+    if (refreshInput) ytSettings.googleRefreshToken = refreshInput.value;
+    saveYtStorage();
+    showToast("設定を保存しました");
     closeYtSettingsModal();
 }
