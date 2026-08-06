@@ -173,13 +173,13 @@
 
         <!-- Tab Bar -->
         <div class="tab-container">
-            <button class="tab-btn active" data-tab="broadcasts">📺 配信枠</button>
-            <button class="tab-btn" data-tab="presets">📌 プリセット</button>
-            <button class="tab-btn" data-tab="titles">📝 タイトル</button>
-            <button class="tab-btn" data-tab="idList">👥 IDリスト</button>
-            <button class="tab-btn" data-tab="ytTools">🛠️ YouTubeツール</button>
-            <button class="tab-btn" data-tab="commands">💬 コマンド</button>
-            <button class="tab-btn" data-tab="memo">📓 メモ帳</button>
+            <button class="tab-btn active" data-tab="broadcasts"><i class="fa-solid fa-tower-broadcast"></i> 配信枠</button>
+            <button class="tab-btn" data-tab="presets"><i class="fa-solid fa-thumbtack"></i> プリセット</button>
+            <button class="tab-btn" data-tab="titles"><i class="fa-solid fa-pen-to-square"></i> タイトル</button>
+            <button class="tab-btn" data-tab="idList"><i class="fa-solid fa-users"></i> IDリスト</button>
+            <button class="tab-btn" data-tab="ytTools"><i class="fa-solid fa-wrench"></i> YouTubeツール</button>
+            <button class="tab-btn" data-tab="commands"><i class="fa-solid fa-comments"></i> コマンド</button>
+            <button class="tab-btn" data-tab="memo"><i class="fa-solid fa-book"></i> メモ帳</button>
         </div>
     </div>
 
@@ -188,7 +188,7 @@
         <details id="common-tag-bar-section" style="padding: 6px 10px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px;" open>
             <summary style="font-size: 11px; color: var(--text-muted); cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; font-weight: bold;">
                 <span>▼ 共通タグ (選択中のタイトル・概要欄へワンタップ挿入)</span>
-                <button type="button" style="font-size:10.5px; padding:2px 8px;" class="btn-outline" onclick="event.stopPropagation(); openTitleTagModal()">⚙️ 設定</button>
+                <button type="button" style="font-size:10.5px; padding:2px 8px;" class="btn-outline" onclick="event.stopPropagation(); openTitleTagModal()"><i class="fa-solid fa-gear"></i> 設定</button>
             </summary>
             <div id="common-tag-chip-bar" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
         </details>
@@ -284,7 +284,7 @@
     <!-- Tab 3: Titles (タイトル履歴) -->
     <div id="titles-tab" class="tab-content">
         <div class="card-item">
-            <div class="card-title" style="margin-bottom:8px;">📝 タイトル履歴・テンプレート</div>
+            <div class="card-title" style="margin-bottom:8px;"><i class="fa-solid fa-pen-to-square" style="color:var(--yt-red);"></i> タイトル履歴・テンプレート</div>
             <div style="display:flex; gap:8px; margin-bottom:8px;">
                 <input type="text" placeholder="例: 【耐久】ランクマスター目指す配信！" id="new-title-history-input" style="margin-bottom:0;">
                 <button type="button" class="btn-primary-yt" onclick="showToast('タイトルを追加しました')">追加</button>
@@ -346,14 +346,14 @@
     <!-- Tab 5: YT Tools (YouTube ツール) -->
     <div id="ytTools-tab" class="tab-content">
         <div class="card-item">
-            <div class="card-title" style="margin-bottom:10px;">🛠️ YouTube クイックツール</div>
+            <div class="card-title" style="margin-bottom:10px;"><i class="fa-solid fa-wrench" style="color:var(--yt-red);"></i> YouTube クイックツール</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('studio')">
-                    <strong>🎥 YouTube Studio</strong>
+                    <strong><i class="fa-solid fa-video" style="color:var(--yt-red);"></i> YouTube Studio</strong>
                     <div style="font-size:10.5px; color:var(--text-muted);">ダッシュボード・動画管理</div>
                 </button>
                 <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('analytics')">
-                    <strong>📊 アナリティクス</strong>
+                    <strong><i class="fa-solid fa-chart-line" style="color:var(--yt-red);"></i> アナリティクス</strong>
                     <div style="font-size:10.5px; color:var(--text-muted);">視聴者数・再生時間</div>
                 </button>
             </div>
@@ -363,7 +363,7 @@
     <!-- Tab 6: Commands (コマンド定型文) -->
     <div id="commands-tab" class="tab-content">
         <div class="card-item">
-            <div class="card-title" style="margin-bottom:10px;">💬 コマンド・告知定型文</div>
+            <div class="card-title" style="margin-bottom:10px;"><i class="fa-solid fa-comments" style="color:var(--yt-red);"></i> コマンド・告知定型文</div>
             <div style="margin-bottom:10px;">
                 <label class="field-label">配信開始ツイート用テンプレ</label>
                 <div style="display:flex; gap:6px;">
@@ -374,7 +374,7 @@
             <div>
                 <label class="field-label">チャット注意書き定型文</label>
                 <div style="display:flex; gap:6px;">
-                    <input type="text" readonly value="【お願い】ネタバレや過度な指示コメントはお控えください🙏" id="cmd-template-2">
+                    <input type="text" readonly value="【お願い】ネタバレや過度な指示コメントはお控えください" id="cmd-template-2">
                     <button class="btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('cmd-template-2').value); showToast('コピーしました');">コピー</button>
                 </div>
             </div>
@@ -384,7 +384,7 @@
     <!-- Tab 7: Memo (メモ帳) -->
     <div id="memo-tab" class="tab-content">
         <div class="card-item">
-            <div class="card-title" style="margin-bottom:8px;">📓 配信メモ</div>
+            <div class="card-title" style="margin-bottom:8px;"><i class="fa-solid fa-book" style="color:var(--yt-red);"></i> 配信メモ</div>
             <textarea id="yt-memo-editor" style="min-height:160px;" placeholder="配信進行、タイムスケジュール、今日の目標など自由にメモできます。"></textarea>
             <button type="button" class="btn-primary-yt" onclick="saveMemo()">メモを保存</button>
         </div>
@@ -394,7 +394,7 @@
     <div class="modal-overlay" id="settings-modal">
         <div class="modal-container">
             <div class="modal-header">
-                <span class="modal-title">⚙️ YouTubeマネージャー 設定</span>
+                <span class="modal-title"><i class="fa-solid fa-gear"></i> YouTubeマネージャー 設定</span>
                 <button type="button" class="btn-outline" onclick="closeYtSettingsModal()" style="padding:2px 8px;">✕</button>
             </div>
 
@@ -453,7 +453,7 @@
     <div class="modal-overlay" id="help-modal">
         <div class="modal-container" style="max-width: 600px;">
             <div class="modal-header">
-                <span class="modal-title">❓ YouTube認証 (OAuth 2.0 Playground) 接続ガイド</span>
+                <span class="modal-title"><i class="fa-solid fa-circle-question"></i> YouTube認証 (OAuth 2.0 Playground) 接続ガイド</span>
                 <button type="button" class="btn-outline" onclick="closeYtHelpModal()" style="padding:2px 8px;">✕</button>
             </div>
 
@@ -518,7 +518,7 @@
     <div class="modal-overlay" id="preset-modal">
         <div class="modal-container">
             <div class="modal-header">
-                <span class="modal-title" id="preset-modal-title">📌 新しいプリセットを追加</span>
+                <span class="modal-title" id="preset-modal-title"><i class="fa-solid fa-thumbtack"></i> 新しいプリセットを追加</span>
                 <button type="button" class="btn-outline" onclick="closeAddPresetModal()" style="padding:2px 8px;">✕</button>
             </div>
 
@@ -560,7 +560,7 @@
     <div class="modal-overlay" id="friend-modal">
         <div class="modal-container">
             <div class="modal-header">
-                <span class="modal-title" id="friend-modal-title">👥 IDリスト項目を追加</span>
+                <span class="modal-title" id="friend-modal-title"><i class="fa-solid fa-user-plus"></i> IDリスト項目を追加</span>
                 <button type="button" class="btn-outline" onclick="closeFriendModal()" style="padding:2px 8px;">✕</button>
             </div>
 
@@ -592,7 +592,7 @@
     <div id="titleTagModal" class="modal-overlay">
         <div class="modal-container" style="max-width: 520px;">
             <div class="modal-header">
-                <span class="modal-title">🏷️ 配信タイトル 共通タグ・言葉セット設定</span>
+                <span class="modal-title"><i class="fa-solid fa-tags"></i> 配信タイトル 共通タグ・言葉セット設定</span>
                 <button type="button" class="btn-outline" onclick="closeTitleTagModal()" style="padding:2px 8px;">✕</button>
             </div>
 
