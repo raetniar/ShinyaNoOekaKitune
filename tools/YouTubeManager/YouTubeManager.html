@@ -287,26 +287,44 @@
         </div>
     </div>
 
-    <!-- Tab 4: ID List (コラボ相手・チャンネル) -->
+    <!-- Tab 4: ID List (IDリスト - TwitchManager完全同等) -->
     <div id="idList-tab" class="tab-content">
-        <div class="card-item">
-            <div class="card-title" style="margin-bottom:10px;">👥 コラボ相手・関連チャンネルメモ</div>
-            <div style="display:grid; gap:8px;">
-                <div style="background:var(--bg-panel); padding:10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="font-size:13px; color:var(--text-main);">ストリーマーAさん</strong>
-                        <div style="font-size:11px; color:var(--text-muted);">毎週土曜日コラボ / マイクラサバイバル</div>
-                    </div>
-                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="navigator.clipboard.writeText('https://youtube.com/@streamer_a'); showToast('チャンネルURLをコピーしました');">URLコピー</button>
-                </div>
-                <div style="background:var(--bg-panel); padding:10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="font-size:13px; color:var(--text-main);">ストリーマーBさん</strong>
-                        <div style="font-size:11px; color:var(--text-muted);">FPS相互応援メンバー</div>
-                    </div>
-                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="navigator.clipboard.writeText('https://youtube.com/@streamer_b'); showToast('チャンネルURLをコピーしました');">URLコピー</button>
-                </div>
+        <!-- Sort Toolbar -->
+        <div class="friends-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center; background: var(--bg-card); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: bold;">表示順:</span>
+            <select id="friends-sort-select" onchange="changeFriendsSortOrder(this.value)" aria-label="表示順" style="flex: 1; font-size: 12px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 8px; border-radius: 6px; cursor: pointer; outline: none;">
+                <option value="name" selected>名前順 (A-Z)</option>
+                <option value="group">グループ別 (手動)</option>
+                <option value="recent-so">直近の応援順</option>
+                <option value="so-count">応援回数順</option>
+            </select>
+        </div>
+
+        <!-- タグで絞り込むアコーディオン -->
+        <details id="friends-tag-filter-details" style="margin-bottom: 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--text-main); outline: none;">
+            <summary style="padding: 8px 12px; cursor: pointer; font-weight: bold; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-filter" style="color:var(--yt-red);"></i>
+                    <span>タグで絞り込む</span>
+                </span>
+                <span id="friends-selected-tags-count" style="font-size: 11px; color: var(--yt-red); font-weight: bold;"></span>
+            </summary>
+            <div id="friends-tag-list" style="padding: 8px 12px; border-top: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto;">
+                <!-- JSで動的に挿入 -->
             </div>
+        </details>
+
+        <div id="friends-container" class="sortable-container">
+            <!-- Rendered by ui.js -->
+        </div>
+
+        <div class="sticky-footer-wrapper">
+            <button id="del-mode-friends" class="btn-outline" style="flex: 2; color: var(--danger); border-color: rgba(248,113,113,0.3);"
+                onclick="toggleFriendsDeleteMode()">削除</button>
+            <button class="btn-outline" style="flex: 5;"
+                onclick="openAddFriendModal()">＋ 追加</button>
+            <button class="btn-primary-yt" style="flex: 3;"
+                onclick="saveFriendsLocal()">保存</button>
         </div>
     </div>
 
@@ -491,6 +509,38 @@
             <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
                 <button type="button" class="btn-outline" onclick="closeAddPresetModal()">キャンセル</button>
                 <button type="button" class="btn-primary-yt" onclick="saveNewPreset()">追加して保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Friend Modal -->
+    <div class="modal-overlay" id="friend-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span class="modal-title" id="friend-modal-title">👥 IDリスト項目を追加</span>
+                <button type="button" class="btn-outline" onclick="closeFriendModal()" style="padding:2px 8px;">✕</button>
+            </div>
+
+            <input type="hidden" id="edit-friend-id">
+
+            <label class="field-label">名前・配信者名</label>
+            <input type="text" id="friend-name-input" placeholder="例: ストリーマーAさん">
+
+            <label class="field-label">YouTube チャンネルURL / ハンドル</label>
+            <input type="text" id="friend-url-input" placeholder="例: https://youtube.com/@streamer_a">
+
+            <label class="field-label">グループ / カテゴリ</label>
+            <input type="text" id="friend-group-input" placeholder="例: コラボ枠, FPSメンバー">
+
+            <label class="field-label">タグ (カンマ区切り)</label>
+            <input type="text" id="friend-tags-input" placeholder="例: Minecraft, 土曜コラボ">
+
+            <label class="field-label">メモ・コラボ記録</label>
+            <textarea id="friend-note-input" placeholder="コラボメモ、配信スタイル、関連情報など"></textarea>
+
+            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+                <button type="button" class="btn-outline" onclick="closeFriendModal()">キャンセル</button>
+                <button type="button" class="btn-primary-yt" onclick="saveFriendModalItem()">保存</button>
             </div>
         </div>
     </div>

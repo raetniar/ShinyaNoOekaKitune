@@ -62,10 +62,40 @@ const defaultPresets = [
     }
 ];
 
+const defaultFriends = [
+    {
+        category: "コラボ相手・フレンド",
+        friends: [
+            {
+                id: "friend-1",
+                name: "ストリーマーAさん",
+                channelUrl: "https://youtube.com/@streamer_a",
+                handle: "@streamer_a",
+                group: "コラボ枠",
+                tags: ["Minecraft", "土曜コラボ"],
+                note: "毎週土曜日マイクラサバイバルコラボ",
+                soCount: 5,
+                lastSoDate: "2026-08-01"
+            },
+            {
+                id: "friend-2",
+                name: "ストリーマーBさん",
+                channelUrl: "https://youtube.com/@streamer_b",
+                handle: "@streamer_b",
+                group: "FPSメンバー",
+                tags: ["FPS", "相互応援"],
+                note: "Apex / Valorant 相互応援メンバー",
+                soCount: 3,
+                lastSoDate: "2026-07-28"
+            }
+        ]
+    }
+];
+
 let ytSettings = { ...defaultSettings };
 let ytPresets = [...defaultPresets];
 let ytTitles = [];
-let ytFriends = [];
+let ytFriends = [...defaultFriends];
 let ytMemo = "";
 
 function loadYtStorage() {

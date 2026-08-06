@@ -27,6 +27,7 @@ function switchTab(tabId) {
 
     if (tabId === 'presets') renderPresetsTab();
     if (tabId === 'broadcasts') renderBroadcastsTab();
+    if (tabId === 'idList') renderIdListTab();
     if (tabId === 'memo') renderMemoTab();
 }
 
@@ -128,6 +129,257 @@ function saveMemo() {
         saveYtStorage();
         showToast("メモを保存しました");
     }
+}
+
+/* Render ID List (Friends) Tab - TwitchManager Identical */
+let friendsSortOrder = 'name';
+let isFriendsDeleteMode = false;
+let selectedFriendsTags = new Set();
+
+function renderIdListTab() {
+    const container = document.getElementById('friends-container');
+    if (!container) return;
+
+    // Flatten friends list
+    let allFriends = [];
+    ytFriends.forEach(cat => {
+        if (cat.friends) {
+            cat.friends.forEach(f => {
+                allFriends.push({ ...f, categoryName: cat.category || 'デフォルト' });
+            });
+        }
+    });
+
+    // Tag filter
+    if (selectedFriendsTags.size > 0) {
+        allFriends = allFriends.filter(f => {
+            if (!f.tags) return false;
+            return Array.from(selectedFriendsTags).every(tag => f.tags.includes(tag));
+        });
+    }
+
+    // Sort logic
+    if (friendsSortOrder === 'name') {
+        allFriends.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+    } else if (friendsSortOrder === 'so-count') {
+        allFriends.sort((a, b) => (b.soCount || 0) - (a.soCount || 0));
+    } else if (friendsSortOrder === 'recent-so') {
+        allFriends.sort((a, b) => (b.lastSoDate || '').localeCompare(a.lastSoDate || ''));
+    }
+
+    renderFriendsTagFilters();
+
+    if (allFriends.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">登録されたチャンネル・フレンドがありません。「＋ 追加」ボタンから作成してください。</div>`;
+        return;
+    }
+
+    container.innerHTML = allFriends.map(friend => {
+        const handleText = friend.handle || (friend.channelUrl ? friend.channelUrl.replace('https://youtube.com/', '') : '');
+        const tagBadges = (friend.tags || []).map(t => `<span class="card-badge" style="background:rgba(229,72,77,0.15); color:var(--yt-red); border:1px solid rgba(229,72,77,0.3); font-size:10px;">#${escapeHtml(t)}</span>`).join(' ');
+
+        return `
+            <div class="card-item" style="margin-bottom:10px; position:relative;">
+                <div class="card-header" style="margin-bottom:6px;">
+                    <div>
+                        <strong style="font-size:13px; color:var(--text-main);"><i class="fa-solid fa-user" style="color:var(--yt-red);"></i> ${escapeHtml(friend.name)}</strong>
+                        <span style="font-size:11px; color:var(--text-muted); margin-left:6px;">${escapeHtml(handleText)}</span>
+                    </div>
+                    ${isFriendsDeleteMode ? `<button class="btn-outline" style="color:var(--danger); border-color:rgba(248,113,113,0.3); padding:2px 8px; font-size:11px;" onclick="deleteFriendItem('${friend.id}')"><i class="fa-solid fa-trash"></i> 削除</button>` : ''}
+                </div>
+                ${tagBadges ? `<div style="margin-bottom:6px; display:flex; gap:4px; flex-wrap:wrap;">${tagBadges}</div>` : ''}
+                ${friend.note ? `<div style="font-size:11.5px; color:var(--text-muted); background:var(--bg-base); padding:6px 10px; border-radius:6px; margin-bottom:8px; line-height:1.4;">${escapeHtml(friend.note)}</div>` : ''}
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="navigator.clipboard.writeText('${friend.channelUrl || ('https://youtube.com/' + (friend.handle||''))}'); showToast('URLをコピーしました');">
+                        <i class="fa-solid fa-copy"></i> URLコピー
+                    </button>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="navigator.clipboard.writeText('${escapeHtml(friend.name)}'); showToast('名前をコピーしました');">
+                        <i class="fa-solid fa-user-tag"></i> 名前コピー
+                    </button>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="openEditFriendModal('${friend.id}')">
+                        <i class="fa-solid fa-pen"></i> 編集
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderFriendsTagFilters() {
+    const listEl = document.getElementById('friends-tag-list');
+    const countEl = document.getElementById('friends-selected-tags-count');
+    if (!listEl) return;
+
+    let allTags = new Set();
+    ytFriends.forEach(cat => {
+        if (cat.friends) {
+            cat.friends.forEach(f => {
+                if (f.tags) f.tags.forEach(t => allTags.add(t));
+            });
+        }
+    });
+
+    if (countEl) {
+        countEl.innerText = selectedFriendsTags.size > 0 ? `${selectedFriendsTags.size}件選択中` : '';
+    }
+
+    if (allTags.size === 0) {
+        listEl.innerHTML = `<span style="font-size:11px; color:var(--text-muted);">タグが登録されていません</span>`;
+        return;
+    }
+
+    listEl.innerHTML = Array.from(allTags).map(tag => {
+        const isChecked = selectedFriendsTags.has(tag);
+        return `
+            <label style="font-size:11px; padding:3px 8px; border-radius:12px; background:${isChecked ? 'var(--yt-red)' : 'var(--bg-base)'}; color:${isChecked ? '#fff' : 'var(--text-main)'}; border:1px solid var(--border-color); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                <input type="checkbox" style="display:none;" ${isChecked ? 'checked' : ''} onchange="toggleFriendsTag('${escapeHtml(tag)}')">
+                #${escapeHtml(tag)}
+            </label>
+        `;
+    }).join('');
+}
+
+function toggleFriendsTag(tag) {
+    if (selectedFriendsTags.has(tag)) {
+        selectedFriendsTags.delete(tag);
+    } else {
+        selectedFriendsTags.add(tag);
+    }
+    renderIdListTab();
+}
+
+function changeFriendsSortOrder(val) {
+    friendsSortOrder = val;
+    renderIdListTab();
+}
+
+function toggleFriendsDeleteMode() {
+    isFriendsDeleteMode = !isFriendsDeleteMode;
+    const btn = document.getElementById('del-mode-friends');
+    if (btn) {
+        btn.style.background = isFriendsDeleteMode ? 'var(--danger)' : '';
+        btn.style.color = isFriendsDeleteMode ? '#fff' : 'var(--danger)';
+    }
+    renderIdListTab();
+}
+
+function openAddFriendModal() {
+    document.getElementById('edit-friend-id').value = '';
+    document.getElementById('friend-modal-title').innerText = '👥 IDリスト項目を追加';
+    document.getElementById('friend-name-input').value = '';
+    document.getElementById('friend-url-input').value = '';
+    document.getElementById('friend-group-input').value = '';
+    document.getElementById('friend-tags-input').value = '';
+    document.getElementById('friend-note-input').value = '';
+
+    const modal = document.getElementById('friend-modal');
+    if (modal) modal.classList.add('show');
+}
+
+function openEditFriendModal(friendId) {
+    let target = null;
+    ytFriends.forEach(cat => {
+        if (cat.friends) {
+            const found = cat.friends.find(f => f.id === friendId);
+            if (found) target = found;
+        }
+    });
+
+    if (!target) return;
+
+    document.getElementById('edit-friend-id').value = target.id;
+    document.getElementById('friend-modal-title').innerText = '✏️ IDリスト項目を編集';
+    document.getElementById('friend-name-input').value = target.name || '';
+    document.getElementById('friend-url-input').value = target.channelUrl || target.handle || '';
+    document.getElementById('friend-group-input').value = target.group || '';
+    document.getElementById('friend-tags-input').value = (target.tags || []).join(', ');
+    document.getElementById('friend-note-input').value = target.note || '';
+
+    const modal = document.getElementById('friend-modal');
+    if (modal) modal.classList.add('show');
+}
+
+function closeFriendModal() {
+    const modal = document.getElementById('friend-modal');
+    if (modal) modal.classList.remove('show');
+}
+
+function saveFriendModalItem() {
+    const editId = document.getElementById('edit-friend-id').value;
+    const name = document.getElementById('friend-name-input').value;
+    const url = document.getElementById('friend-url-input').value;
+    const group = document.getElementById('friend-group-input').value || 'デフォルト';
+    const tagsStr = document.getElementById('friend-tags-input').value;
+    const note = document.getElementById('friend-note-input').value;
+
+    if (!name) {
+        alert("名前・配信者名は必須です。");
+        return;
+    }
+
+    const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    if (editId) {
+        // Edit existing
+        ytFriends.forEach(cat => {
+            if (cat.friends) {
+                const item = cat.friends.find(f => f.id === editId);
+                if (item) {
+                    item.name = name;
+                    item.channelUrl = url.startsWith('http') ? url : `https://youtube.com/${url}`;
+                    item.handle = url.startsWith('@') ? url : '';
+                    item.group = group;
+                    item.tags = tags;
+                    item.note = note;
+                }
+            }
+        });
+        showToast("項目を更新しました");
+    } else {
+        // Add new
+        let cat = ytFriends.find(c => c.category === group);
+        if (!cat) {
+            cat = { category: group, friends: [] };
+            ytFriends.push(cat);
+        }
+
+        const newItem = {
+            id: `friend-${Date.now()}`,
+            name: name,
+            channelUrl: url.startsWith('http') ? url : `https://youtube.com/${url}`,
+            handle: url.startsWith('@') ? url : '',
+            group: group,
+            tags: tags,
+            note: note,
+            soCount: 0,
+            lastSoDate: ""
+        };
+
+        cat.friends.push(newItem);
+        showToast("新しい項目を追加しました");
+    }
+
+    saveYtStorage();
+    closeFriendModal();
+    renderIdListTab();
+}
+
+function deleteFriendItem(friendId) {
+    if (confirm("この項目を削除しますか？")) {
+        ytFriends.forEach(cat => {
+            if (cat.friends) {
+                cat.friends = cat.friends.filter(f => f.id !== friendId);
+            }
+        });
+        saveYtStorage();
+        renderIdListTab();
+        showToast("項目を削除しました");
+    }
+}
+
+function saveFriendsLocal() {
+    saveYtStorage();
+    showToast("IDリストを保存しました");
 }
 
 /* Create Stream from Preset */
