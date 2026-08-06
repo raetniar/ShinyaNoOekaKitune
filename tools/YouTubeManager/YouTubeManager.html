@@ -308,21 +308,21 @@
         <div class="card-item">
             <div class="card-title" style="margin-bottom:10px;">🛠️ YouTube クイックツール</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://studio.youtube.com', '_blank')">
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('studio')">
                     <strong>🎥 YouTube Studio</strong>
                     <div style="font-size:10.5px; color:var(--text-muted);">ダッシュボード・動画管理</div>
                 </button>
-                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://studio.youtube.com/channel/live', '_blank')">
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('liveDashboard')">
                     <strong>🔴 ライブコントロールルーム</strong>
-                    <div style="font-size:10.5px; color:var(--text-muted);">配信監視・チャット</div>
+                    <div style="font-size:10.5px; color:var(--text-muted);">livestreaming/dashboard ↗</div>
                 </button>
-                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://analytics.youtube.com', '_blank')">
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('analytics')">
                     <strong>📊 アナリティクス</strong>
                     <div style="font-size:10.5px; color:var(--text-muted);">視聴者数・再生時間</div>
                 </button>
-                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://studio.youtube.com/channel/community', '_blank')">
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="openYtTool('community')">
                     <strong>💬 コミュニティ投稿</strong>
-                    <div style="font-size:10.5px; color:var(--text-muted);">告知アンケート</div>
+                    <div style="font-size:10.5px; color:var(--text-muted);">コミュニティ・告知 ↗</div>
                 </button>
             </div>
         </div>
@@ -373,6 +373,9 @@
 
             <label class="field-label">Google OAuth 2.0 Refresh Token (長期・自動更新用 任意)</label>
             <input type="password" id="yt-refresh-token-input" placeholder="1//0... リフレッシュトークンを入力 (半永久的に自動維持したい場合)">
+
+            <label class="field-label">YouTube チャンネルID (例: UCxxxxxxxx... 任意)</label>
+            <input type="text" id="yt-channel-id-input" placeholder="UCxxxxxxxx... (LIVEコントロール・コミュニティ直リンク用)">
 
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                 <button type="button" class="btn-outline" onclick="window.open('https://developers.google.com/oauthplayground', '_blank')">

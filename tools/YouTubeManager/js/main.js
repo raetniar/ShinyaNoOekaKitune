@@ -94,6 +94,9 @@ function openYtSettingsModal() {
         const refreshInput = document.getElementById('yt-refresh-token-input');
         if (refreshInput) refreshInput.value = ytSettings.googleRefreshToken || "";
 
+        const chIdInput = document.getElementById('yt-channel-id-input');
+        if (chIdInput) chIdInput.value = ytSettings.channelId || "";
+
         const statusEl = document.getElementById('yt-auth-status-display');
         if (statusEl) {
             if (ytSettings.googleAccessToken || ytSettings.googleRefreshToken) {
@@ -119,8 +122,12 @@ function closeYtSettingsModal() {
 function saveYtSettings() {
     const tokenInput = document.getElementById('yt-oauth-token-input');
     const refreshInput = document.getElementById('yt-refresh-token-input');
+    const chIdInput = document.getElementById('yt-channel-id-input');
+
     if (tokenInput) ytSettings.googleAccessToken = tokenInput.value;
     if (refreshInput) ytSettings.googleRefreshToken = refreshInput.value;
+    if (chIdInput) ytSettings.channelId = chIdInput.value;
+
     saveYtStorage();
     showToast("設定を保存しました");
     closeYtSettingsModal();
