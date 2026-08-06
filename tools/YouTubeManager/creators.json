@@ -1,0 +1,14 @@
+[
+    {
+        "id": "yt-001",
+        "name": "YouTube Japan 公式",
+        "youtube": "YouTubeJapan",
+        "category": "Official"
+    },
+    {
+        "id": "yt-002",
+        "name": "OBS Project",
+        "youtube": "obsproject",
+        "category": "Tools"
+    }
+]

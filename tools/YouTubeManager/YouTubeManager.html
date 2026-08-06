@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YouTubeマネージャー (YouTubeManager)</title>
+    
+    <!-- Google Fonts: Outfit + Noto Sans JP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        // Immediate API Mock Setup for DEMO mode
+        (function() {
+            window.youtubeApiRequest = async function(endpoint, method = 'GET', body = null) {
+                if (typeof showToast === 'function') {
+                    showToast("【DEMO動作】YouTube Data API通信（※実際の枠作成・更新は行われません）");
+                }
+                return { id: `demo-broadcast-${Date.now()}`, items: [] };
+            };
+        })();
+    </script>
+
+    <link rel="stylesheet" href="youtube_manager.css">
+
+    <style>
+        .tool-header-bar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 16px;
+            padding: 12px 16px;
+            background-color: var(--bg-card, #181818);
+            border-bottom: 1px solid var(--border-color, #383838);
+            position: relative;
+            z-index: 2000;
+            margin: -12px -14px 14px -14px !important;
+        }
+
+        body.light-mode .tool-header-bar, body.light-theme .tool-header-bar {
+            background-color: #ffffff !important;
+            border-bottom-color: #e5e5e5 !important;
+        }
+
+        .tool-title-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tool-name-heading {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: var(--text-main, #f1f1f1);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        body.light-mode .tool-name-heading, body.light-theme .tool-name-heading {
+            color: #0f0f0f !important;
+        }
+
+        .tool-description-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted, #aaaaaa);
+            font-weight: 300;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .tool-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .header-theme-toggle, .header-booth-btn, .header-github-btn, .back-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        body.light-mode .header-theme-toggle, body.light-theme .header-theme-toggle {
+            color: #111111;
+            border-color: #d1d5db;
+            background-color: #f3f4f6;
+        }
+
+        body.dark-mode .header-booth-btn, body:not(.light-mode):not(.light-theme) .header-booth-btn {
+            color: #ffffff;
+            background-color: #111111;
+            border: 1px solid #ffffff;
+        }
+        body.dark-mode .header-github-btn, body:not(.light-mode):not(.light-theme) .header-github-btn {
+            color: #f0f6fc;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+        }
+        body.dark-mode .back-home-btn, body:not(.light-mode):not(.light-theme) .back-home-btn {
+            color: #efeff1;
+            background-color: #18181b;
+            border: 1px solid #3a3a3d;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 共通Webツールヘッダー -->
+    <header class="tool-header-bar">
+        <div class="tool-title-area">
+            <div class="tool-title-row">
+                <h1 class="tool-name-heading"><i class="fa-brands fa-youtube" style="color:var(--yt-red);"></i> YouTubeマネージャー (YouTubeManager)</h1>
+            </div>
+            <span class="tool-description-sub">OBSカスタムドック対応・YouTube Live配信枠の予約生成・タイトル・概要欄・プリセット一括管理</span>
+        </div>
+        <div class="tool-header-actions">
+            <button type="button" class="header-theme-toggle" id="top-header-theme-btn" onclick="toggleTheme()" aria-label="テーマ切替">
+                <i class="fa-solid fa-moon"></i> <span class="btn-text">ダーク</span>
+            </button>
+            <a href="https://toumei2suisai.booth.pm" target="_blank" rel="noopener noreferrer" class="header-booth-btn">
+                <i class="fa-solid fa-shop"></i> <span class="btn-text">booth</span>
+            </a>
+            <a href="https://github.com/MagnestGames" target="_blank" rel="noopener noreferrer" class="header-github-btn">
+                <i class="fa-brands fa-github"></i> <span class="btn-text">GitHub</span>
+            </a>
+            <a href="../../index.html" class="back-home-btn">
+                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span>
+            </a>
+        </div>
+    </header>
+<div id="toast" role="status" aria-live="polite">完了しました</div>
+
+    <!-- Header Controls & Clock -->
+    <div class="sticky-top-wrapper">
+        <div class="app-header">
+            <h1 class="app-title">
+                <i class="fa-brands fa-youtube"></i>
+                <span id="today-date" style="color: var(--text-muted); font-weight: normal; font-size: 11.5px;"></span>
+                <span style="font-size: 10px; background: rgba(255, 0, 0, 0.15); color: var(--yt-red); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--yt-red-border);">v1.0.0</span>
+            </h1>
+            <div class="app-header-controls">
+                <button id="top-header-theme-btn" class="btn-head-yt" onclick="toggleTheme()" aria-label="テーマ切替">
+                    <i class="fa-solid fa-moon"></i> <span class="btn-text">ダーク</span>
+                </button>
+                <button class="btn-head-yt" onclick="openYtSettingsModal()" title="設定">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="tab-container">
+            <button class="tab-btn active" data-tab="broadcasts">📺 配信枠</button>
+            <button class="tab-btn" data-tab="presets">📌 プリセット</button>
+            <button class="tab-btn" data-tab="titles">📝 タイトル</button>
+            <button class="tab-btn" data-tab="idList">👥 IDリスト</button>
+            <button class="tab-btn" data-tab="ytTools">🛠️ YouTubeツール</button>
+            <button class="tab-btn" data-tab="commands">💬 コマンド</button>
+            <button class="tab-btn" data-tab="memo">📓 メモ帳</button>
+        </div>
+    </div>
+
+    <!-- Tab 1: Broadcasts (配信枠) -->
+    <div id="broadcasts-tab" class="tab-content active">
+        <div class="card-item">
+            <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-tower-broadcast" style="color:var(--yt-red);"></i> 配信枠の設定・管理</span>
+                <span class="card-badge badge-unlisted" id="current-privacy-badge">限定公開</span>
+            </div>
+
+            <label class="field-label">配信タイトル</label>
+            <input type="text" id="yt-current-title" placeholder="例: 【マインクラフト】サバイバル配信！ #01">
+
+            <label class="field-label">配信概要欄（説明文）</label>
+            <textarea id="yt-current-desc" placeholder="ご視聴ありがとうございます！チャット欄でマナーを守ってご参加ください。"></textarea>
+
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <div style="flex:1;">
+                    <label class="field-label">公開範囲</label>
+                    <select id="yt-current-privacy">
+                        <option value="public">🌐 公開 (Public)</option>
+                        <option value="unlisted" selected>🔗 限定公開 (Unlisted)</option>
+                        <option value="private">🔒 非公開 (Private)</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label class="field-label">カテゴリ</label>
+                    <select id="yt-current-category">
+                        <option value="20" selected>🎮 ゲーム (Gaming)</option>
+                        <option value="22">💬 雑談・ブログ (People & Blogs)</option>
+                        <option value="10">🎵 音楽 (Music)</option>
+                        <option value="24">🎬 エンタメ (Entertainment)</option>
+                    </select>
+                </div>
+            </div>
+
+            <label class="field-label">OBS配信キー (Stream Key)</label>
+            <div style="display:flex; gap:6px; margin-bottom:12px;">
+                <input type="text" id="yt-stream-key" value="live_109283749283749_demo_key" readonly style="margin-bottom:0; font-family:monospace;">
+                <button type="button" class="btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('yt-stream-key').value); showToast('配信キーをコピーしました');">コピー</button>
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;">
+                <button type="button" class="btn-primary-yt" id="yt-push-btn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> YouTubeへ反映
+                </button>
+                <button type="button" class="btn-outline" id="yt-create-new-btn">
+                    <i class="fa-solid fa-plus-circle"></i> 新規予約枠を生成
+                </button>
+                <button type="button" class="btn-outline" onclick="window.open('https://studio.youtube.com', '_blank')">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> YouTube Studioを開く ↗
+                </button>
+            </div>
+        </div>
+
+        <div class="sticky-footer-wrapper">
+            <button type="button" class="btn-outline" onclick="switchTab('presets')">📌 プリセット一覧</button>
+            <button type="button" class="btn-primary-yt" onclick="document.getElementById('yt-push-btn').click()">保存・反映</button>
+        </div>
+    </div>
+
+    <!-- Tab 2: Presets (プリセット) -->
+    <div id="presets-tab" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div>
+                <h3 style="margin:0; font-size:14px; font-weight:800;">配信プリセット</h3>
+                <span style="font-size:11.5px; color:var(--text-muted);">マイクラ用や逆転裁判用など、ゲームごとの設定を一発適用・枠生成できます。</span>
+            </div>
+            <button type="button" class="btn-primary-yt" onclick="openAddPresetModal()">
+                <i class="fa-solid fa-plus"></i> プリセット追加
+            </button>
+        </div>
+
+        <div id="presets-list-container">
+            <!-- Rendered by ui.js -->
+        </div>
+    </div>
+
+    <!-- Tab 3: Titles (タイトル履歴) -->
+    <div id="titles-tab" class="tab-content">
+        <div class="card-item">
+            <div class="card-title" style="margin-bottom:8px;">📝 タイトル履歴・テンプレート</div>
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+                <input type="text" placeholder="例: 【耐久】ランクマスター目指す配信！" id="new-title-history-input" style="margin-bottom:0;">
+                <button type="button" class="btn-primary-yt" onclick="showToast('タイトルを追加しました')">追加</button>
+            </div>
+            <ul style="list-style:none; padding:0; margin:0; font-size:12.5px;" id="title-history-list">
+                <li style="padding:8px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                    <span>・ 【マインクラフト】参加型サバイバル配信！建築＆冒険するぞ！ #01</span>
+                    <button class="btn-outline" style="padding:3px 8px; font-size:11px;" onclick="document.getElementById('yt-current-title').value = '【マインクラフト】参加型サバイバル配信！建築＆冒険するぞ！ #01'; switchTab('broadcasts');">使用</button>
+                </li>
+                <li style="padding:8px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                    <span>・ 【逆転裁判】初見プレイ！異議あり！法廷バトル突破なるか #03</span>
+                    <button class="btn-outline" style="padding:3px 8px; font-size:11px;" onclick="document.getElementById('yt-current-title').value = '【逆転裁判】初見プレイ！異議あり！法廷バトル突破なるか #03'; switchTab('broadcasts');">使用</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab 4: ID List (コラボ相手・チャンネル) -->
+    <div id="idList-tab" class="tab-content">
+        <div class="card-item">
+            <div class="card-title" style="margin-bottom:10px;">👥 コラボ相手・関連チャンネルメモ</div>
+            <div style="display:grid; gap:8px;">
+                <div style="background:var(--bg-panel); padding:10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="font-size:13px; color:var(--text-main);">ストリーマーAさん</strong>
+                        <div style="font-size:11px; color:var(--text-muted);">毎週土曜日コラボ / マイクラサバイバル</div>
+                    </div>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="navigator.clipboard.writeText('https://youtube.com/@streamer_a'); showToast('チャンネルURLをコピーしました');">URLコピー</button>
+                </div>
+                <div style="background:var(--bg-panel); padding:10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="font-size:13px; color:var(--text-main);">ストリーマーBさん</strong>
+                        <div style="font-size:11px; color:var(--text-muted);">FPS相互応援メンバー</div>
+                    </div>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="navigator.clipboard.writeText('https://youtube.com/@streamer_b'); showToast('チャンネルURLをコピーしました');">URLコピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 5: YT Tools (YouTube ツール) -->
+    <div id="ytTools-tab" class="tab-content">
+        <div class="card-item">
+            <div class="card-title" style="margin-bottom:10px;">🛠️ YouTube クイックツール</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://studio.youtube.com', '_blank')">
+                    <strong>🎥 YouTube Studio</strong>
+                    <div style="font-size:10.5px; color:var(--text-muted);">ダッシュボード・動画管理</div>
+                </button>
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://studio.youtube.com/channel/live', '_blank')">
+                    <strong>🔴 ライブコントロールルーム</strong>
+                    <div style="font-size:10.5px; color:var(--text-muted);">配信監視・チャット</div>
+                </button>
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://analytics.youtube.com', '_blank')">
+                    <strong>📊 アナリティクス</strong>
+                    <div style="font-size:10.5px; color:var(--text-muted);">視聴者数・再生時間</div>
+                </button>
+                <button type="button" class="btn-outline" style="text-align:left; padding:10px;" onclick="window.open('https://studio.youtube.com/channel/community', '_blank')">
+                    <strong>💬 コミュニティ投稿</strong>
+                    <div style="font-size:10.5px; color:var(--text-muted);">告知アンケート</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 6: Commands (コマンド定型文) -->
+    <div id="commands-tab" class="tab-content">
+        <div class="card-item">
+            <div class="card-title" style="margin-bottom:10px;">💬 コマンド・告知定型文</div>
+            <div style="margin-bottom:10px;">
+                <label class="field-label">配信開始ツイート用テンプレ</label>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" readonly value="【配信開始】マイクラサバイバル始めるよ！見に来てね！ #YouTubeLive" id="cmd-template-1">
+                    <button class="btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('cmd-template-1').value); showToast('コピーしました');">コピー</button>
+                </div>
+            </div>
+            <div>
+                <label class="field-label">チャット注意書き定型文</label>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" readonly value="【お願い】ネタバレや過度な指示コメントはお控えください🙏" id="cmd-template-2">
+                    <button class="btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('cmd-template-2').value); showToast('コピーしました');">コピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 7: Memo (メモ帳) -->
+    <div id="memo-tab" class="tab-content">
+        <div class="card-item">
+            <div class="card-title" style="margin-bottom:8px;">📓 配信メモ</div>
+            <textarea id="yt-memo-editor" style="min-height:160px;" placeholder="配信進行、タイムスケジュール、今日の目標など自由にメモできます。"></textarea>
+            <button type="button" class="btn-primary-yt" onclick="saveMemo()">メモを保存</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span class="modal-title">⚙️ YouTubeマネージャー 設定</span>
+                <button type="button" class="btn-outline" onclick="closeYtSettingsModal()" style="padding:2px 8px;">✕</button>
+            </div>
+
+            <div id="yt-auth-status-display"></div>
+
+            <label class="field-label">Google OAuth 2.0 Access Token</label>
+            <input type="password" id="yt-oauth-token-input" placeholder="Google OAuth 2.0 アクセストークンを入力">
+
+            <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
+                Google OAuth 2.0 認証トークンを設定することで、YouTube Data API v3 経由で直接配信枠の作成や更新を行えます。
+            </div>
+
+            <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" class="btn-outline" onclick="closeYtSettingsModal()">キャンセル</button>
+                <button type="button" class="btn-primary-yt" onclick="saveYtSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Preset Modal -->
+    <div class="modal-overlay" id="preset-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span class="modal-title">📌 新しいプリセットを追加</span>
+                <button type="button" class="btn-outline" onclick="closeAddPresetModal()" style="padding:2px 8px;">✕</button>
+            </div>
+
+            <label class="field-label">プリセット名</label>
+            <input type="text" id="new-preset-name" placeholder="例: 逆転裁判用">
+
+            <label class="field-label">配信タイトルテンプレート</label>
+            <input type="text" id="new-preset-title" placeholder="例: 【逆転裁判】初見プレイ！第1話 #01">
+
+            <label class="field-label">配信概要欄テンプレート</label>
+            <textarea id="new-preset-desc" placeholder="概要欄や説明文テンプレートを入力してください。"></textarea>
+
+            <label class="field-label">デフォルト公開範囲</label>
+            <select id="new-preset-privacy">
+                <option value="public">🌐 公開</option>
+                <option value="unlisted" selected>🔗 限定公開</option>
+                <option value="private">🔒 非公開</option>
+            </select>
+
+            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+                <button type="button" class="btn-outline" onclick="closeAddPresetModal()">キャンセル</button>
+                <button type="button" class="btn-primary-yt" onclick="saveNewPreset()">追加して保存</button>
+            </div>
+        </div>
+    </div>
+    <!-- 共通Webツールフッター -->
+    <script src="../footer.js"></script>
+</body>
+
+</html>
