@@ -8,8 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initTabEvents();
     initFormEvents();
 
-    // Initial Tab Render
+    // Initial Tab Render & Playlist Sync
     switchTab('broadcasts');
+    loadUserPlaylists();
 
     // Saved Theme Init
     const savedTheme = localStorage.getItem('stream_theme') || 'dark';

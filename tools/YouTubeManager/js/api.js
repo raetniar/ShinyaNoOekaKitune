@@ -203,3 +203,19 @@ async function fetchMyPlaylists() {
     const res = await youtubeApiRequest('/playlists?part=snippet&mine=true&maxResults=50', 'GET');
     return res.items || [];
 }
+
+/**
+ * 7. 新しい再生リストを作成 (playlists.insert)
+ */
+async function createYouTubePlaylist(title, description = "YouTubeマネージャーにより作成された再生リスト", privacyStatus = "public") {
+    const body = {
+        snippet: {
+            title: title,
+            description: description
+        },
+        status: {
+            privacyStatus: privacyStatus
+        }
+    };
+    return await youtubeApiRequest('/playlists?part=snippet,status', 'POST', body);
+}

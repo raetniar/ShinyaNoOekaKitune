@@ -281,9 +281,108 @@ function renderPresetsTab() {
     }).join('');
 }
 
+/* Playlist Loading & Creation Handlers */
+async function loadUserPlaylists() {
+    let loaded = [];
+
+    // Attempt to fetch from YouTube API if authenticated
+    if (ytSettings.googleAccessToken) {
+        try {
+            const apiItems = await fetchMyPlaylists();
+            if (Array.isArray(apiItems) && apiItems.length > 0) {
+                loaded = apiItems.map(item => ({
+                    id: item.id,
+                    title: item.snippet?.title || item.id
+                }));
+            }
+        } catch (e) {
+            console.warn("Failed to fetch playlists from YouTube Data API:", e);
+        }
+    }
+
+    // Default fallback playlists if empty or unauthenticated
+    if (loaded.length === 0) {
+        if (ytPlaylists && ytPlaylists.length > 0) {
+            loaded = ytPlaylists;
+        } else {
+            loaded = [
+                { id: 'PL_mc_survival_demo', title: 'マインクラフト配信再生リスト' },
+                { id: 'PL_ace_attorney_demo', title: '逆転裁判実況まとめ' }
+            ];
+        }
+    }
+
+    ytPlaylists = loaded;
+    saveYtStorage();
+    populatePlaylistDropdowns();
+}
+
+function populatePlaylistDropdowns() {
+    const selects = ['yt-current-playlist', 'new-preset-playlist'];
+    selects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const currentVal = el.value || "";
+
+        let html = `<option value="">(再生リストに追加しない)</option>`;
+        ytPlaylists.forEach(pl => {
+            html += `<option value="${escapeHtml(pl.id)}">🎬 ${escapeHtml(pl.title)}</option>`;
+        });
+        html += `<option value="__create_new__" style="color:var(--yt-red); font-weight:bold;">➕ 【新規再生リストを作成...】</option>`;
+        el.innerHTML = html;
+
+        if (currentVal && currentVal !== '__create_new__') {
+            el.value = currentVal;
+        }
+    });
+}
+
+function handlePlaylistSelectChange(value, selectId) {
+    if (value === '__create_new__') {
+        handleCreateNewPlaylist(selectId);
+    }
+}
+
+async function handleCreateNewPlaylist(targetSelectId = 'yt-current-playlist') {
+    const title = prompt("新しい再生リストのタイトルを入力してください:");
+    if (!title || !title.trim()) {
+        const el = document.getElementById(targetSelectId);
+        if (el && el.value === '__create_new__') el.value = "";
+        return;
+    }
+
+    const cleanTitle = title.trim();
+    let newId = 'PL_custom_' + Date.now();
+
+    if (ytSettings.googleAccessToken) {
+        try {
+            const res = await createYouTubePlaylist(cleanTitle);
+            if (res && res.id) {
+                newId = res.id;
+                showToast(`YouTubeに新規再生リスト「${cleanTitle}」を作成しました！`);
+            }
+        } catch (e) {
+            console.error("Failed to create playlist via API:", e);
+            showToast("APIでの作成に失敗したため、ローカルに追加しました");
+        }
+    } else {
+        showToast(`新規再生リスト「${cleanTitle}」を作成しました！`);
+    }
+
+    ytPlaylists.unshift({ id: newId, title: cleanTitle });
+    saveYtStorage();
+
+    populatePlaylistDropdowns();
+    const selectEl = document.getElementById(targetSelectId);
+    if (selectEl) {
+        selectEl.value = newId;
+    }
+}
+
 /* Render Broadcasts Tab */
 function renderBroadcastsTab() {
     renderCommonTagBar();
+    populatePlaylistDropdowns();
 
     // Current Broadcast Form
     const titleInput = document.getElementById('yt-current-title');

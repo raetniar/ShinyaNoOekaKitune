@@ -228,11 +228,15 @@
                 </div>
             </div>
 
-            <label class="field-label">自動追加する再生リスト (Playlist)</label>
-            <select id="yt-current-playlist">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <label class="field-label" style="margin-bottom:0;">自動追加する再生リスト (Playlist)</label>
+                <div style="display:flex; gap:4px;">
+                    <button type="button" class="btn-outline" style="font-size:10.5px; padding:2px 8px;" onclick="loadUserPlaylists()"><i class="fa-solid fa-arrows-rotate"></i> 再生リスト更新</button>
+                    <button type="button" class="btn-outline" style="font-size:10.5px; padding:2px 8px; color:var(--yt-red); border-color:var(--yt-red);" onclick="handleCreateNewPlaylist()"><i class="fa-solid fa-plus"></i> 新規作成</button>
+                </div>
+            </div>
+            <select id="yt-current-playlist" onchange="handlePlaylistSelectChange(this.value, 'yt-current-playlist')">
                 <option value="">(再生リストに追加しない)</option>
-                <option value="PL_mc_survival_demo" selected>🎬 マインクラフト配信再生リスト</option>
-                <option value="PL_ace_attorney_demo">🎬 逆転裁判実況まとめ</option>
             </select>
 
             <label class="field-label">OBS配信キー (Stream Key)</label>
@@ -534,8 +538,16 @@
                 <option value="private">🔒 非公開</option>
             </select>
 
-            <label class="field-label">追加先 再生リスト名またはID (任意)</label>
-            <input type="text" id="new-preset-playlist" placeholder="例: マインクラフト配信再生リスト">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <label class="field-label" style="margin-bottom:0;">追加先 再生リスト (任意)</label>
+                <div style="display:flex; gap:4px;">
+                    <button type="button" class="btn-outline" style="font-size:10.5px; padding:2px 8px;" onclick="loadUserPlaylists()"><i class="fa-solid fa-arrows-rotate"></i> 更新</button>
+                    <button type="button" class="btn-outline" style="font-size:10.5px; padding:2px 8px; color:var(--yt-red); border-color:var(--yt-red);" onclick="handleCreateNewPlaylist()"><i class="fa-solid fa-plus"></i> 新規作成</button>
+                </div>
+            </div>
+            <select id="new-preset-playlist" onchange="handlePlaylistSelectChange(this.value, 'new-preset-playlist')">
+                <option value="">(再生リストに追加しない)</option>
+            </select>
 
             <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
                 <button type="button" class="btn-outline" onclick="closeAddPresetModal()">キャンセル</button>
