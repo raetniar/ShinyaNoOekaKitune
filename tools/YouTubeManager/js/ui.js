@@ -213,6 +213,16 @@ function saveNewPreset() {
     if (descInput) descInput.value = '';
 }
 
+function openYtHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) modal.classList.add('show');
+}
+
+function closeYtHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) modal.classList.remove('show');
+}
+
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)

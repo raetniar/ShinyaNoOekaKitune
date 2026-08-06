@@ -162,6 +162,9 @@
                 <button id="top-header-theme-btn" class="btn-head-yt" onclick="toggleTheme()" aria-label="テーマ切替">
                     <i class="fa-solid fa-moon"></i> <span class="btn-text">ダーク</span>
                 </button>
+                <button class="btn-head-yt" onclick="openYtHelpModal()" title="接続ヘルプガイド">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
                 <button class="btn-head-yt" onclick="openYtSettingsModal()" title="設定">
                     <i class="fa-solid fa-gear"></i>
                 </button>
@@ -368,13 +371,69 @@
             <label class="field-label">Google OAuth 2.0 Access Token</label>
             <input type="password" id="yt-oauth-token-input" placeholder="Google OAuth 2.0 アクセストークンを入力">
 
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+                <button type="button" class="btn-outline" onclick="window.open('https://developers.google.com/oauthplayground', '_blank')">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> OAuth 2.0 Playground ↗
+                </button>
+                <button type="button" class="btn-outline" onclick="openYtHelpModal()">
+                    <i class="fa-solid fa-circle-question"></i> 接続ヘルプ表示
+                </button>
+            </div>
+
             <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
-                Google OAuth 2.0 認証トークンを設定することで、YouTube Data API v3 経由で直接配信枠の作成や更新を行えます。
+                Google OAuth 2.0 認証トークンを設定することで、YouTube Data API v3 経由で直接配信枠の作成や更新を行えます。詳しい手順は上記のヘルプから確認できます。
             </div>
 
             <div style="display:flex; gap:8px; justify-content:flex-end;">
                 <button type="button" class="btn-outline" onclick="closeYtSettingsModal()">キャンセル</button>
                 <button type="button" class="btn-primary-yt" onclick="saveYtSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Help Modal -->
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal-container" style="max-width: 580px;">
+            <div class="modal-header">
+                <span class="modal-title">❓ YouTube認証 (Google OAuth 2.0) 接続ガイド</span>
+                <button type="button" class="btn-outline" onclick="closeYtHelpModal()" style="padding:2px 8px;">✕</button>
+            </div>
+
+            <div style="font-size:12.5px; line-height:1.6; color:var(--text-main);">
+                <p style="margin-top:0;">YouTubeマネージャーで枠作成・タイトル更新を行うには、YouTube Data API v3 のアクセス許可（OAuth 2.0 トークン）が必要です。</p>
+
+                <h4 style="color:var(--yt-red); margin:14px 0 6px 0; font-size:13.5px;">【接続手順 5ステップ】</h4>
+                <ol style="padding-left:20px; margin:0 0 14px 0;">
+                    <li>右上の <strong>⚙️ 設定</strong> アイコンを開きます。</li>
+                    <li><a href="https://developers.google.com/oauthplayground" target="_blank" style="color:var(--yt-red); font-weight:bold;">OAuth 2.0 Playground ↗</a> を別タブで開きます。</li>
+                    <li>API Scope一覧から <code>https://www.googleapis.com/auth/youtube</code> にチェックを入れ「Authorize APIs」を押します。</li>
+                    <li>配信で使用する YouTube チャンネルの Google アカウントでログイン・許可します。</li>
+                    <li>発行された <strong>Access Token</strong> をコピーし、設定画面のアクセストークン欄に貼り付けて「保存」を押します。</li>
+                </ol>
+
+                <h4 style="color:var(--yt-red); margin:14px 0 6px 0; font-size:13.5px;">【主な許可権限 (Scope)】</h4>
+                <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin-bottom:14px;">
+                    <tr style="border-bottom:1px solid var(--border-color); text-align:left;">
+                        <th style="padding:4px;">機能</th>
+                        <th style="padding:4px;">権限 (Scope)</th>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--border-color);">
+                        <td style="padding:4px;">配信予約枠の生成・更新</td>
+                        <td style="padding:4px;"><code>https://www.googleapis.com/auth/youtube</code></td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--border-color);">
+                        <td style="padding:4px;">配信キー・Stream設定</td>
+                        <td style="padding:4px;"><code>https://www.googleapis.com/auth/youtube</code></td>
+                    </tr>
+                </table>
+
+                <div style="background:rgba(229,72,77,0.1); border-left:3px solid var(--yt-red); padding:10px; font-size:11.5px; border-radius:4px;">
+                    🔒 <strong>注意:</strong> アクセストークンはあなた個人の配信管理権限を持つ秘密鍵です。配信画面やSNS、公開掲示板等に絶対に掲載しないでください。
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                <button type="button" class="btn-primary-yt" onclick="closeYtHelpModal()">閉じる</button>
             </div>
         </div>
     </div>
