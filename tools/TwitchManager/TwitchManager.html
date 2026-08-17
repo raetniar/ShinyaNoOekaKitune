@@ -322,6 +322,7 @@
             }
         }
     </style>
+<script src="../i18n.js" defer></script>
 </head>
 
 <body>
@@ -330,6 +331,7 @@
     <header class="tool-header-bar">
         <div class="tool-title-area">
             <div class="tool-title-row">
+                <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="Icon" class="tool-title-avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1.5px solid rgba(145, 70, 255, 0.6); display: inline-block;">
                 <h1 class="tool-name-heading">Twitchマネージャー (TwitchManager)</h1>
             </div>
             <span class="tool-description-sub">OBSカスタムドック対応・Twitch配信タイトル・カテゴリ・レイド・サポーター・チャット一括管理</span>
@@ -344,9 +346,7 @@
             <a href="https://github.com/MagnestGames/TwitchManager/releases" target="_blank" rel="noopener noreferrer" class="header-github-btn">
                 <i class="fa-brands fa-github"></i> <span class="btn-text">GitHub</span>
             </a>
-            <a href="../../index.html" class="back-home-btn">
-                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span>
-            </a>
+            <a href="../../index.html" class="back-home-btn" title="TOPに戻る"><i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span></a>
         </div>
     </header>
 
@@ -357,7 +357,18 @@
                          and [TWITCHMANAGER_CONTENT_END] with the inner <body> of TwitchManagerDock.html
          ========================================================================== -->
     <!-- [TWITCHMANAGER_CONTENT_START] -->
-<div id="toast" role="status" aria-live="polite" aria-atomic="true" data-i18n="extended.toastDone">完了</div>
+<!-- Initial Loading Overlay Screen -->
+    <div id="app-loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">
+                <span class="loading-title">Twitch Manager</span>
+                <span class="loading-sub">読み込み中...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true" data-i18n="extended.toastDone">完了</div>
 
     <div class="sticky-top-wrapper">
         <div class="app-header">
@@ -420,13 +431,41 @@
         </details>
 
         <!-- 共通タグバー (ヘルプの真下, 全タイトル共通・開閉対応) -->
-        <details id="common-tag-bar-section" style="padding: 4px 10px; border-bottom: 1px solid var(--border-color);" open>
+        <details id="common-tag-bar-section" style="padding: 4px 10px; border-bottom: none;" open>
             <summary style="font-size: 10px; color: var(--text-muted); cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; padding: 2px 0;">
                 <span data-i18n="commonTagBarTitle">共通タグ（クリックでコピー → タイトルに貼り付け）</span>
-                <button type="button" style="margin-left:auto; font-size:10px; padding:1px 6px;" class="btn-secondary" onclick="event.stopPropagation(); openTitleTagModal()">⚙️ 設定</button>
+                <button type="button" style="margin-left:auto; font-size:10px; padding:1px 6px;" class="btn-secondary" onclick="event.stopPropagation(); openTitleTagModal()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:2px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span data-i18n="titleTagManageBtn">設定</span></button>
             </summary>
             <div id="common-tag-chip-bar" class="tag-chip-bar" style="margin-top: 4px;"></div>
         </details>
+
+        <!-- Title Sort & Open/Close Toolbar -->
+        <div class="titles-toolbar" style="display: flex; gap: 6px; margin-top: 10px; margin-bottom: 10px; align-items: center; justify-content: space-between; background: var(--bg-header); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <button type="button" id="titles-layout-toggle-btn" class="btn-secondary" onclick="toggleTitlesLayoutMode()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 4px; border-radius: 5px; cursor: pointer; outline: none; white-space: nowrap; flex-shrink: 0;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span data-i18n="layoutGrid">横並び可</span>
+                </button>
+                <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                    <button type="button" class="btn-secondary" onclick="expandAllTitles()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 3px;" data-i18n-title="expandAllTitlesTip" title="すべてのタイトルカードを開く">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg><span data-i18n="expandAll">すべて開く</span>
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="collapseAllTitles()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 3px;" data-i18n-title="collapseAllTitlesTip" title="すべてのタイトルカードを閉じる">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><span data-i18n="collapseAll">すべて閉じる</span>
+                    </button>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: bold; white-space: nowrap;" data-i18n="titles.sortBy">表示順:</span>
+                <select id="titles-sort-select" onchange="changeTitlesSortOrder(this.value)" data-i18n-aria="titles.sortBy" aria-label="表示順" style="font-size: 11px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 6px; border-radius: 5px; cursor: pointer; outline: none; min-width: 140px;">
+                    <option value="group" data-i18n="titles.sortGroup" selected>グループ別 (手動)</option>
+                    <option value="usage" data-i18n="titles.sortUsage">使用回数順 (一覧)</option>
+                    <option value="category" data-i18n="titles.sortCategory">カテゴリ順 (一覧)</option>
+                    <option value="title" data-i18n="titles.sortTitle">登録タイトル順 (2) (一覧)</option>
+                    <option value="name" data-i18n="titles.sortName">登録名前順 (1) (一覧)</option>
+                </select>
+            </div>
+        </div>
 
         <div id="main-container" class="sortable-container"></div>
 
@@ -730,7 +769,22 @@
             <div class="category-box tw-section closed" id="tw-box-sub" style="flex:1;min-width:270px;margin-bottom:0;">
                 <div class="category-name" onclick="twToggle('tw-box-sub')"><span id="tw-l-sub" data-i18n="extended.subscribersTab">サブスクライバー</span></div>
                 <div class="tw-body">
-                    <button class="btn-secondary" style="width:100%;margin-bottom:10px;" onclick="fetchSubscribers(this)" id="tw-btn-sub" data-i18n="extended.fetchBtn">一覧を取得</button>
+                    <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
+                        <button class="btn-secondary" style="flex:1;min-width:0;padding:4px;font-size:11px;height:28px;line-height:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="fetchSubscribers(this)" id="tw-btn-sub" data-i18n="extended.fetchBtn">一覧を取得</button>
+                        <select class="tw-page-size-select" style="flex:1;min-width:0;height:28px;" id="tw-sub-sort-select" onchange="changeSubSortMode(this.value)" aria-label="並び替え">
+                            <option value="default">標準順</option>
+                            <option value="tier_desc">Tier(高→低)</option>
+                            <option value="tier_asc">Tier(低→高)</option>
+                            <option value="gift_first">ギフト優先</option>
+                            <option value="direct_first">通常優先</option>
+                        </select>
+                        <select class="tw-page-size-select" style="flex:1;min-width:0;height:28px;" id="tw-sub-size-select" onchange="changeSubPageSize(this.value)" aria-label="1ページあたりの表示人数">
+                            <option value="10" selected>10件/P</option>
+                            <option value="30">30件/P</option>
+                            <option value="50">50件/P</option>
+                            <option value="100">100件/P</option>
+                        </select>
+                    </div>
                     <div id="tw-sub-list" class="tw-list"><p class="tw-list-empty" data-i18n="extended.noListInfo">情報がありません</p></div>
                 </div>
             </div>
@@ -741,8 +795,12 @@
                     <div style="font-size:11px;margin-bottom:8px;opacity:0.9;display:flex;justify-content:space-between;background:var(--bg-base);border:1px solid var(--border-color);padding:4px 8px;border-radius:4px;" id="tw-vip-slot-info">
                         <span><span data-i18n="extended.vipSlotPrefix">VIP枠: </span><strong data-i18n="extended.vipSlotDesc">一覧取得後に反映</strong></span>
                     </div>
-                    <button class="btn-secondary" style="width:100%;margin-bottom:10px;" onclick="fetchVips(this)" id="tw-btn-vip-list" data-i18n="extended.fetchListBtn">一覧を取得</button>
-                    <div id="tw-vip-list" class="tw-list" style="margin-bottom:10px;"><p class="tw-list-empty" data-i18n="extended.noListInfo">情報がありません</p></div>
+                    <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
+                        <button class="btn-secondary" style="flex:1;min-width:0;padding:4px;font-size:11px;height:28px;line-height:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="fetchVips(this)" id="tw-btn-vip-list" data-i18n="extended.fetchListBtn">一覧を取得</button>
+                        <select class="tw-page-size-select" style="flex:1;min-width:0;height:28px;" id="tw-vip-size-select" onchange="changeVipPageSize(this.value)" aria-label="1ページあたりの表示人数">
+                            <option value="10" selected>10件/P</option>
+                            <option value="30">30件/P</option>
+                            <option value="50">50件/P</option>
                     <label class="field-label" id="tw-l-vip-edit" data-i18n="extended.vipEditLabel">VIP追加・削除（ログインID）</label>
                     <div style="display:flex;gap:8px;">
                         <div class="so-suggest-wrap" id="tw-vip-input-suggest-wrap">
@@ -759,6 +817,20 @@
     </div>
 
     <div id="cmd-tab" class="tab-content">
+        <div class="cmd-toolbar" style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center; justify-content: space-between; background: var(--bg-header); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap;">
+            <button type="button" id="cmd-layout-toggle-btn" class="btn-secondary" onclick="toggleCmdLayoutMode()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 4px; border-radius: 5px; cursor: pointer; outline: none; white-space: nowrap; flex-shrink: 0;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span data-i18n="layoutGrid">グループ別</span>
+            </button>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: bold; white-space: nowrap;" data-i18n="cmdTab.sortBy">表示順:</span>
+                <select id="cmd-sort-select" onchange="changeCmdSortOrder(this.value)" data-i18n-aria="cmdTab.sortBy" aria-label="表示順" style="min-width: 90px; font-size: 11px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 6px; border-radius: 5px; cursor: pointer; outline: none;">
+                    <option value="category" data-i18n="cmdTab.sortCategory" selected>標準順 (カテゴリ別)</option>
+                    <option value="usage" data-i18n="cmdTab.sortUsage">よく使う順 (使用回数順)</option>
+                    <option value="name" data-i18n="cmdTab.sortName">名前順 (A-Z)</option>
+                </select>
+            </div>
+        </div>
         <div id="cmd-container"></div>
     </div>
 
@@ -781,15 +853,31 @@
         </details>
 
         <!-- Sort & Filter Toolbar -->
-        <div class="friends-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center; background: var(--bg-header); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-            <span style="font-size: 12px; color: var(--text-muted); font-weight: bold;" data-i18n="idList.sortBy">表示順:</span>
-            <select id="friends-sort-select" onchange="changeFriendsSortOrder(this.value)" data-i18n-aria="idList.sortBy" aria-label="表示順" style="flex: 1; font-size: 12px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 8px; border-radius: 6px; cursor: pointer; outline: none;">
-                <option value="name" data-i18n="idList.sortName" selected>名前順 (A-Z)</option>
-                <option value="group" data-i18n="idList.sortGroup">グループ別 (手動)</option>
-                <option value="recent-so" data-i18n="idList.sortRecentSo">直近の応援順</option>
-                <option value="so-count" data-i18n="idList.sortSoCount">応援回数順</option>
-                <option value="birthday" data-i18n="idList.sortBirthday">誕生日が近い順</option>
-            </select>
+        <div class="friends-toolbar" style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center; justify-content: space-between; background: var(--bg-header); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <button type="button" id="friends-layout-toggle-btn" class="btn-secondary" onclick="toggleFriendsLayoutMode()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 4px; border-radius: 5px; cursor: pointer; outline: none; white-space: nowrap; flex-shrink: 0;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span data-i18n="layoutGrid">横並び可</span>
+                </button>
+                <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                    <button type="button" class="btn-secondary" onclick="expandAllFriends()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 3px;" data-i18n-title="expandAllFriendsTip" title="すべてのIDカードを開く">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg><span data-i18n="expandAll">すべて開く</span>
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="collapseAllFriends()" style="font-size: 11px; padding: 4px 8px; height: 26px; display: inline-flex; align-items: center; gap: 3px;" data-i18n-title="collapseAllFriendsTip" title="すべてのIDカードを閉じる">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><span data-i18n="collapseAll">すべて閉じる</span>
+                    </button>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: bold; white-space: nowrap;" data-i18n="idList.sortBy">表示順:</span>
+                <select id="friends-sort-select" onchange="changeFriendsSortOrder(this.value)" data-i18n-aria="idList.sortBy" aria-label="表示順" style="font-size: 11px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 6px; border-radius: 5px; cursor: pointer; outline: none; min-width: 140px;">
+                    <option value="name" data-i18n="idList.sortName" selected>名前順 (A-Z)</option>
+                    <option value="group" data-i18n="idList.sortGroup">グループ別 (手動)</option>
+                    <option value="recent-so" data-i18n="idList.sortRecentSo">直近の応援順</option>
+                    <option value="so-count" data-i18n="idList.sortSoCount">応援回数順 (使用順)</option>
+                    <option value="birthday" data-i18n="idList.sortBirthday">誕生日が近い順</option>
+                </select>
+            </div>
         </div>
 
         <!-- タグで絞り込むアコーディオン -->
@@ -863,7 +951,19 @@
             </div>
 
             <div>
-                <div style="font-weight: bold; font-size: 12px; margin-bottom: 6px; color: var(--command-accent);" data-i18n="cpTab.rewardListTitle">登録チャンネルポイント一覧</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                    <div style="font-weight: bold; font-size: 12px; color: var(--command-accent);" data-i18n="cpTab.rewardListTitle">登録チャンネルポイント一覧</div>
+                    <div class="cp-toolbar" style="display: flex; gap: 6px; align-items: center;">
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: bold; white-space: nowrap;" data-i18n="cpTab.sortBy">表示順:</span>
+                        <select id="cp-sort-select" onchange="changeCpSortOrder(this.value)" data-i18n-aria="cpTab.sortBy" aria-label="表示順" style="min-width: 90px; font-size: 11px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 3px 6px; border-radius: 5px; cursor: pointer; outline: none;">
+                            <option value="app_first" data-i18n="cpTab.sortDefault" selected>標準順 (作成順)</option>
+                            <option value="cost_asc" data-i18n="cpTab.sortCostAsc">消費pt順 (安い順)</option>
+                            <option value="cost_desc" data-i18n="cpTab.sortCostDesc">消費pt順 (高い順)</option>
+                            <option value="enabled_first" data-i18n="cpTab.sortEnabledFirst">ON状態優先 (有効順)</option>
+                            <option value="name_asc" data-i18n="cpTab.sortName">名前順 (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
                 <!-- Bulk Action Bar -->
             <div id="cp-bulk-action-bar" style="display: none; align-items: center; justify-content: space-between; background: var(--bg-item); border: 1px solid var(--twitch-purple); padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
                 <div style="font-size: 11.5px; font-weight: bold; color: var(--command-accent); display: flex; align-items: center; gap: 8px;">
@@ -893,9 +993,30 @@
         </div>
     </div>
 
-    <div id="memo-tab" class="tab-content">
-        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px;">
-            <button type="button" class="btn-secondary btn-add-item" id="ui-add-memo" style="padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center;" onclick="addMemo()" data-i18n-aria="extended.addMemoAria" aria-label="メモを追加"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>メモ追加</button>
+        <div id="memo-tab" class="tab-content">
+        <div class="memo-global-sticky-header">
+            <div id="global-memo-toolbar" class="memo-toolbar">
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('**', '**')" title="太字" data-i18n-title="memoBold"><b>B</b> <span data-i18n="memoBold">太字</span></button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('# ')" title="大見出し" data-i18n-title="memoH1">H1</button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('## ')" title="中見出し" data-i18n-title="memoH2">H2</button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('- ')" title="箇条書きリスト" data-i18n-title="memoList">• <span data-i18n="memoList">リスト</span></button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('1. ')" title="番号付きリスト" data-i18n-title="memoOl">1. <span data-i18n="memoOl">番号</span></button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('- [ ] ')" title="タスクチェックボックス" data-i18n-title="memoTask">☑ <span data-i18n="memoTask">タスク</span></button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('[', '](https://)')" title="リンク" data-i18n-title="memoLink" style="display:inline-flex; align-items:center;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:3px; vertical-align:middle;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    <span data-i18n="memoLink">リンク</span>
+                </button>
+                <button type="button" class="memo-toolbar-btn" onclick="insertGlobalMarkdownSyntax('\x60', '\x60')" title="コード" data-i18n-title="memoCode">&lt;&gt; <span data-i18n="memoCode">コード</span></button>
+            </div>
+            <button type="button" class="btn-secondary btn-add-item" id="ui-add-memo" style="padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center; white-space: nowrap;" onclick="addMemo()" data-i18n-aria="extended.addMemoAria" aria-label="メモを追加"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span data-i18n="extended.addMemo">メモ追加</span></button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin: 8px 0; background: var(--bg-header); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: bold; white-space: nowrap;" data-i18n="memoTab.sortBy">表示順:</span>
+            <select id="memo-sort-select" onchange="changeMemoSortOrder(this.value)" data-i18n-aria="memoTab.sortBy" aria-label="表示順" style="flex: 1; min-width: 90px; font-size: 11px; background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 6px; border-radius: 5px; cursor: pointer; outline: none;">
+                <option value="default" data-i18n="memoTab.sortDefault" selected>標準順 (配置順)</option>
+                <option value="updated" data-i18n="memoTab.sortUpdated">更新日時順 (新しい順)</option>
+                <option value="title" data-i18n="memoTab.sortTitle">タイトル順 (A-Z)</option>
+            </select>
         </div>
         <div id="memo-container" class="sortable-container"></div>
         <div class="sticky-footer-wrapper" style="z-index: 1000;">
@@ -909,26 +1030,49 @@
 
         <details class="tab-help">
             <summary class="tab-help-summary"><span data-i18n="infoSummary">ヘルプ</span></summary>
-            <div class="tab-help-body"><p data-i18n="extended.miscHelpText">バックアップ・復元、イベントログを管理します。ブラウザの保存データに備えて、バックアップは定期的に保管してください。</p></div>
+            <div class="tab-help-body"><p data-i18n="extended.miscHelpText" style="margin: 0; line-height: 1.5;">バックアップ・復元、イベントログを管理します。<br>※OBSドック内では「保存(.json)」が動作しないため、「コピー」してテキストファイルへ保存してください。<br>※使用回数やソート順は「すべての項目」には含まれず、「ソートキャッシュのみ」で保存できます。</p></div>
         </details>
         
         <!-- Backup & Restore side by side -->
-        <div class="misc-pair-grid">
-            <div class="category-box" style="flex: 1; min-width: 200px; margin-bottom: 0; padding: 10px 15px; display: flex; flex-direction: column;">
-                <div class="category-name" id="ui-backup-title" style="margin-bottom: 8px; font-size: 13px;"><span data-i18n="backupTitle">バックアップ</span></div>
-                <div style="display: flex; flex: 1; align-items: center;">
-                    <button id="ui-backup-copy" class="btn-primary" style="width: 100%; padding: 6px 12px; font-size: 12px;" onclick="copyBackupToClipboard()" data-i18n="backupCopy">コピー</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: stretch;">
+            <div class="category-box" style="margin-bottom: 0; padding: 10px 12px; border-left: 4px solid var(--twitch-purple); display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="category-name" id="ui-backup-title" style="margin-bottom: 6px; font-size: 12px; color: var(--command-accent);">
+                    <span data-i18n="backupTitle">バックアップ作成・保存</span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <select id="bk-export-select" style="width: 100%; padding: 5px 6px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-base); color: var(--text-main); font-weight: bold; cursor: pointer; outline: none; box-sizing: border-box;">
+                        <option value="all" selected>すべての項目 (フルバックアップ)</option>
+                        <option value="title">タイトル一覧 のみ</option>
+                        <option value="id">ID一覧 のみ</option>
+                        <option value="raidso">Twitch / 通知と紹介 のみ</option>
+                        <option value="settings">ツール設定 のみ</option>
+                        <option value="sort_cache" data-i18n="backup.sortCache">ソートキャッシュ のみ (使用回数・設定)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 4px;">
+                    <button id="ui-backup-download" class="btn-primary" style="flex: 1; padding: 6px 4px; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap;" onclick="downloadBackupFile()">
+                        保存 (.json)
+                    </button>
+                    <button id="ui-backup-copy" class="btn-secondary" style="flex: 1; padding: 6px 4px; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap;" onclick="copyBackupToClipboard()" data-i18n="backupCopy">
+                        コピー
+                    </button>
                 </div>
             </div>
-            <div class="category-box" id="misc-restore-section" style="flex: 1; min-width: 200px; margin-bottom: 0; padding: 10px 15px; display: flex; flex-direction: column;">
-                <div class="category-name" id="ui-restore-title" onclick="toggleStandaloneSection('misc-restore-section')" style="margin-bottom: 8px; font-size: 13px; cursor: pointer; user-select: none;"><span data-i18n="restoreTitle">復元</span></div>
-                <div class="tw-body misc-restore-row" style="flex: 1;">
-                    <div class="restore-file-picker">
-                        <input type="file" id="ui-restore-file" class="restore-file-input" accept=".json,application/json" onchange="updateRestoreFileName(this)">
-                        <label id="ui-backup-select-file" for="ui-restore-file" class="btn-secondary restore-file-label" data-i18n="footerActions.selectFile">ファイル選択</label>
-                        <span id="ui-restore-file-name" class="restore-file-name" data-i18n="footerActions.noFileSelected">未選択</span>
+
+            <div class="category-box" id="misc-restore-section" style="margin-bottom: 0; padding: 10px 12px; border-left: 4px solid var(--twitch-purple); display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="category-name" id="ui-restore-title" onclick="toggleStandaloneSection('misc-restore-section')" style="margin-bottom: 6px; font-size: 12px; cursor: pointer; user-select: none;">
+                    <span data-i18n="restoreTitle">復元・個別読み込み</span>
+                </div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="restoreSubtitle">
+                    JSONもしくはテキストデータを選択し、統合・上書き復元:
+                </div>
+                <div class="tw-body misc-restore-row" style="display: flex; gap: 4px; align-items: center;">
+                    <div class="restore-file-picker" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px;">
+                        <input type="file" id="ui-restore-file" class="restore-file-input" accept=".json,.txt,text/plain,application/json" onchange="updateRestoreFileName(this)">
+                        <label id="ui-backup-select-file" for="ui-restore-file" class="btn-secondary restore-file-label" style="padding: 6px 10px; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0; cursor: pointer;" data-i18n="footerActions.selectFile">ファイル選択</label>
+                        <span id="ui-restore-file-name" class="restore-file-name" style="font-size: 10.5px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;" data-i18n="footerActions.noFileSelected">未選択</span>
                     </div>
-                    <button id="ui-restore-btn" class="btn-primary" style="flex: 1; padding: 6px 12px; font-size: 12px;" onclick="restoreFromLocalFile()" data-i18n="restoreBtn">読み込む</button>
+                    <button id="ui-restore-btn" class="btn-primary" style="padding: 6px 10px; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0; cursor: pointer;" onclick="restoreFromLocalFile()" data-i18n="restoreBtn">読み込む</button>
                 </div>
             </div>
         </div>
@@ -1008,7 +1152,10 @@
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
                 <div style="font-weight: bold; color: var(--command-accent); margin-bottom: 12px; font-size: 12px;" data-i18n="settingsUi.adjustScreenTitle">画面表示の微調整</div>
                 
-                <span class="field-label" id="ui-settings-font-size-label" data-i18n="settingsUi.fontSizeLabel">文字サイズ調整</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span class="field-label" id="ui-settings-font-size-label" data-i18n="settingsUi.fontSizeLabel" style="margin-bottom: 0;">文字サイズ調整</span>
+                    <span style="font-size: 11px; color: var(--text-muted); font-weight: bold;"><span id="settings_font_size_val">0</span>px</span>
+                </div>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                     <div class="custom-slider-wrapper" id="slider-font-size-wrapper" style="flex: 1;">
                         <div class="custom-slider-track"></div>
@@ -1016,7 +1163,10 @@
                     </div>
                 </div>
 
-                <span class="field-label" id="ui-settings-line-height-label" data-i18n="settingsUi.lineHeightLabel">行間の隙間調整</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span class="field-label" id="ui-settings-line-height-label" data-i18n="settingsUi.lineHeightLabel" style="margin-bottom: 0;">行間の隙間調整</span>
+                    <span style="font-size: 11px; color: var(--text-muted); font-weight: bold;"><span id="settings_line_height_val">1.5</span></span>
+                </div>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                     <div class="custom-slider-wrapper" id="slider-line-height-wrapper" style="flex: 1;">
                         <div class="custom-slider-track"></div>
@@ -1048,6 +1198,92 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div style="background:var(--bg-panel); padding:16px 20px; border-radius:12px; margin-bottom:20px; border-left:4px solid var(--command-accent);">
+                <details class="raidso-easter-egg" style="margin:0;">
+                    <summary style="display: flex; align-items: center; cursor: pointer; user-select: none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px; display: inline-block;">
+                            <rect x="2" y="2" width="20" height="20" rx="5" fill="var(--command-accent, #9146ff)"/>
+                            <text x="12" y="16.5" font-size="15" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="900" fill="#ffffff" text-anchor="middle">β</text>
+                        </svg>
+                        <span data-i18n="raidSo.foxHint" style="font-weight: bold; font-size: 13px; color: var(--command-accent);">狐が何か知っているようです</span>
+                        <span style="display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; vertical-align: middle;">
+                            <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="uikouka" style="width: 18px; height: 18px; border-radius: 3px; object-fit: contain; display: block;" />
+                            <img src="https://avatars.githubusercontent.com/u/106515274?v=4" alt="frusumi" style="width: 18px; height: 18px; border-radius: 3px; object-fit: contain; display: block;" />
+                        </span>
+                    </summary>
+                    <div class="raidso-easter-body" style="margin-top: 12px;">
+                        <p style="font-size: 11.5px; color: var(--text-main); margin-bottom: 4px;" data-i18n="raidSo.listenerIntro">1. 指定したリスナーが配信のチャット参加者一覧に現れたとき、コメントの有無にかかわらず、配信ごとに一度だけ通知音・ウェルカム画像を再生します。</p>
+                        <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="raidSo.listenerComingSoon">2. 今後のアップデートで追加予定（Coming Soon...）</p>
+                        <ul class="raidso-casual-notes" style="font-size: 10.5px; color: var(--text-muted); padding-left: 18px; margin-bottom: 12px;">
+                            <li data-i18n="raidSo.listenerPlayNote">ちょっとしたお遊び用の機能です。</li>
+                            <li data-i18n="raidSo.listenerPrivacyNote">コメントせず見ている方にも気づける機能です。驚かせないよう、相手への配慮を忘れずにお楽しみください。</li>
+                            <li data-i18n="raidSo.listenerDevNotice" style="color: var(--text-muted);">※開発・テスト中の機能のため、今後のアップデートで仕様変更や実装見送りとなる場合があります。</li>
+                        </ul>
+
+                        <div style="margin: 10px 0 12px 0;">
+                            <label class="field-label" style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-bottom: 4px; display: block;" data-i18n="raidSo.audioSourceUrl">ブラウザソースURL</label>
+                            <div class="raidso-audio-url" style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; margin: 0;">
+                                <code id="settings-secret-fox-obs-url" style="overflow-x: auto; white-space: nowrap; padding: 7px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-base); font-size: 11px;"></code>
+                                <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="copyObsAudioSourceUrl()"><span data-i18n="raidSo.copyAudioSourceUrl">コピー</span></button>
+                            </div>
+                        </div>
+                        
+                        <div class="tw-toggle-card" style="margin: 0 0 10px 0; background: var(--bg-item); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; box-sizing: border-box;">
+                            <div class="tw-toggle-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: unset; margin: 0; gap: 8px;">
+                                <span style="font-size:12px; color: var(--text-main); font-weight: bold; user-select: none;" data-i18n="raidSo.listenerEnable">お出迎え通知音を表示する</span>
+                                <label class="tw-toggle" style="margin: 0;">
+                                    <input type="checkbox" id="settings_listener_arrival_enabled" onchange="setListenerArrivalEnabled(this.checked)" />
+                                    <span class="tw-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="tw-toggle-card" style="margin: 0 0 10px 0; background: var(--bg-item); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; box-sizing: border-box;">
+                            <div class="tw-toggle-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: unset; margin: 0; gap: 8px;">
+                                <span style="font-size:12px; color: var(--text-main); font-weight: bold; user-select: none;" data-i18n="raidSo.listenerImageEnable">お出迎え画像を表示する</span>
+                                <label class="tw-toggle" style="margin: 0;">
+                                    <input type="checkbox" id="settings_listener_image_enabled" onchange="saveListenerImageSettings()" />
+                                    <span class="tw-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="raidso-welcome-image-controls" style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="file" id="raidso-welcome-image-picker" accept="image/*,.gif,.png,.webp,.apng" style="display: none;" onchange="handleWelcomeImagePick(this)">
+                                <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 11px;" onclick="document.getElementById('raidso-welcome-image-picker').click()"><span data-i18n="raidSo.listenerImageSelect">画像を選択</span></button>
+                                <button type="button" id="raidso-welcome-image-remove-btn" class="btn-danger-soft" style="padding: 5px 10px; font-size: 11px; display: none;" onclick="removeWelcomeImage()"><span data-i18n="raidSo.listenerImageRemove">画像を削除</span></button>
+                                <span id="raidso-welcome-image-status" style="font-size: 11px; color: var(--text-muted);">未設定</span>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                                <span style="font-size: 11px; color: var(--text-muted); font-weight: bold; min-width: 75px;" data-i18n="raidSo.listenerImageSizeLabel">表示サイズ:</span>
+                                <input type="range" id="settings_listener_image_size" value="100" min="10" max="200" step="5" style="flex: 1; accent-color: var(--command-accent);" oninput="updateWelcomeImageSizeVal(this.value); saveListenerImageSettings();">
+                                <span id="settings_listener_image_size_val" style="font-size: 11px; font-weight: bold; width: 42px; text-align: right; color: var(--text-main);">100%</span>
+                            </div>
+                            <div style="margin-top: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <span style="font-size: 11px; color: var(--text-muted); font-weight: bold;" data-i18n="raidSo.listenerImagePosLabel">表示位置 (クリック/ドラッグで配置)</span>
+                                    <button type="button" class="btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="resetWelcomeImagePos()" data-i18n="raidSo.listenerImageResetPos">中央に戻す</button>
+                                </div>
+                                <div id="raidso-image-pos-picker" style="width: 100%; aspect-ratio: 16/9; background: var(--bg-base, #18181b); border: 1px solid var(--border-color, #3f3f46); border-radius: 8px; position: relative; cursor: crosshair; user-select: none; overflow: hidden;">
+                                    <div style="position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(239, 68, 68, 0.4); pointer-events: none; z-index: 1;"></div>
+                                    <div style="position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(239, 68, 68, 0.4); pointer-events: none; z-index: 1;"></div>
+                                    <div id="raidso-image-pos-handle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 2; display: flex; align-items: center; justify-content: center;">
+                                        <div id="raidso-image-pos-dot" style="width: 16px; height: 16px; border-radius: 50%; background: #38bdf8; border: 2px solid #ffffff; box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);"></div>
+                                        <img id="raidso-image-pos-img" src="" style="display: none; max-width: 140px; max-height: 85px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8)); transform-origin: center center;" />
+                                        <div id="raidso-image-pos-center-dot" style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ff4500; border: 1px solid #ffffff; box-shadow: 0 0 6px rgba(255, 69, 0, 0.9); z-index: 3; pointer-events: none; display: none;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                                <span style="font-size: 11px;" data-i18n="raidSo.listenerImageDurationLabel">表示時間(秒):</span>
+                                <input type="number" id="settings_listener_image_duration" value="5" min="1" max="30" step="1" style="width: 55px; padding: 4px 6px; font-size: 11px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-base); color: var(--text-main);" onchange="saveListenerImageSettings()">
+                                <button type="button" class="btn-primary" style="padding: 5px 12px; font-size: 11px; margin-left: auto;" onclick="testWelcomeImageAndSound()">▶ <span data-i18n="raidSo.listenerImageTest">テスト表示</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </div>
             <button class="btn-primary" id="ui-settings-save" style="width:100%;" onclick="saveSettings()" data-i18n="extended.saveBtn">保存</button>
         </div>
@@ -1297,14 +1533,14 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="twitch_manager_version.js"></script>
-    <script src="twitch_manager_locales.js"></script>
-    <script src="js/update-check.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/eventsub.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/main.js"></script>
+    <script src="twitch_manager_version.js?v=20260810_singletag"></script>
+    <script src="twitch_manager_locales.js?v=20260810_singletag"></script>
+    <script src="js/update-check.js?v=20260810_singletag"></script>
+    <script src="js/storage.js?v=20260810_singletag"></script>
+    <script src="js/api.js?v=20260810_singletag"></script>
+    <script src="js/eventsub.js?v=20260810_singletag"></script>
+    <script src="js/ui.js?v=20260810_singletag"></script>
+    <script src="js/main.js?v=20260810_singletag"></script>
 
 
     <!-- CP Bulk Edit Modal -->

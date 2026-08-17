@@ -87,7 +87,7 @@ function getSelectedCollabNames() {
         const activeTagEls = typeof document !== 'undefined' ? document.querySelectorAll('#friends-tag-list input[type="checkbox"]:checked') : [];
         const activeTags = Array.from(activeTagEls).map(el => el.value);
 
-        const selectedIds = [];
+        const selectedHandles = [];
         (friendsConfig || []).forEach(cat => {
             if (cat.kind === 'shoutout-history' || cat.kind === 'authenticated-user') return;
             if (collabCat && cat.name !== collabCat) return;
@@ -96,18 +96,17 @@ function getSelectedCollabNames() {
 
             (cat.friends || []).forEach(f => {
                 if (f.isSelected || isCatChecked) {
-                    const rawVal = f.twitch || f.name || f.id || '';
-                    const twitchId = extractTwitchId(rawVal);
-                    if (twitchId && !selectedIds.includes(twitchId)) {
-                        selectedIds.push(twitchId);
+                    const handle = getFriendHandle(f);
+                    if (handle && !selectedHandles.includes(handle)) {
+                        selectedHandles.push(handle);
                     }
                 }
             });
         });
 
-        if (selectedIds.length === 0) return '';
-        selectedIds.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
-        return selectedIds.map(id => ' @' + id).join('');
+        if (selectedHandles.length === 0) return '';
+        selectedHandles.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
+        return selectedHandles.map(h => ' ' + h).join('');
     } catch (e) {
         return '';
     }
@@ -120,28 +119,71 @@ function extractTwitchId(str) {
     val = val.replace(/^twitch\.tv\//i, '');
     val = val.split('/')[0].split('?')[0].split('#')[0];
     val = val.replace(/^@/, '').trim();
+    if (!/^[a-zA-Z0-9_]{3,25}$/.test(val)) {
+        return '';
+    }
     return val;
 }
 window.extractTwitchId = extractTwitchId;
 
+function getFriendTwitchId(f) {
+    if (!f) return '';
+    const fromTwitch = extractTwitchId(f.twitch);
+    if (fromTwitch) return fromTwitch;
+    const fromName = extractTwitchId(f.name);
+    if (fromName) return fromName;
+    const fromId = extractTwitchId(f.id);
+    if (fromId) return fromId;
+
+    // Cross-category lookup by name if twitch ID is set in another category
+    if (f.name && Array.isArray(friendsConfig)) {
+        const cleanMyName = String(f.name).replace(/さん$/i, '').trim().toLowerCase();
+        for (const cat of friendsConfig) {
+            for (const item of (cat.friends || [])) {
+                if (item === f) continue;
+                const cleanItemName = String(item.name || '').replace(/さん$/i, '').trim().toLowerCase();
+                if (cleanMyName && cleanItemName && (cleanMyName === cleanItemName || cleanMyName.includes(cleanItemName) || cleanItemName.includes(cleanMyName))) {
+                    const matchedId = extractTwitchId(item.twitch || item.id);
+                    if (matchedId) return matchedId;
+                }
+            }
+        }
+    }
+    return '';
+}
+window.getFriendTwitchId = getFriendTwitchId;
+
+function getFriendHandle(f) {
+    if (!f) return '';
+    const twitchId = getFriendTwitchId(f);
+    if (twitchId) {
+        return '@' + twitchId;
+    }
+    const name = String(f.name || f.displayName || '').trim();
+    if (name) {
+        return '@' + name.replace(/^@/, '');
+    }
+    return '';
+}
+window.getFriendHandle = getFriendHandle;
+
 function getCategoryCollabNames(catName) {
     try {
-        const selectedIds = [];
+        const selectedHandles = [];
         (friendsConfig || []).forEach(cat => {
             if (cat.name === catName && cat.kind !== 'shoutout-history' && cat.kind !== 'authenticated-user') {
                 (cat.friends || []).forEach(f => {
-                    const rawVal = f.twitch || f.name || f.id || '';
-                    const twitchId = extractTwitchId(rawVal);
-                    if (twitchId && !selectedIds.includes(twitchId)) {
-                        selectedIds.push(twitchId);
+                    const handle = getFriendHandle(f);
+                    if (handle && !selectedHandles.includes(handle)) {
+                        selectedHandles.push(handle);
                     }
                 });
             }
         });
 
-        if (selectedIds.length === 0) return '';
-        selectedIds.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
-        return selectedIds.map(id => ' @' + id).join('');
+        if (selectedHandles.length === 0) return '';
+        selectedHandles.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
+        return selectedHandles.map(h => ' ' + h).join('');
     } catch (e) {
         return '';
     }
@@ -374,16 +416,7 @@ function renderCommonTagBar() {
         const idListStr = formattedCatNames ? formattedCatNames.trim() : '(登録IDなし)';
         const catTagText = '{' + catName + '}';
         const hoverTooltip = `【${raidSoEscape(catName)}】登録ID: ${raidSoEscape(idListStr)}`;
-        collabHtml += `
-            <div class="tag-chip-segmented" title="${hoverTooltip}" style="display:inline-flex; align-items:center; background:var(--bg-item, #222); border:1px solid var(--border-color, #444); border-radius:12px; font-size:11px; overflow:hidden; vertical-align:middle; line-height:1.2;">
-                <button type="button" onclick="copyCommonTag('${raidSoEscape(catTagText)}')" onmouseenter="showCollabHoverHint('${raidSoEscape(catName)}')" title="タグ ${raidSoEscape(catTagText)} をコピー | 登録ID: ${raidSoEscape(idListStr)}" style="background:transparent; border:none; color:var(--text-main); padding:2px 6px; cursor:pointer; font-size:11px;">
-                    ＋${raidSoEscape(catTagText)}
-                </button>
-                <button type="button" onclick="copyCategoryRawIds('${raidSoEscape(catName)}')" title="【${raidSoEscape(catName)}】の @ID一覧をコピー | 登録ID: ${raidSoEscape(idListStr)}" style="background:rgba(255,255,255,0.08); border:none; border-left:1px solid var(--border-color, #444); color:var(--command-accent, #a970ff); padding:2px 6px; cursor:pointer; font-size:10px; font-weight:bold;">
-                    ${I18N_DATA[currentLang]?.ui?.rawIdListCopyBtn || '@ID一覧'}
-                </button>
-            </div>
-        `;
+        collabHtml += `<button type="button" class="tag-chip" onclick="copyCommonTag('${raidSoEscape(catTagText)}')" onmouseenter="showCollabHoverHint('${raidSoEscape(catName)}')" title="タグ ${raidSoEscape(catTagText)} をコピー | 登録ID: ${raidSoEscape(idListStr)}">＋${raidSoEscape(catTagText)}</button>`;
     });
 
     let fullHtml = `<div style="display:flex; flex-wrap:wrap; gap:4px; align-items:center;">${mainHtml}</div>`;
@@ -468,7 +501,13 @@ window.copyCommonTag = copyCommonTag;
                 const keys = el.getAttribute('data-i18n').split('.');
                 let val = L;
                 keys.forEach(k => { if(val) val = val[k]; });
-                if (val) el.innerText = val;
+                if (val) {
+                    if (typeof val === 'string' && val.includes('<')) {
+                        el.innerHTML = val;
+                    } else {
+                        el.innerText = val;
+                    }
+                }
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const keys = el.getAttribute('data-i18n-placeholder').split('.');
@@ -487,6 +526,12 @@ window.copyCommonTag = copyCommonTag;
                 let val = L;
                 keys.forEach(k => { if (val) val = val[k]; });
                 if (val !== undefined) el.setAttribute('aria-label', val);
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const keys = el.getAttribute('data-i18n-title').split('.');
+                let val = L;
+                keys.forEach(k => { if (val) val = val[k]; });
+                if (val !== undefined) el.title = val;
             });
             const calendarWeekdays = document.querySelectorAll('.calendar-grid-header span');
             (L.runtime?.weekdaysShort || langMap.ja.runtime.weekdaysShort).forEach((day, index) => {
@@ -613,8 +658,7 @@ window.copyCommonTag = copyCommonTag;
             const guideEl = document.getElementById('ui-guide-content');
             if (guideEl) guideEl.innerHTML = L.guideHtml;
             try { if (typeof updateCreatorsDOM === 'function') updateCreatorsDOM(); } catch(e) {}
-            const cmdEl = document.getElementById('cmd-container');
-            if (cmdEl) cmdEl.innerHTML = L.cmdHtml;
+            renderCommandsUI();
             refreshTwitchChoicePlaceholders();
             renderShoutoutSuggestions();
             renderRaidShoutOutPanel();
@@ -1294,8 +1338,168 @@ window.copyCommonTag = copyCommonTag;
             }
             return (r.label && r.label.trim()) || defaultLabel || 'NEW';
         }
+        let titlesSortOrder = localStorage.getItem('stream_titles_sort_order_v16') || 'group';
+        let titlesLayoutMode = localStorage.getItem('stream_titles_layout_mode_v16') || 'grid';
+
+        function changeTitlesSortOrder(val) {
+            titlesSortOrder = val;
+            localStorage.setItem('stream_titles_sort_order_v16', val);
+            const sel = document.getElementById('titles-sort-select');
+            if (sel && sel.value !== val) sel.value = val;
+            render();
+        }
+        window.changeTitlesSortOrder = changeTitlesSortOrder;
+
+        function updateLayoutToggleBtnUI(tabId, mode) {
+            const btn = document.getElementById(tabId + '-layout-toggle-btn');
+            if (!btn) return;
+            const isGrid = mode === 'grid';
+            const gridSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`;
+            const listSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`;
+            const L = langMap[currentLang] || langMap.ja;
+            const labelKey = isGrid ? 'layoutGrid' : 'layoutList';
+            const labelText = L[labelKey] || L.ui?.[labelKey] || (isGrid ? '横並び可' : '縦積みのみ');
+            const tipText = isGrid
+                ? (currentLang === 'ja' ? '現在: 横並び可 (クリックで縦積みのみに変更)' : 'Current: Grid View (Click to switch to List View)')
+                : (currentLang === 'ja' ? '現在: 縦積みのみ (クリックで横並び可に変更)' : 'Current: List View (Click to switch to Grid View)');
+            btn.innerHTML = `${isGrid ? gridSvg : listSvg} <span data-i18n="${labelKey}">${raidSoEscape(labelText)}</span>`;
+            btn.title = tipText;
+        }
+
+        function toggleTitlesLayoutMode() {
+            titlesLayoutMode = (titlesLayoutMode === 'grid') ? 'list' : 'grid';
+            localStorage.setItem('stream_titles_layout_mode_v16', titlesLayoutMode);
+            render();
+        }
+        window.toggleTitlesLayoutMode = toggleTitlesLayoutMode;
+
+        function toggleTitlePin(ci, ri) {
+            if (!config[ci] || !config[ci].records[ri]) return;
+            const record = config[ci].records[ri];
+            record.isPinned = !record.isPinned;
+            saveAllLocal(false);
+            render();
+            const msg = record.isPinned ? '最上部にピン留めしました' : 'ピン留めを解除しました';
+            showToast(msg, 'info');
+        }
+        window.toggleTitlePin = toggleTitlePin;
+
+        function expandAllTitles() {
+            (config || []).forEach(cat => {
+                cat.isClosed = false;
+                (cat.records || []).forEach(r => { r.isOpen = true; });
+            });
+            saveAllLocal(false);
+            render();
+            showToast('すべてのタイトルカードを開きました', 'info');
+        }
+        window.expandAllTitles = expandAllTitles;
+
+        function collapseAllTitles() {
+            (config || []).forEach(cat => {
+                cat.isClosed = true;
+                (cat.records || []).forEach(r => { r.isOpen = false; });
+            });
+            saveAllLocal(false);
+            render();
+            showToast('すべてのタイトルカードを閉じました', 'info');
+        }
+        window.collapseAllTitles = collapseAllTitles;
+
+        function expandAllFriends() {
+            (friendsConfig || []).forEach(cat => {
+                cat.isClosed = false;
+                (cat.friends || []).forEach(f => { f.isOpen = true; });
+            });
+            saveFriendsLocal(false);
+            renderFriends();
+            showToast('すべてのIDカードを開きました', 'info');
+        }
+        window.expandAllFriends = expandAllFriends;
+
+        function collapseAllFriends() {
+            (friendsConfig || []).forEach(cat => {
+                cat.isClosed = true;
+                (cat.friends || []).forEach(f => { f.isOpen = false; });
+            });
+            saveFriendsLocal(false);
+            renderFriends();
+            showToast('すべてのIDカードを閉じました', 'info');
+        }
+        window.collapseAllFriends = collapseAllFriends;
+
+        function _buildTitleCard(r, ci, ri, T, L, A) {
+            const isPinned = Boolean(r.isPinned);
+            const pinBadge = isPinned ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-text, #ffaa00); vertical-align:middle; margin-right:3px;" title="ピン留め中"><path d="M12 17v5"></path><path d="M9 4v5.5L7 12v2h10v-2l-2-2.5V4z"></path><line x1="9" y1="4" x2="15" y2="4"></line></svg>` : '';
+            const pinTip = isPinned ? 'ピン留めを解除' : '最上部にピン留め';
+            const pinStyle = isPinned
+                ? 'color: var(--warning-text, #ffaa00); border-color: rgba(255, 170, 0, 0.5); background: rgba(255, 170, 0, 0.15);'
+                : '';
+
+            const pinBtnHtml = `
+                <button class="icon-btn id-action-btn id-pin-action ${isPinned ? 'is-pinned' : ''}" title="${raidSoEscape(pinTip)}" onclick="event.stopPropagation(); toggleTitlePin(${ci}, ${ri})" style="position:absolute; top:6px; right:6px; z-index:2; ${pinStyle}">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="${isPinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 17v5"></path>
+                        <path d="M9 4v5.5L7 12v2h10v-2l-2-2.5V4z"></path>
+                        <line x1="9" y1="4" x2="15" y2="4"></line>
+                    </svg>
+                </button>
+            `;
+
+            const card = document.createElement('div');
+            card.className = "record-card" + (r.isOpen ? " open" : "") + (isPinned ? " is-pinned-card" : "");
+            card.setAttribute('data-idx', ri);
+
+            const useCountBadge = (r.useCount || 0) > 0 ? `<small style="font-size:10px; color:var(--text-muted); opacity:0.8; margin-left:4px;">(使用: ${r.useCount}回)</small>` : '';
+
+            card.innerHTML = `
+            <div class="record-header" onclick="toggleRecordOpen(${ci}, ${ri})" style="position:relative; padding-right:36px;">
+                <div style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;">
+                    <span id="record-label-${ci}-${ri}">● ${pinBadge}${raidSoEscape(getRecordDisplayLabel(r, A.newLabel))}${useCountBadge}</span>
+                    <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;" onclick="event.stopPropagation(); renameRecord(${ci}, ${ri})">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                </div>
+                ${pinBtnHtml}
+                <div class="record-actions" style="margin-right: 32px;">
+                    <button class="icon-btn twitch-action-btn sync-action-btn" title="${A.syncTip}" onclick="event.stopPropagation(); syncWithTwitch(${ci}, ${ri}, this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+                        <span class="action-text"><span class="action-main">${A.syncMain}</span><span class="action-sub">${A.syncSub}</span></span>
+                    </button>
+                    <button class="icon-btn twitch-action-btn push-action-btn" title="${A.pushTip}" onclick="event.stopPropagation(); pushToTwitch(${ci}, ${ri}, this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        <span class="action-text"><span class="action-main">${A.pushMain}</span><span class="action-sub">${A.pushSub}</span></span>
+                    </button>
+                    <button class="btn-delete-item" onclick="event.stopPropagation(); deleteRecord(${ci}, ${ri})">✕</button>
+                </div>
+            </div>
+            <div class="record-body">
+                <span class="field-label">${L.game}</span>
+                <input type="text" value="${raidSoEscape(r.game || '')}" oninput="config[${ci}].records[${ri}].game=this.value; saveAllLocal(false)">
+                
+                <span class="field-label">${L.title}</span>
+                <textarea id="record-title-input-${ci}-${ri}" oninput="updateRecordTitleValue(${ci}, ${ri}, this.value)">${raidSoEscape(r.title || '')}</textarea>
+                <div style="margin-top:2px; margin-bottom:10px;">
+                    <span style="font-size:10px; color:var(--text-muted);" id="record-title-counter-${ci}-${ri}">${(r.title || '').length}/140文字</span>
+                </div>
+
+                <span class="field-label" style="display:flex; align-items:center;">${L.notif}<span style="font-size:10px; color:var(--text-muted); margin-left:8px; font-weight:normal;">${I18N_DATA[currentLang]?.ui?.jsMsgs?.manualMemo || langMap.ja.jsMsgs.manualMemo}</span></span>
+                <textarea onchange="config[${ci}].records[${ri}].notif=this.value; saveAllLocal(false)">${raidSoEscape(r.notif || '')}</textarea>
+
+                <span class="field-label" style="display:flex; align-items:center;">${L.tags}<span style="font-size:10px; color:var(--text-muted); margin-left:8px; font-weight:normal;">${I18N_DATA[currentLang]?.ui?.jsMsgs?.manualMemo || langMap.ja.jsMsgs.manualMemo}</span></span>
+                <input type="text" value="${raidSoEscape(r.tags || '')}" oninput="config[${ci}].records[${ri}].tags=this.value; saveAllLocal(false)">
+
+                <span class="field-label">${L.memo}</span>
+                <textarea onchange="config[${ci}].records[${ri}].memo=this.value; saveAllLocal(false)">${raidSoEscape(r.memo || '')}</textarea>
+            </div>`;
+            return card;
+        }
+
         function render() {
             const c = document.getElementById('main-container'); if (!c) return; c.innerHTML = "";
+            c.classList.toggle('flat-mode', titlesSortOrder !== 'group');
+            c.classList.toggle('layout-grid', titlesLayoutMode === 'grid');
+            c.classList.toggle('layout-list', titlesLayoutMode === 'list');
             const T = langMap[currentLang];
             const L = T.labels;
             const A = T.titleActions || langMap.ja.titleActions;
@@ -1304,61 +1508,96 @@ window.copyCommonTag = copyCommonTag;
                 initSortable();
                 return;
             }
-            config.forEach((cat, ci) => {
-                const d = document.createElement('div'); d.className = "category-box" + (cat.isClosed ? " closed" : ""); d.setAttribute('data-idx', ci);
-                d.innerHTML = `<div class="category-name" onclick="toggleCategory(this, ${ci})"><span>${raidSoEscape(cat.name)}</span><button class="btn-delete-cat" onclick="event.stopPropagation(); deleteCategory(${ci})">${raidSoEscape(T.delete)}</button><button class="btn-secondary btn-add-item" onclick="event.stopPropagation(); addRecord(${ci})">＋</button></div><div class="category-records sortable-items" data-cat-idx="${ci}"></div>`;
-                const records = cat.records || [];
-                if (!records.length) {
-                    d.querySelector('.category-records').innerHTML = emptyStateHtml(T.empty?.titleRecords || '');
-                }
-                records.forEach((r, ri) => {
-                    const card = document.createElement('div'); card.className = "record-card" + (r.isOpen ? " open" : ""); card.setAttribute('data-idx', ri);
 
-                    card.innerHTML = `
-                <div class="record-header" onclick="toggleRecordOpen(${ci}, ${ri})">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span id="record-label-${ci}-${ri}">● ${raidSoEscape(getRecordDisplayLabel(r, A.newLabel))}</span>
-                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" onclick="event.stopPropagation(); renameRecord(${ci}, ${ri})">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
+            const sel = document.getElementById('titles-sort-select');
+            if (sel && sel.value !== titlesSortOrder) sel.value = titlesSortOrder;
+            updateLayoutToggleBtnUI('titles', titlesLayoutMode);
+
+            // ----- グループ別表示（デフォ・手動ソート・ドラッグ可能） -----
+            if (titlesSortOrder === 'group') {
+                config.forEach((cat, ci) => {
+                    const records = cat.records || [];
+                    const unit = T.itemCountUnit || (currentLang === 'ja' ? '件' : 'items');
+                    const countBadgeStr = currentLang === 'ja' ? `${records.length}${unit}` : `${records.length} ${records.length === 1 ? 'item' : 'items'}`;
+                    const d = document.createElement('div'); d.className = "category-box" + (cat.isClosed ? " closed" : ""); d.setAttribute('data-idx', ci);
+                    d.innerHTML = `
+                    <div class="category-name" onclick="toggleCategory(this, ${ci})">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>${raidSoEscape(cat.name)}</span>
+                            <span class="category-count-badge" style="font-size:12px; font-weight:normal; color:var(--text-muted); padding:1px 7px; background:rgba(255,255,255,0.06); border-radius:10px; border:1px solid var(--border-color);">${countBadgeStr}</span>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="btn-delete-cat" onclick="event.stopPropagation(); deleteCategory(${ci})">${raidSoEscape(T.delete)}</button>
+                            <button class="btn-secondary btn-add-item" onclick="event.stopPropagation(); addRecord(${ci})">＋</button>
+                        </div>
                     </div>
-                    <div class="record-actions">
-                        <button class="icon-btn twitch-action-btn sync-action-btn" title="${A.syncTip}" onclick="event.stopPropagation(); syncWithTwitch(${ci}, ${ri}, this)">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
-                            <span class="action-text"><span class="action-main">${A.syncMain}</span><span class="action-sub">${A.syncSub}</span></span>
-                        </button>
-                        <button class="icon-btn twitch-action-btn push-action-btn" title="${A.pushTip}" onclick="event.stopPropagation(); pushToTwitch(${ci}, ${ri}, this)">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                            <span class="action-text"><span class="action-main">${A.pushMain}</span><span class="action-sub">${A.pushSub}</span></span>
-                        </button>
-                        <button class="btn-delete-item" onclick="event.stopPropagation(); deleteRecord(${ci}, ${ri})">✕</button>
-                    </div>
-                </div>
-                <div class="record-body">
-                    <span class="field-label">${L.game}</span>
-                    <input type="text" value="${raidSoEscape(r.game || '')}" oninput="config[${ci}].records[${ri}].game=this.value; saveAllLocal(false)">
-                    
-                    <span class="field-label">${L.title}</span>
-                    <textarea id="record-title-input-${ci}-${ri}" oninput="updateRecordTitleValue(${ci}, ${ri}, this.value)">${raidSoEscape(r.title || '')}</textarea>
-                    <div style="margin-top:2px; margin-bottom:10px;">
-                        <div style="font-size:10.5px; color:var(--text-muted); font-weight:bold; margin-bottom:2px;">反映プレビュー</div>
-                        <div id="record-title-preview-${ci}-${ri}" class="title-preview-box">${raidSoEscape(resolveStreamTitleTemplate(r.title || '', { game: r.game || '' })) || '<span style="color:var(--text-muted);">(未入力)</span>'}</div>
-                    </div>
+                    <div class="category-records sortable-items ${titlesLayoutMode === 'grid' ? 'layout-grid' : 'layout-list'}" data-cat-idx="${ci}"></div>`;
 
-                    <span class="field-label" style="display:flex; align-items:center;">${L.notif}<span style="font-size:10px; color:var(--text-muted); margin-left:8px; font-weight:normal;">${I18N_DATA[currentLang]?.ui?.jsMsgs?.manualMemo || langMap.ja.jsMsgs.manualMemo}</span></span>
-                    <textarea onchange="config[${ci}].records[${ri}].notif=this.value; saveAllLocal(false)">${raidSoEscape(r.notif || '')}</textarea>
+                    if (!records.length) {
+                        d.querySelector('.category-records').innerHTML = emptyStateHtml(T.empty?.titleRecords || '');
+                    }
 
-                    <span class="field-label" style="display:flex; align-items:center;">${L.tags}<span style="font-size:10px; color:var(--text-muted); margin-left:8px; font-weight:normal;">${I18N_DATA[currentLang]?.ui?.jsMsgs?.manualMemo || langMap.ja.jsMsgs.manualMemo}</span></span>
-                    <input type="text" value="${raidSoEscape(r.tags || '')}" oninput="config[${ci}].records[${ri}].tags=this.value; saveAllLocal(false)">
+                    // カテゴリ内でもピン留め対象を最上位へ整列
+                    const sortedCatRecords = [...records].sort((a, b) => {
+                        const pa = a.isPinned ? 1 : 0;
+                        const pb = b.isPinned ? 1 : 0;
+                        return pb - pa;
+                    });
 
-                    <span class="field-label">${L.memo}</span>
-                    <textarea onchange="config[${ci}].records[${ri}].memo=this.value; saveAllLocal(false)">${raidSoEscape(r.memo || '')}</textarea>
-                </div>`;
-                    d.querySelector('.category-records').appendChild(card);
+                    sortedCatRecords.forEach((r) => {
+                        const ri = records.indexOf(r);
+                        d.querySelector('.category-records').appendChild(_buildTitleCard(r, ci, ri, T, L, A));
+                    });
+                    c.appendChild(d);
                 });
-                c.appendChild(d);
-            });
-            initSortable();
+                initSortable();
+
+            // ----- フラット表示（ソート順表示：カテゴリ順・登録タイトル順・登録名前順・使用回数順など） -----
+            } else {
+                const allRecords = [];
+                config.forEach((cat, ci) => {
+                    (cat.records || []).forEach((r, ri) => {
+                        allRecords.push({ r, ci, ri, catName: cat.name });
+                    });
+                });
+
+                allRecords.sort((a, b) => {
+                    const ra = a.r, rb = b.r;
+                    const pa = ra.isPinned ? 1 : 0;
+                    const pb = rb.isPinned ? 1 : 0;
+                    if (pa !== pb) return pb - pa; // ピン留め対象をソート指定にかかわらず常に最上位に
+
+                    if (titlesSortOrder === 'usage') {
+                        const ua = ra.useCount || 0;
+                        const ub = rb.useCount || 0;
+                        if (ua !== ub) return ub - ua;
+                        const na = getRecordDisplayLabel(ra, A.newLabel).toLowerCase();
+                        const nb = getRecordDisplayLabel(rb, A.newLabel).toLowerCase();
+                        return na.localeCompare(nb, 'ja');
+                    }
+                    if (titlesSortOrder === 'name') {
+                        const na = getRecordDisplayLabel(ra, A.newLabel).toLowerCase();
+                        const nb = getRecordDisplayLabel(rb, A.newLabel).toLowerCase();
+                        return na.localeCompare(nb, 'ja');
+                    }
+                    if (titlesSortOrder === 'title') {
+                        const ta = (ra.title || '').toLowerCase();
+                        const tb = (rb.title || '').toLowerCase();
+                        return ta.localeCompare(tb, 'ja');
+                    }
+                    if (titlesSortOrder === 'category') {
+                        const ca = (ra.game || a.catName || '').toLowerCase();
+                        const cb = (rb.game || b.catName || '').toLowerCase();
+                        return ca.localeCompare(cb, 'ja');
+                    }
+                    return 0;
+                });
+
+                allRecords.forEach(({ r, ci, ri }) => {
+                    c.appendChild(_buildTitleCard(r, ci, ri, T, L, A));
+                });
+            }
+
             renderCommonTagBar();
         }
 
@@ -1435,7 +1674,7 @@ window.copyCommonTag = copyCommonTag;
         function saveFriendsLocalDebounced() {
             if (saveFriendsTimeout) clearTimeout(saveFriendsTimeout);
             saveFriendsTimeout = setTimeout(() => {
-                saveFriendsLocal(false);
+                        saveFriendsLocal(false);
             }, 300);
         }
 
@@ -1471,6 +1710,12 @@ window.copyCommonTag = copyCommonTag;
             }
 
             const isSelf = friendsConfig?.[ci]?.kind === 'authenticated-user';
+            const isPinned = Boolean(f.isPinned);
+            if (isPinned) {
+                card.classList.add('is-pinned-card');
+            }
+            const pinBadge = isPinned ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-text, #ffaa00); vertical-align:middle; margin-right:3px;" title="ピン留め中"><path d="M12 17v5"></path><path d="M9 4v5.5L7 12v2h10v-2l-2-2.5V4z"></path><line x1="9" y1="4" x2="15" y2="4"></line></svg>` : '';
+
             const shoutoutCount = isSelf ? 0 : Number(f.shoutoutCount || 0);
             const lastDate = isSelf ? '' : (f.lastShoutoutAt ? new Date(f.lastShoutoutAt).toLocaleString() : '');
             const meta = shoutoutCount ? (I.shoutoutMeta || '').replace('{count}', shoutoutCount).replace('{date}', lastDate || '-') : '';
@@ -1490,19 +1735,35 @@ window.copyCommonTag = copyCommonTag;
                 ? `<span style="font-size:10px;color:var(--text-muted);margin-left:6px;">${raidSoEscape(sortMeta)}</span>`
                 : '';
 
+            const pinTip = isPinned ? 'ピン留めを解除' : '最上部にピン留め';
+            const pinStyle = isPinned
+                ? 'color: var(--warning-text, #ffaa00); border-color: rgba(255, 170, 0, 0.5); background: rgba(255, 170, 0, 0.15);'
+                : '';
+
+            const pinBtnHtml = `
+                <button class="icon-btn id-action-btn id-pin-action ${isPinned ? 'is-pinned' : ''}" title="${raidSoEscape(pinTip)}" onclick="event.stopPropagation(); toggleFriendPin(${ci}, ${fi})" style="position:absolute; top:6px; right:6px; z-index:2; ${pinStyle}">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="${isPinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 17v5"></path>
+                        <path d="M9 4v5.5L7 12v2h10v-2l-2-2.5V4z"></path>
+                        <line x1="9" y1="4" x2="15" y2="4"></line>
+                    </svg>
+                </button>
+            `;
+
             card.innerHTML = `
-            <div class="record-header" onclick="toggleFriendRecordOpen(${ci}, ${fi})">
+            <div class="record-header" onclick="toggleFriendRecordOpen(${ci}, ${fi})" style="position:relative; padding-right:36px;">
                 <div style="display:flex; flex-direction:column; min-width:0;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span>● ${raidSoEscape(displayName)}</span>
-                        ${sortMetaHtml}
+                        <span>● ${pinBadge}${raidSoEscape(displayName)}</span>
                         <button class="icon-btn id-action-btn id-edit-action" title="${raidSoEscape(L.alerts.renameId)}" onclick="event.stopPropagation(); renameFriendRecord(${ci}, ${fi})">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         </button>
+                        ${sortMetaHtml}
                     </div>
                     ${groupTagsHtml}
                 </div>
-                <div style="display:flex; gap:5px; flex-shrink:0;">
+                ${pinBtnHtml}
+                <div style="display:flex; gap:5px; flex-shrink:0; margin-right:32px;">
                     <button class="icon-btn id-action-btn id-refresh-action" title="${raidSoEscape(I.refreshInfo)}" onclick="event.stopPropagation(); refreshFriendUserData(${ci}, ${fi}, this)" style="color:var(--twitch-purple); border-color:rgba(145, 70, 255, 0.4); background:rgba(145, 70, 255, 0.08);">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                     </button>
@@ -1561,12 +1822,50 @@ window.copyCommonTag = copyCommonTag;
             return card;
         }
 
+        function toggleFriendPin(ci, fi) {
+            if (!friendsConfig[ci] || !friendsConfig[ci].friends[fi]) return;
+            const friend = friendsConfig[ci].friends[fi];
+            friend.isPinned = !friend.isPinned;
+            saveFriendsLocal(false);
+            renderFriends();
+            const msg = friend.isPinned ? '最上部にピン留めしました' : 'ピン留めを解除しました';
+            showToast(msg, 'info');
+        }
+        window.toggleFriendPin = toggleFriendPin;
+
+        friendsSortOrder = localStorage.getItem('stream_friends_sort_order_v16') || window.friendsSortOrder || 'name';
+        window.friendsSortOrder = friendsSortOrder;
+        let friendsLayoutMode = localStorage.getItem('stream_friends_layout_mode_v16') || 'grid';
+
+        function changeFriendsSortOrder(val) {
+            friendsSortOrder = val;
+            localStorage.setItem('stream_friends_sort_order_v16', val);
+            const sel = document.getElementById('friends-sort-select');
+            if (sel && sel.value !== val) sel.value = val;
+            renderFriends();
+        }
+        window.changeFriendsSortOrder = changeFriendsSortOrder;
+
+        function toggleFriendsLayoutMode() {
+            friendsLayoutMode = (friendsLayoutMode === 'grid') ? 'list' : 'grid';
+            localStorage.setItem('stream_friends_layout_mode_v16', friendsLayoutMode);
+            renderFriends();
+        }
+        window.toggleFriendsLayoutMode = toggleFriendsLayoutMode;
+
         // ★ 更新版：IDリストのUIと機能を画像に合わせて復元
         function renderFriends() {
             const L = langMap[currentLang];
             const I = L.idList || langMap.ja.idList;
             const E = L.extended || langMap.ja.extended || {};
             const c = document.getElementById('friends-container'); if (!c) return; c.innerHTML = "";
+            c.classList.toggle('flat-mode', friendsSortOrder !== 'group');
+            c.classList.toggle('layout-grid', friendsLayoutMode === 'grid');
+            c.classList.toggle('layout-list', friendsLayoutMode === 'list');
+
+            const sortSel = document.getElementById('friends-sort-select');
+            if (sortSel && sortSel.value !== friendsSortOrder) sortSel.value = friendsSortOrder;
+            updateLayoutToggleBtnUI('friends', friendsLayoutMode);
 
             // 現在の選択状態（チェック状態）を退避
             const activeTags = Array.from(document.querySelectorAll('#friends-tag-list input[type="checkbox"]:checked')).map(cb => cb.value);
@@ -1629,22 +1928,36 @@ window.copyCommonTag = copyCommonTag;
                         c.appendChild(card);
                         return;
                     }
+                    const friends = cat.friends || [];
+                    const unit = I.memberCountUnit || L.memberCountUnit || (currentLang === 'ja' ? '人' : 'members');
+                    const countBadgeStr = currentLang === 'ja' ? `${friends.length}${unit}` : `${friends.length} ${friends.length === 1 ? 'member' : 'members'}`;
                     const d = document.createElement('div'); d.className = "category-box" + (cat.isClosed ? " closed" : ""); d.setAttribute('data-idx', ci);
                     d.innerHTML = `
                     <div class="category-name" onclick="toggleFriendCategory(this, ${ci})">
-                        <span>${raidSoEscape(cat.name)}</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>${raidSoEscape(cat.name)}</span>
+                            <span class="category-count-badge" style="font-size:12px; font-weight:normal; color:var(--text-muted); padding:1px 7px; background:rgba(255,255,255,0.06); border-radius:10px; border:1px solid var(--border-color);">${countBadgeStr}</span>
+                        </div>
                         <div style="display:flex; gap:8px; align-items:center;">
                             <button class="btn-delete-cat" onclick="event.stopPropagation(); deleteFriendCategory(${ci})">${raidSoEscape(L.delete)}</button>
                             <button class="btn-secondary btn-add-item" onclick="event.stopPropagation(); addFriendRecord(${ci})">＋</button>
                         </div>
                     </div>
-                    <div class="category-records sortable-items" data-cat-idx="${ci}"></div>`;
+                    <div class="category-records sortable-items ${friendsLayoutMode === 'grid' ? 'layout-grid' : 'layout-list'}" data-cat-idx="${ci}"></div>`;
 
-                    const friends = cat.friends || [];
                     if (!friends.length) {
                         d.querySelector('.category-records').innerHTML = emptyStateHtml(L.empty?.idRecords || '');
                     }
-                    friends.forEach((f, fi) => {
+
+                    // カテゴリ内でもピン留め対象を最上位へ整列
+                    const sortedCatFriends = [...friends].sort((a, b) => {
+                        const pa = a.isPinned ? 1 : 0;
+                        const pb = b.isPinned ? 1 : 0;
+                        return pb - pa;
+                    });
+
+                    sortedCatFriends.forEach((f) => {
+                        const fi = friends.indexOf(f);
                         d.querySelector('.category-records').appendChild(_buildFriendCard(f, ci, fi, L, I, null));
                     });
                     c.appendChild(d);
@@ -1676,6 +1989,10 @@ window.copyCommonTag = copyCommonTag;
 
                 allFriends.sort((a, b) => {
                     const fa = a.f, fb = b.f;
+                    const pa = fa.isPinned ? 1 : 0;
+                    const pb = fb.isPinned ? 1 : 0;
+                    if (pa !== pb) return pb - pa; // ピン留め対象をソート指定にかかわらず常に最上位に
+
                     if (friendsSortOrder === 'name') {
                         const na = (fa.name || fa.twitch || '').toLowerCase();
                         const nb = (fb.name || fb.twitch || '').toLowerCase();
@@ -1808,30 +2125,24 @@ window.copyCommonTag = copyCommonTag;
         }
         window.addNewGroupFromFilter = addNewGroupFromFilter;
 
-        async function showEditFriendTagsDialog(ci, fi) {
+                        async function showEditFriendTagsDialog(ci, fi) {
             const L = langMap[currentLang];
-            const E = L.extended || langMap.ja.extended || {};
-            const targetFriend = friendsConfig[ci].friends[fi];
+            const targetCat = friendsConfig[ci];
+            const targetFriend = targetCat?.friends?.[fi];
             if (!targetFriend) return;
 
-            // ターゲット配信者の Twitch ID を小文字化・正規化
-            const targetTwitch = (normalizeFriendTwitch(targetFriend.twitch || targetFriend.name || '') || '').toLowerCase();
-            if (!targetTwitch) {
-                showToast(uiText('idList.tagEditMissingTwitch'), 'error');
-                return;
-            }
-
-            // 現在のすべての所属グループ名を抽出
-            const currentBelongingGroups = [];
-            (friendsConfig || []).forEach(cat => {
+            // 現在所属しているグループのIndex集合を取得
+            const currentBelongingCatIndexes = new Set();
+            (friendsConfig || []).forEach((cat, cIdx) => {
                 if (cat.kind === 'shoutout-history' || cat.kind === 'authenticated-user') return;
-                const hasMe = (cat.friends || []).some(friend => (normalizeFriendTwitch(friend.twitch || friend.name || '') || '').toLowerCase() === targetTwitch);
-                if (hasMe) currentBelongingGroups.push(cat.name);
+                const hasMe = (cat.friends || []).some(f => f && (f === targetFriend || areFriendsSamePerson(f, targetFriend)));
+                if (hasMe) currentBelongingCatIndexes.add(cIdx);
             });
 
             // 選択肢となる通常のグループ（カテゴリー）一覧
             const availableCategories = (friendsConfig || [])
-                .filter(cat => cat.kind !== 'shoutout-history' && cat.kind !== 'authenticated-user');
+                .map((cat, cIdx) => ({ cat, cIdx }))
+                .filter(item => item.cat.kind !== 'shoutout-history' && item.cat.kind !== 'authenticated-user');
 
             if (availableCategories.length === 0) {
                 showToast(uiText('idList.noGroups'), 'error');
@@ -1839,11 +2150,11 @@ window.copyCommonTag = copyCommonTag;
             }
 
             // ダイアログHTMLの構築
-            const listHtml = availableCategories.map((cat, idx) => {
-                const checked = currentBelongingGroups.includes(cat.name) ? ' checked' : '';
+            const listHtml = availableCategories.map(({ cat, cIdx }) => {
+                const checked = currentBelongingCatIndexes.has(cIdx) ? ' checked' : '';
                 return `
                     <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 6px; cursor: pointer; user-select: none;">
-                        <input type="checkbox" class="edit-tags-cb" value="${raidSoEscape(cat.name)}"${checked} style="width:16px; height:16px; accent-color: var(--twitch-purple);">
+                        <input type="checkbox" class="edit-tags-cb" value="${cIdx}"${checked} style="width:16px; height:16px; accent-color: var(--twitch-purple);">
                         <span style="font-size:13px; color: var(--text-main); font-weight: bold;">${raidSoEscape(cat.name)}</span>
                     </label>
                 `;
@@ -1867,48 +2178,35 @@ window.copyCommonTag = copyCommonTag;
                 const btnSubmit = document.getElementById('edit-tags-submit');
                 if (btnSubmit) {
                     btnSubmit.onclick = () => {
-                        // チェックされたグループ（タグ）名一覧
-                        const selectedGroupNames = Array.from(document.querySelectorAll('.edit-tags-cb:checked')).map(cb => cb.value);
+                        const selectedCatIndexes = new Set(
+                            Array.from(document.querySelectorAll('.edit-tags-cb:checked')).map(cb => parseInt(cb.value, 10))
+                        );
 
-                        // 選択されたグループがゼロの場合、強制的に「未分類」に登録する（データ消失防止）
-                        if (selectedGroupNames.length === 0) {
+                        if (selectedCatIndexes.size === 0) {
                             const uncategorizedName = I18N_DATA[currentLang]?.ui?.idList?.uncategorized || I18N_DATA.ja.ui.idList.uncategorized;
-                            selectedGroupNames.push(uncategorizedName);
-                            // 未分類グループがなければ作成
                             let uIdx = (friendsConfig || []).findIndex(cat => cat.name === uncategorizedName);
                             if (uIdx === -1) {
                                 friendsConfig.push({ name: uncategorizedName, friends: [], isClosed: false });
+                                uIdx = friendsConfig.length - 1;
                             }
+                            selectedCatIndexes.add(uIdx);
                         }
 
-                        // 元の配信者オブジェクトの情報を保持する
-                        let baseFriendData = null;
-                        for (let cat of friendsConfig) {
-                            const found = (cat.friends || []).find(friend => (normalizeFriendTwitch(friend.twitch || friend.name || '') || '').toLowerCase() === targetTwitch);
-                            if (found) {
-                                baseFriendData = { ...found };
-                                break;
-                            }
-                        }
-                        if (!baseFriendData) {
-                            baseFriendData = { ...targetFriend };
-                        }
-
-                        // 各グループの friends 配列を更新する
-                        (friendsConfig || []).forEach(cat => {
+                        // 対象カテゴリのみ差分でピンポイント追加/削除（無駄な全除去・破壊を行わない）
+                        (friendsConfig || []).forEach((cat, cIdx) => {
                             if (cat.kind === 'shoutout-history' || cat.kind === 'authenticated-user') return;
+                            if (!Array.isArray(cat.friends)) cat.friends = [];
 
-                            const myIdx = (cat.friends || []).findIndex(friend => (normalizeFriendTwitch(friend.twitch || friend.name || '') || '').toLowerCase() === targetTwitch);
-                            const shouldBelong = selectedGroupNames.includes(cat.name);
+                            const existingIdx = cat.friends.findIndex(f => f && (f === targetFriend || areFriendsSamePerson(f, targetFriend)));
+                            const shouldBelong = selectedCatIndexes.has(cIdx);
 
                             if (shouldBelong) {
-                                if (myIdx === -1) {
-                                    if (!cat.friends) cat.friends = [];
-                                    cat.friends.push({ ...baseFriendData });
+                                if (existingIdx === -1) {
+                                    cat.friends.push({ ...targetFriend });
                                 }
                             } else {
-                                if (myIdx > -1) {
-                                    cat.friends.splice(myIdx, 1);
+                                if (existingIdx > -1) {
+                                    cat.friends.splice(existingIdx, 1);
                                 }
                             }
                         });
@@ -1922,6 +2220,25 @@ window.copyCommonTag = copyCommonTag;
             });
         }
         window.showEditFriendTagsDialog = showEditFriendTagsDialog;
+
+
+        function cleanupDuplicateFriendsInCategories() {
+            if (!Array.isArray(friendsConfig)) return;
+            friendsConfig.forEach(cat => {
+                if (!Array.isArray(cat.friends) || cat.friends.length <= 1) return;
+                const uniqueFriends = [];
+                cat.friends.forEach(friend => {
+                    if (!friend) return;
+                    const exists = uniqueFriends.some(f => areFriendsSamePerson(f, friend) || (f === friend));
+                    if (!exists) {
+                        uniqueFriends.push(friend);
+                    }
+                });
+                cat.friends = uniqueFriends;
+            });
+        }
+        window.cleanupDuplicateFriendsInCategories = cleanupDuplicateFriendsInCategories;
+
 
 
         // --- Twitch ID 重複チェック共通関数 ---
@@ -2740,7 +3057,7 @@ window.copyCommonTag = copyCommonTag;
             <div style="background:var(--bg-card);border:2px solid var(--border-color);border-radius:12px;padding:16px;width:300px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                     <strong style="color:var(--twitch-purple);font-size:13px;">${raidSoEscape(uiText('idList.datePickerTitle', { type: typeLabel }))}</strong>
-                    <button onclick="document.getElementById('mini-date-picker-overlay').remove()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;padding:2px 6px;">×</button>
+                    <button onclick="document.getElementById('mini-date-picker-overlay')?.remove()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;padding:2px 6px;">×</button>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                     <button onclick="miniPickerMonth--;if(miniPickerMonth<1){miniPickerMonth=12;}renderMiniDatePicker(document.getElementById('mini-date-picker-overlay'))" style="background:var(--bg-item);border:1px solid var(--border-color);color:var(--text-main);border-radius:5px;padding:4px 12px;cursor:pointer;font-weight:bold;font-size:13px;">&lt;</button>
@@ -2846,31 +3163,326 @@ window.copyCommonTag = copyCommonTag;
         }
 
 
+        
+        
+        
+        
+        
+        
+        const MEMO_SVG_EYE = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:3px; vertical-align:middle;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        const MEMO_SVG_PENCIL = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:3px; vertical-align:middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+        const MEMO_SVG_LINK = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:3px; vertical-align:middle;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
+
+        function renderMarkdownToHtml(src, memoIndex = null) {
+            if (!src) return `<div style="color:var(--text-muted); font-size:11px; font-style:italic;">${raidSoEscape(uiText('memoEmptyHint'))}</div>`;
+            let html = raidSoEscape(src);
+
+            // Code blocks
+            html = html.replace(/```([\s\S]*?)```/g, (m, code) => `<pre class="md-code-block"><code>${code.trim()}</code></pre>`);
+            
+            // Inline code
+            html = html.replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>');
+
+            // Headings
+            html = html.replace(/^### (.*$)/gim, '<h3 class="md-h3">$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2 class="md-h2">$1</h2>');
+            html = html.replace(/^# (.*$)/gim, '<h1 class="md-h1">$1</h1>');
+
+            // Text Styles
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+            // Interactive Task Checkboxes
+            let taskIdx = 0;
+            html = html.replace(/^- \[(x| )\] (.*$)/gim, (match, checkedChar, itemText) => {
+                const isChecked = checkedChar === 'x';
+                const currentTaskIdx = taskIdx++;
+                const onclickAttr = (memoIndex !== null && memoIndex !== undefined)
+                    ? `onclick="toggleMemoTaskCheckbox(${memoIndex}, ${currentTaskIdx}, this.checked)"`
+                    : 'disabled';
+                const checkedAttr = isChecked ? 'checked' : '';
+                const spanClass = isChecked ? 'class="md-done"' : '';
+                return `<div class="md-task-item"><input type="checkbox" ${checkedAttr} ${onclickAttr}><span ${spanClass}>${itemText}</span></div>`;
+            });
+
+            // Blockquotes
+            html = html.replace(/^&gt; (.*$)/gim, '<blockquote class="md-quote">$1</blockquote>');
+
+            // HR
+            html = html.replace(/^---$/gim, '<hr class="md-hr">');
+
+            // Links
+            html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g, `<a href="$2" target="_blank" rel="noopener noreferrer" class="md-link">$1 ${MEMO_SVG_LINK}</a>`);
+
+            // Line-by-line Smart 3-Level Nesting & List Processor (全角スペース・中黒・ダッシュ対応)
+            const lines = html.split('\n');
+            let inOl = false;
+            let olCounter = 1;
+            let currentOlIndent = 0;
+
+            const processed = lines.map(line => {
+                // 全角スペース・タブを半角2文字に変換
+                const normalizedLine = line.replace(/　/g, '  ').replace(/\t/g, '  ');
+                const rawIndentMatch = normalizedLine.match(/^(\s*)/);
+                const spacesCount = rawIndentMatch ? rawIndentMatch[1].length : 0;
+                const spaceLevel = Math.floor(spacesCount / 2);
+
+                const trimmed = line.trim();
+                if (!trimmed) {
+                    inOl = false;
+                    return '<div style="height: 4px;"></div>';
+                }
+
+                // 記号ベースの階層判定 (- - -, - -, ・ ・, etc)
+                let symbolLevel = 0;
+                let itemText = trimmed;
+
+                const m3 = trimmed.match(/^(?:[-*+・]\s*){3}\s*(.*)$/);
+                const m2 = trimmed.match(/^(?:[-*+・]\s*){2}\s*(.*)$/);
+                const m1 = trimmed.match(/^(?:[-*+・])\s*(.*)$/);
+
+                if (m3) {
+                    symbolLevel = 2;
+                    itemText = m3[1];
+                } else if (m2) {
+                    symbolLevel = 1;
+                    itemText = m2[1];
+                } else if (m1) {
+                    symbolLevel = 0;
+                    itemText = m1[1];
+                }
+
+                // 最大3階層 (Level 0, 1, 2)
+                const finalLevel = Math.min(2, Math.max(spaceLevel, symbolLevel));
+                const indentStyle = finalLevel > 0 ? `style="margin-left: ${finalLevel * 18}px;"` : '';
+
+                // 階層別箇条書き記号 (•, ◦, ▪)
+                const bullets = ['•', '◦', '▪'];
+                const bulletChar = bullets[finalLevel] || '•';
+
+                // 番号付きリスト (自動連番 1., 2., 3...)
+                const olMatch = trimmed.match(/^(\d+)[\.\)]\s+(.*)$/);
+                if (olMatch) {
+                    if (!inOl || finalLevel !== currentOlIndent) {
+                        inOl = true;
+                        olCounter = 1;
+                        currentOlIndent = finalLevel;
+                    }
+                    const numStr = `${olCounter}.`;
+                    olCounter++;
+
+                    return `<div class="md-list-item" ${indentStyle}><span class="md-num">${numStr}</span> <span>${olMatch[2]}</span></div>`;
+                } else {
+                    inOl = false;
+                }
+
+                // 箇条書きリスト (-, *, +, ・ または 記号連続入力)
+                if (m1 || m2 || m3) {
+                    return `<div class="md-list-item" ${indentStyle}><span class="md-bullet">${bulletChar}</span> <span>${itemText}</span></div>`;
+                }
+
+                if (trimmed.startsWith('<h') || trimmed.startsWith('<div') || trimmed.startsWith('<pre') || trimmed.startsWith('<blockquote') || trimmed.startsWith('<hr')) {
+                    return line;
+                }
+                return line + '<br>';
+            });
+
+            return processed.join('');
+        }
+        window.renderMarkdownToHtml = renderMarkdownToHtml;
+
+        function handleMemoKeydown(e, memoIndex) {
+            const textarea = e.target;
+            if (!textarea) return;
+
+            // Tab key: Insert 2 spaces for indent
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = textarea.selectionStart || 0;
+                const end = textarea.selectionEnd || 0;
+                const value = textarea.value || '';
+
+                if (!e.shiftKey) {
+                    textarea.value = value.substring(0, start) + '  ' + value.substring(end);
+                    textarea.selectionStart = textarea.selectionEnd = start + 2;
+                } else {
+                    if (start >= 2 && value.substring(start - 2, start) === '  ') {
+                        textarea.value = value.substring(0, start - 2) + value.substring(end);
+                        textarea.selectionStart = textarea.selectionEnd = start - 2;
+                    }
+                }
+                memoConfig[memoIndex].content = textarea.value;
+                saveMemoLocal();
+                return;
+            }
+
+            // Enter key: Auto continue list
+            if (e.key === 'Enter') {
+                const start = textarea.selectionStart || 0;
+                const value = textarea.value || '';
+                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                const currentLine = value.substring(lineStart, start);
+
+                const taskMatch = currentLine.match(/^(\s*)- \[(?:x| )\]\s+(.*)$/);
+                const ulMatch = currentLine.match(/^(\s*)[-*+・]\s+(.*)$/);
+                const olMatch = currentLine.match(/^(\s*)(\d+)[\.\)]\s+(.*)$/);
+
+                if (taskMatch) {
+                    if (!taskMatch[2].trim()) return;
+                    e.preventDefault();
+                    const prefix = `\n${taskMatch[1]}- [ ] `;
+                    textarea.value = value.substring(0, start) + prefix + value.substring(start);
+                    textarea.selectionStart = textarea.selectionEnd = start + prefix.length;
+                    memoConfig[memoIndex].content = textarea.value;
+                    saveMemoLocal();
+                } else if (ulMatch) {
+                    if (!ulMatch[2].trim()) return;
+                    e.preventDefault();
+                    const prefix = `\n${ulMatch[1]}- `;
+                    textarea.value = value.substring(0, start) + prefix + value.substring(start);
+                    textarea.selectionStart = textarea.selectionEnd = start + prefix.length;
+                    memoConfig[memoIndex].content = textarea.value;
+                    saveMemoLocal();
+                } else if (olMatch) {
+                    if (!olMatch[3].trim()) return;
+                    e.preventDefault();
+                    const nextNum = parseInt(olMatch[2], 10) + 1;
+                    const prefix = `\n${olMatch[1]}${nextNum}. `;
+                    textarea.value = value.substring(0, start) + prefix + value.substring(start);
+                    textarea.selectionStart = textarea.selectionEnd = start + prefix.length;
+                    memoConfig[memoIndex].content = textarea.value;
+                    saveMemoLocal();
+                }
+            }
+        }
+        window.handleMemoKeydown = handleMemoKeydown;
+        let activeMemoIndex = 0;
+
+        function setActiveMemoIndex(idx) {
+            activeMemoIndex = idx;
+        }
+        window.setActiveMemoIndex = setActiveMemoIndex;
+
+        function insertGlobalMarkdownSyntax(prefix, suffix = '') {
+            let targetIdx = activeMemoIndex;
+            if (targetIdx < 0 || targetIdx >= memoConfig.length) {
+                targetIdx = 0;
+            }
+            if (!memoConfig[targetIdx]) return;
+
+            if (memoConfig[targetIdx].mode === 'preview') {
+                memoConfig[targetIdx].mode = 'edit';
+                renderMemo();
+            }
+
+            const textarea = document.getElementById(`memo-input-${targetIdx}`);
+            if (!textarea) return;
+
+            const start = textarea.selectionStart || 0;
+            const end = textarea.selectionEnd || 0;
+            const text = textarea.value || '';
+            const selectedText = text.substring(start, end) || 'テキスト';
+            const replacement = prefix + selectedText + suffix;
+
+            textarea.value = text.substring(0, start) + replacement + text.substring(end);
+            textarea.selectionStart = start + prefix.length;
+            textarea.selectionEnd = start + prefix.length + selectedText.length;
+            textarea.focus();
+
+            memoConfig[targetIdx].content = textarea.value;
+            saveMemoLocal();
+        }
+        window.insertGlobalMarkdownSyntax = insertGlobalMarkdownSyntax;
+
+        
+        function toggleMemoMode(memoIndex, mode) {
+            if (!memoConfig[memoIndex]) return;
+            memoConfig[memoIndex].mode = mode;
+            memoConfig[memoIndex].isClosed = false;
+            saveMemoLocal(false);
+            renderMemo();
+        }
+        window.toggleMemoMode = toggleMemoMode;
+
+        function toggleMemoCategory(el, i) {
+            memoConfig[i].isClosed = el.closest('.category-box').classList.toggle('closed');
+            if (memoConfig[i].isClosed) {
+                let p = (memoConfig[i].content || '').replace(/\n/g, ' ').substring(0, 15);
+                if ((memoConfig[i].content || '').length > 15) p += '...';
+                const previewEl = el.querySelector('.memo-preview');
+                if (previewEl) previewEl.textContent = p;
+            }
+            saveMemoLocal(false);
+        }
+        window.toggleMemoCategory = toggleMemoCategory;
+
+        let memoSortOrder = localStorage.getItem('stream_memo_sort_order_v1') || 'default';
+
+        function changeMemoSortOrder(val) {
+            memoSortOrder = val;
+            localStorage.setItem('stream_memo_sort_order_v1', val);
+            const sel = document.getElementById('memo-sort-select');
+            if (sel && sel.value !== val) sel.value = val;
+            renderMemo();
+        }
+        window.changeMemoSortOrder = changeMemoSortOrder;
+
         function renderMemo() {
             const c = document.getElementById('memo-container'); if (!c) return; c.innerHTML = "";
+            const sel = document.getElementById('memo-sort-select');
+            if (sel && sel.value !== memoSortOrder) sel.value = memoSortOrder;
+
             if (!memoConfig.length) {
                 c.innerHTML = emptyStateHtml(langMap[currentLang].empty?.memos || '');
                 initSortable();
                 return;
             }
-            memoConfig.forEach((m, i) => {
-                const d = document.createElement('div'); d.className = "category-box" + (m.isClosed ? " closed" : ""); d.setAttribute('data-idx', i);
+
+            let memoListToRender = memoConfig.map((m, i) => ({ item: m, originalIdx: i }));
+            if (memoSortOrder === 'updated') {
+                memoListToRender.sort((a, b) => (b.item.updatedAt || 0) - (a.item.updatedAt || 0));
+            } else if (memoSortOrder === 'title') {
+                memoListToRender.sort((a, b) => (a.item.title || '').localeCompare(b.item.title || '', currentLang));
+            }
+
+            memoListToRender.forEach(({ item: m, originalIdx: i }) => {
+                const mode = m.mode || (m.content ? 'preview' : 'edit');
+                const d = document.createElement('div');
+                d.className = "category-box" + (m.isClosed ? " closed" : "");
+                d.setAttribute('data-idx', i);
+
                 let previewText = (m.content || '').replace(/\n/g, ' ').substring(0, 15);
                 if ((m.content || '').length > 15) previewText += '...';
+
+                const modeBtnHtml = mode === 'preview'
+                    ? `<button class="btn-secondary" onclick="event.stopPropagation(); toggleMemoMode(${i}, 'edit')" style="padding:2px 8px; font-size:10px; display:inline-flex; align-items:center; gap:4px;">${MEMO_SVG_PENCIL}<span class="mode-btn-text">${raidSoEscape(uiText("extended.memoEdit"))}</span></button>`
+                    : `<button class="btn-secondary" onclick="event.stopPropagation(); toggleMemoMode(${i}, 'preview')" style="padding:2px 8px; font-size:10px; display:inline-flex; align-items:center; gap:4px;">${MEMO_SVG_EYE}<span class="mode-btn-text">${raidSoEscape(uiText("extended.memoPreview"))}</span></button>`;
+
+                const bodyContentHtml = mode === 'edit'
+                    ? `<textarea id="memo-input-${i}" style="min-height:150px;" onfocus="setActiveMemoIndex(${i})" onkeydown="handleMemoKeydown(event, ${i})" oninput="memoConfig[${i}].content=this.value; memoConfig[${i}].updatedAt=Date.now(); saveMemoLocal()">${raidSoEscape(m.content || '')}</textarea>`
+                    : `<div class="memo-markdown-preview">${renderMarkdownToHtml(m.content || '', i)}</div>`;
+
                 d.innerHTML = `<div class="category-name" onclick="toggleMemoCategory(this, ${i})">
                     <div style="display:flex; align-items:center; flex:1; gap:10px; overflow:hidden;">
                         <span style="white-space:nowrap;">${raidSoEscape(m.title)}</span>
                         <small class="memo-preview" style="font-size: 11px; color: var(--text-muted); opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; margin-top:2px;">${raidSoEscape(previewText)}</small>
                     </div>
-                    <button class="btn-delete-item btn-secondary" onclick="event.stopPropagation(); deleteMemo(${i})">✕</button>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        ${modeBtnHtml}
+                        <button class="btn-delete-item btn-secondary" onclick="event.stopPropagation(); deleteMemo(${i})">✕</button>
+                    </div>
                 </div>
-            <textarea style="min-height:150px;" oninput="memoConfig[${i}].content=this.value; saveMemoLocal() ">${raidSoEscape(m.content || '')}</textarea>`;
+                ${bodyContentHtml}`;
                 c.appendChild(d);
             });
             initSortable();
         }
+        window.renderMemo = renderMemo;
 
-        function initSortable() {
+
+function initSortable() {
             if (typeof Sortable === 'undefined') return;
             sortableInstances.forEach(i => i.destroy()); sortableInstances = [];
             const opts = { animation: 150, handle: '.category-name', disabled: isSortLocked };            const itemOpts = (list, save, renderFunc, groupName) => ({
@@ -2995,6 +3607,12 @@ window.copyCommonTag = copyCommonTag;
             firstCommentVolume: 80,
             obsAudioEnabled: false,
             listenerArrivalEnabled: false,
+            listenerImageEnabled: false,
+            listenerImageFile: "",
+            listenerImageDuration: 5,
+            listenerImageSize: 100,
+            listenerImagePosX: 50,
+            listenerImagePosY: 50,
             listenerEntries: [],
             soundFiles: [...RAIDSO_DEFAULT_SOUND_FILES],
             excludedUsers: typeof DEFAULT_EXCLUDED_BOT_USERS_TEXT !== 'undefined'
@@ -3373,12 +3991,19 @@ window.copyCommonTag = copyCommonTag;
             </div>`;
         }
 
+        function foxBetaSvgIcon(size = 18) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 5px; display: inline-block;">
+                <rect x="2" y="2" width="20" height="20" rx="5" fill="var(--command-accent, #9146ff)"/>
+                <text x="12" y="16.5" font-size="15" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="900" fill="#ffffff" text-anchor="middle">β</text>
+            </svg>`;
+        }
+
         function raidSoListenerSettingsHtml(r, s) {
             const entries = Array.isArray(s.listenerEntries) ? s.listenerEntries : [];
             const sounds = getRaidSoSoundFiles();
             const options = selected => sounds.map(file => `<option value="${raidSoEscape(file)}"${raidSoSelected(file, selected)}>${raidSoEscape(raidSoSoundFileLabel(file))}</option>`).join('');
             return `<section class="raidso-listener-settings">
-                <div class="raidso-listener-heading"><span class="raidso-fox-mark" aria-hidden="true">🦊</span><strong>${raidSoEscape(r.listenerTitle)}</strong></div>
+                <div class="raidso-listener-heading"><span class="raidso-fox-mark" aria-hidden="true">${foxBetaSvgIcon(18)}</span><strong>${raidSoEscape(r.listenerTitle)}</strong></div>
                 <p>${raidSoEscape(r.listenerDelayNote)}</p>
                 <div class="raidso-listener-add">
                     <label><span class="field-label">${raidSoEscape(r.listenerIdLabel)}</span>${raidSoSuggestInputHtml('raidso-listener-id', r.listenerIdPlaceholder)}</label>
@@ -3401,6 +4026,145 @@ window.copyCommonTag = copyCommonTag;
             showToast(doneText());
         }
 
+        function updateWelcomeImageSizeVal(val) {
+            const el = document.getElementById('settings_listener_image_size_val');
+            if (el) el.textContent = `${val}%`;
+        }
+        window.updateWelcomeImageSizeVal = updateWelcomeImageSizeVal;
+
+        function updateWelcomeImagePosHandle(x, y) {
+            const handle = document.getElementById('raidso-image-pos-handle');
+            const dot = document.getElementById('raidso-image-pos-dot');
+            const img = document.getElementById('raidso-image-pos-img');
+            const centerDot = document.getElementById('raidso-image-pos-center-dot');
+            if (handle) {
+                handle.style.left = `${x}%`;
+                handle.style.top = `${y}%`;
+            }
+            if (raidSoSettings.listenerImageFile) {
+                if (dot) dot.style.display = 'none';
+                if (centerDot) centerDot.style.display = 'block';
+                if (img) {
+                    img.src = raidSoSettings.listenerImageFile;
+                    img.style.display = 'block';
+                    const scale = (Number(raidSoSettings.listenerImageSize) || 100) / 100;
+                    img.style.transform = `scale(${scale})`;
+                }
+            } else {
+                if (dot) dot.style.display = 'block';
+                if (centerDot) centerDot.style.display = 'none';
+                if (img) {
+                    img.src = '';
+                    img.style.display = 'none';
+                }
+            }
+        }
+
+        function resetWelcomeImagePos() {
+            raidSoSettings.listenerImagePosX = 50;
+            raidSoSettings.listenerImagePosY = 50;
+            updateWelcomeImagePosHandle(50, 50);
+            saveListenerImageSettings();
+        }
+        window.resetWelcomeImagePos = resetWelcomeImagePos;
+
+        function initWelcomeImagePosPicker() {
+            const picker = document.getElementById('raidso-image-pos-picker');
+            if (!picker || picker.dataset.initialized) return;
+            picker.dataset.initialized = 'true';
+
+            let isDragging = false;
+
+            function updatePosFromEvent(e) {
+                const rect = picker.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+                let clientX = e.clientX;
+                let clientY = e.clientY;
+                if (e.touches && e.touches[0]) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                }
+                let x = Math.max(0, Math.min(100, Math.round(((clientX - rect.left) / rect.width) * 100)));
+                let y = Math.max(0, Math.min(100, Math.round(((clientY - rect.top) / rect.height) * 100)));
+
+                if (Math.abs(x - 50) <= 3) x = 50;
+                if (Math.abs(y - 50) <= 3) y = 50;
+
+                raidSoSettings.listenerImagePosX = x;
+                raidSoSettings.listenerImagePosY = y;
+                updateWelcomeImagePosHandle(x, y);
+                saveListenerImageSettings();
+            }
+
+            picker.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                updatePosFromEvent(e);
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging) updatePosFromEvent(e);
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            picker.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                updatePosFromEvent(e);
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (isDragging) updatePosFromEvent(e);
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+        }
+        window.initWelcomeImagePosPicker = initWelcomeImagePosPicker;
+
+        function syncSettingModalListenerUI() {
+            const urlCode = document.getElementById('settings-secret-fox-obs-url');
+            if (urlCode && typeof getObsAudioSourceUrl === 'function') {
+                urlCode.textContent = getObsAudioSourceUrl();
+            }
+
+            const arrivalCheck = document.getElementById('settings_listener_arrival_enabled');
+            if (arrivalCheck) arrivalCheck.checked = Boolean(raidSoSettings.listenerArrivalEnabled);
+
+            const imageCheck = document.getElementById('settings_listener_image_enabled');
+            if (imageCheck) imageCheck.checked = Boolean(raidSoSettings.listenerImageEnabled);
+
+            const durInput = document.getElementById('settings_listener_image_duration');
+            if (durInput) durInput.value = raidSoSettings.listenerImageDuration || 5;
+
+            const sizeInput = document.getElementById('settings_listener_image_size');
+            if (sizeInput) {
+                const sz = raidSoSettings.listenerImageSize ?? 100;
+                sizeInput.value = sz;
+                updateWelcomeImageSizeVal(sz);
+            }
+
+            updateWelcomeImagePosHandle(raidSoSettings.listenerImagePosX ?? 50, raidSoSettings.listenerImagePosY ?? 50);
+            initWelcomeImagePosPicker();
+
+            const controls = document.getElementById('raidso-welcome-image-controls');
+            if (controls) controls.hidden = false;
+
+            const statusEl = document.getElementById('raidso-welcome-image-status');
+            const removeBtn = document.getElementById('raidso-welcome-image-remove-btn');
+
+            if (raidSoSettings.listenerImageFile) {
+                if (statusEl) statusEl.textContent = raidSoText().listenerImageSet || '画像設定済み';
+                if (removeBtn) removeBtn.style.display = 'inline-block';
+            } else {
+                if (statusEl) statusEl.textContent = raidSoText().listenerImageNotSet || '未設定';
+                if (removeBtn) removeBtn.style.display = 'none';
+            }
+        }
+        window.syncSettingModalListenerUI = syncSettingModalListenerUI;
+
         function setListenerArrivalEnabled(enabled) {
             raidSoSettings.listenerArrivalEnabled = Boolean(enabled);
             raidSoState.listenerBaselineReady = false;
@@ -3408,8 +4172,55 @@ window.copyCommonTag = copyCommonTag;
             raidSoState.listenerStreamId = '';
             localStorage.setItem(RAIDSO_STORAGE_KEY, JSON.stringify(raidSoSettings));
             renderRaidShoutOutPanel();
+            syncSettingModalListenerUI();
             showToast(doneText());
         }
+
+        function handleWelcomeImagePick(input) {
+            const file = input.files?.[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) {
+                return showToast('画像サイズが大きすぎます (10MB以下を推奨)', 'error');
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                raidSoSettings.listenerImageFile = e.target.result;
+                raidSoSettings.listenerImageEnabled = true;
+                const imageCheck = document.getElementById('settings_listener_image_enabled');
+                if (imageCheck) imageCheck.checked = true;
+                saveListenerImageSettings();
+            };
+            reader.readAsDataURL(file);
+        }
+        window.handleWelcomeImagePick = handleWelcomeImagePick;
+
+        function removeWelcomeImage() {
+            raidSoSettings.listenerImageFile = '';
+            saveListenerImageSettings();
+        }
+        window.removeWelcomeImage = removeWelcomeImage;
+
+        function saveListenerImageSettings() {
+            raidSoSettings.listenerImageEnabled = Boolean(document.getElementById('settings_listener_image_enabled')?.checked ?? raidSoSettings.listenerImageEnabled);
+            const durInput = document.getElementById('settings_listener_image_duration');
+            if (durInput) raidSoSettings.listenerImageDuration = Math.max(1, Math.min(30, Number(durInput.value) || 5));
+            const sizeInput = document.getElementById('settings_listener_image_size');
+            if (sizeInput) raidSoSettings.listenerImageSize = Math.max(10, Math.min(200, Number(sizeInput.value) || 100));
+            localStorage.setItem(RAIDSO_STORAGE_KEY, JSON.stringify(raidSoSettings));
+            syncSettingModalListenerUI();
+        }
+        window.saveListenerImageSettings = saveListenerImageSettings;
+
+        function testWelcomeImageAndSound() {
+            saveListenerImageSettings();
+            const soundFile = raidSoSettings.listenerEntries?.[0]?.soundFile || getRaidSoSoundFiles()[0] || '';
+            playRaidSoAudioConfig({
+                src: soundFile,
+                volume: 80,
+                label: 'テストリスナー'
+            }, { overlap: true, forceObs: true, forceImage: true });
+        }
+        window.testWelcomeImageAndSound = testWelcomeImageAndSound;
 
         function getObsAudioSourceUrl() {
             const url = new URL(window.location.href);
@@ -3433,14 +4244,6 @@ window.copyCommonTag = copyCommonTag;
                 <div class="raidso-audio-url"><code>${raidSoEscape(url)}</code><button type="button" class="btn-secondary" onclick="copyObsAudioSourceUrl()">${raidSoEscape(r.copyAudioSourceUrl)}</button></div>
                 ${raidSoSwitchHtml('raidso-obs-audio-enabled', r.obsAudioOutputToggle, raidSoSettings.obsAudioEnabled, 'setObsAudioEnabled(this.checked)')}
                 <p class="raidso-guide-note">${raidSoEscape(r.obsAudioDirectHint)}</p>
-                <details class="raidso-easter-egg">
-                    <summary><span class="raidso-fox-mark" aria-hidden="true">🦊</span><span>${raidSoEscape(r.foxHint)}</span></summary>
-                    <div class="raidso-easter-body">
-                        <p>${raidSoEscape(r.listenerIntro)}</p>
-                        <ul class="raidso-casual-notes"><li>${raidSoEscape(r.listenerPlayNote || '')}</li><li>${raidSoEscape(r.listenerPrivacyNote || '')}</li></ul>
-                        ${raidSoSwitchHtml('raidso-listener-arrival-enabled', r.listenerEnable, raidSoSettings.listenerArrivalEnabled, 'setListenerArrivalEnabled(this.checked)')}
-                    </div>
-                </details>
             </div>`;
             await showCustomDialog({ type: 'alert', title: r.obsAudioSetupTitle, messageHtml: html });
         }
@@ -3512,6 +4315,9 @@ window.copyCommonTag = copyCommonTag;
                 firstCommentVolume: keepVolume('raidso-first-comment-volume', raidSoSettings.firstCommentVolume, RAIDSO_DEFAULTS.firstCommentVolume),
                 obsAudioEnabled: document.getElementById('raidso-obs-audio-enabled')?.checked ?? raidSoSettings.obsAudioEnabled,
                 listenerArrivalEnabled: document.getElementById('raidso-listener-arrival-enabled')?.checked ?? raidSoSettings.listenerArrivalEnabled,
+                listenerImageEnabled: document.getElementById('raidso-listener-image-enabled')?.checked ?? raidSoSettings.listenerImageEnabled,
+                listenerImageFile: raidSoSettings.listenerImageFile || "",
+                listenerImageDuration: Math.max(1, Math.min(30, Number(document.getElementById('raidso-welcome-image-duration')?.value ?? raidSoSettings.listenerImageDuration) || 5)),
                 listenerEntries: Array.isArray(raidSoSettings.listenerEntries) ? raidSoSettings.listenerEntries : [],
                 soundFiles: getRaidSoSoundFiles(),
                 excludedUsers: typeof expandDefaultExcludedUsers === 'function'
@@ -3792,6 +4598,7 @@ window.copyCommonTag = copyCommonTag;
         }
 
         async function createRaidSoSubscription(type, condition, sessionId, version = '1') {
+            await new Promise(res => setTimeout(res, 100));
             await raidSoHelix('/eventsub/subscriptions', {
                 method: 'POST',
                 body: JSON.stringify({ type, version, condition, transport: { method: 'websocket', session_id: sessionId } })
@@ -4270,32 +5077,9 @@ window.copyCommonTag = copyCommonTag;
             }
         }
 
-        async function handleRaidSoOutboundRaidEvent(event) {
-            const targetLogin = event.to_broadcaster_user_login;
-            const targetName = event.to_broadcaster_user_name;
-            const targetId = event.to_broadcaster_user_id;
+        function handleRaidSoOutboundRaidEvent(event) {
+            const targetName = event.to_broadcaster_user_name || event.to_broadcaster_user_login;
             raidSoLog(uiText('raidSo.outboundRaidDetected', { user: targetName }));
-            
-            if (raidSoSettings.autoSendRaidUrlEnabled) {
-                const url = `https://www.twitch.tv/${targetLogin}`;
-                const rawTemplate = raidSoSettings.outboundRaidTemplate || raidSoText().outboundRaidDefaultTemplate;
-                const channel = await getRaidSoChannel(targetId).catch(() => null);
-                const data = {
-                    username: targetLogin,
-                    displayName: targetName,
-                    game: channel?.game_name || '',
-                    title: channel?.title || '',
-                    viewers: event.viewers || '',
-                    url: url
-                };
-                const message = renderRaidSoTemplate(rawTemplate, data);
-                try {
-                    await sendRaidSoChat(message);
-                    raidSoLog(uiText('raidSo.outboundRaidUrlSent', { message }));
-                } catch (e) {
-                    raidSoLog(uiText('raidSo.outboundRaidUrlFailed', { error: localizeRaidSoError(e) }), 'warn');
-                }
-            }
         }
 
         async function getRaidSoUser(loginOrId) {
@@ -4551,15 +5335,24 @@ window.copyCommonTag = copyCommonTag;
         }
 
         function playRaidSoAudioConfig(cfg, options = {}) {
-            if (!cfg.src) return;
+            if (!cfg.src && !raidSoSettings.listenerImageEnabled && !options.forceImage) return;
             const directConfig = {
                 src: getRaidSoSoundPlaybackUrl(cfg.src),
                 volume: Math.max(0, Math.min(1, Number(cfg.volume) / 100)),
                 label: cfg.label
             };
-            if (raidSoSettings.obsAudioEnabled) {
+            const imageInfo = (options.forceImage || (raidSoSettings.listenerImageEnabled && raidSoSettings.listenerImageFile)) ? {
+                enabled: true,
+                src: raidSoSettings.listenerImageFile,
+                duration: Number(raidSoSettings.listenerImageDuration) || 5,
+                size: Number(raidSoSettings.listenerImageSize) || 100,
+                posX: raidSoSettings.listenerImagePosX ?? 50,
+                posY: raidSoSettings.listenerImagePosY ?? 50,
+                label: cfg.label || ''
+            } : null;
+            if (raidSoSettings.obsAudioEnabled || options.forceObs) {
                 const eventId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-                if (sendRaidSoObsAudio({ type: 'play', eventId, src: directConfig.src, volume: directConfig.volume, overlap: Boolean(options.overlap) }, directConfig, options)) return;
+                if (sendRaidSoObsAudio({ type: 'play', eventId, src: directConfig.src, volume: directConfig.volume, overlap: Boolean(options.overlap), imageInfo }, directConfig, options)) return;
                 raidSoLog(raidSoText().obsAudioFallback, 'warn');
             }
             playRaidSoAudioDirect(directConfig, options);
@@ -4709,12 +5502,28 @@ window.copyCommonTag = copyCommonTag;
         }
 
         function raidSoLog(message, type = 'info') {
+            const msgStr = String(message || '');
             const now = new Date();
             const locale = currentLang === 'ja' ? 'ja-JP' : currentLang === 'zh' ? 'zh-CN' : 'en-US';
             const time = now.toLocaleString(locale, {
                 month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
-            raidSoState.logs.unshift({ at: now.toISOString(), time, message: String(message || ''), type });
+            if (raidSoState.logs && raidSoState.logs.length > 0) {
+                const latest = raidSoState.logs[0];
+                const cleanLatest = latest.message.replace(/\s*\(x\d+\)$/, '');
+                const cleanMsg = msgStr.replace(/\s*\(x\d+\)$/, '');
+                if (cleanLatest === cleanMsg && latest.type === type) {
+                    const countMatch = latest.message.match(/\(x(\d+)\)$/);
+                    const count = countMatch ? parseInt(countMatch[1], 10) + 1 : 2;
+                    latest.message = `${cleanLatest} (x${count})`;
+                    latest.at = now.toISOString();
+                    latest.time = time;
+                    safeSetLocal(RAIDSO_LOG_STORAGE_KEY, JSON.stringify(raidSoState.logs));
+                    renderRaidSoLog();
+                    return;
+                }
+            }
+            raidSoState.logs.unshift({ at: now.toISOString(), time, message: msgStr, type });
             raidSoState.logs = raidSoState.logs.slice(0, RAIDSO_LOG_LIMIT);
             safeSetLocal(RAIDSO_LOG_STORAGE_KEY, JSON.stringify(raidSoState.logs));
             renderRaidSoLog();
@@ -4976,26 +5785,107 @@ window.copyCommonTag = copyCommonTag;
                 showToast(uiText('runtime.selectBackupFile'), 'error');
                 return;
             }
-            const reader = new FileReader(); reader.onload = async (e) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
                 try {
                     const d = parseBackupJson(e.target.result);
 
-                    // 復元方法の選択ダイアログ (上書き / マージ / キャンセル)
+                    if (d.type === 'sort_cache' || (d.commandClickCounts && !d.config && !d.friends)) {
+                        if (d.commandClickCounts) {
+                            localStorage.setItem('stream_command_click_counts_v1', JSON.stringify(d.commandClickCounts));
+                        }
+                        if (d.sortPreferences) {
+                            const pref = d.sortPreferences;
+                            if (pref.titlesSortOrder) localStorage.setItem('stream_titles_sort_order_v16', pref.titlesSortOrder);
+                            if (pref.titlesLayoutMode) localStorage.setItem('stream_titles_layout_mode_v16', pref.titlesLayoutMode);
+                            if (pref.friendsSortOrder) localStorage.setItem('stream_friends_sort_order_v16', pref.friendsSortOrder);
+                            if (pref.friendsLayoutMode) localStorage.setItem('stream_friends_layout_mode_v16', pref.friendsLayoutMode);
+                            if (pref.cmdSortOrder) localStorage.setItem('stream_cmd_sort_order_v1', pref.cmdSortOrder);
+                            if (pref.cmdLayoutMode) localStorage.setItem('stream_cmd_layout_mode_v1', pref.cmdLayoutMode);
+                            if (pref.cpSortOrder) {
+                                localStorage.setItem('stream_cp_sort_order_v1', pref.cpSortOrder);
+                                if (typeof cpState !== 'undefined') cpState.sortBy = pref.cpSortOrder;
+                            }
+                            if (pref.memoSortOrder) {
+                                localStorage.setItem('stream_memo_sort_order_v1', pref.memoSortOrder);
+                                memoSortOrder = pref.memoSortOrder;
+                            }
+                        }
+                        showToast('ソートキャッシュ・使用回数設定を復元しました', 'success');
+                        render();
+                        renderFriends();
+                        renderCommandsUI();
+                        if (typeof renderCpTable === 'function') renderCpTable();
+                        renderMemo();
+                        return;
+                    }
+
+                    const hasTitle = (Array.isArray(d.config) && d.config.length > 0) || isBackupRecord(d.titleTagConfig);
+                    const hasId = Array.isArray(d.friends) && d.friends.length > 0;
+                    const hasRaidSo = isBackupRecord(d.raidShoutOut) || (Array.isArray(d.raidShoutOutTemplates) && d.raidShoutOutTemplates.length > 0) || (Array.isArray(d.cpGroups) && d.cpGroups.length > 0);
+                    const hasSettings = isBackupRecord(d.settings) || (Array.isArray(d.memoList) && d.memoList.length > 0) || isBackupRecord(d.ytSettings);
+
+                    const detectedItems = [];
+                    if (hasTitle) detectedItems.push('・タイトル一覧（カテゴリ・テンプレート・識別タグ）');
+                    if (hasId) detectedItems.push('・ID一覧（配信者カード情報）');
+                    if (hasRaidSo) detectedItems.push('・Twitch / 通知と紹介（レイド・チャネポ設定・テンプレート）');
+                    if (hasSettings) detectedItems.push('・ツール設定（環境設定・メモ帳）');
+
+                    if (detectedItems.length === 0) {
+                        showToast('復元可能なデータが含まれていないバックアップファイルです。', 'warn');
+                        return;
+                    }
+
+                    let fileSummaryText = '';
+                    if (hasTitle && !hasId && !hasRaidSo && !hasSettings) {
+                        fileSummaryText = `
+                            <div style="background: rgba(145, 71, 255, 0.1); border: 1px solid var(--twitch-purple); border-radius: 6px; padding: 10px; margin-bottom: 14px;">
+                                <strong style="color: var(--twitch-purple); font-size: 13px;">📄 【タイトル一覧】専用バックアップ</strong>
+                                <div style="font-size: 11.5px; margin-top: 4px; color: var(--text-main); line-height: 1.5;">
+                                    このファイルには<strong>「タイトル一覧」</strong>のデータのみが含まれています。<br>
+                                    <span style="color: var(--command-accent); font-weight: bold;">※ ID一覧や通知設定など他のデータには一切影響を与えません（削除・変更されません）。</span>
+                                </div>
+                            </div>
+                        `;
+                    } else if (hasId && !hasTitle && !hasRaidSo && !hasSettings) {
+                        fileSummaryText = `
+                            <div style="background: rgba(145, 71, 255, 0.1); border: 1px solid var(--twitch-purple); border-radius: 6px; padding: 10px; margin-bottom: 14px;">
+                                <strong style="color: var(--twitch-purple); font-size: 13px;">📄 【ID一覧】専用バックアップ</strong>
+                                <div style="font-size: 11.5px; margin-top: 4px; color: var(--text-main); line-height: 1.5;">
+                                    このファイルには<strong>「ID一覧」</strong>のデータのみが含まれています。<br>
+                                    <span style="color: var(--command-accent); font-weight: bold;">※ タイトル一覧や通知設定など他のデータには一切影響を与えません（削除・変更されません）。</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        fileSummaryText = `
+                            <div style="background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 14px;">
+                                <strong style="font-size: 12.5px; color: var(--text-main);">📦 バックアップに含まれるデータ:</strong>
+                                <div style="font-size: 11.5px; margin-top: 6px; line-height: 1.6; color: var(--text-muted);">
+                                    ${detectedItems.join('<br>')}
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     const choice = await showCustomDialog({
-                        title: uiText('runtime.restoreModeTitle'),
+                        title: 'バックアップの復元方法を選択',
                         type: 'alert',
                         messageHtml: `
-                            <div style="font-size:13px; line-height:1.6; margin-bottom:18px; color: var(--text-main);">
-                                ${raidSoEscape(uiText('runtime.restoreModeQuestion'))}<br><br>
-                                <strong>・${raidSoEscape(uiText('runtime.restoreOverwrite'))}</strong><br>
-                                ${raidSoEscape(uiText('runtime.restoreOverwriteDescription'))}<br><br>
-                                <strong>・${raidSoEscape(uiText('runtime.restoreMerge'))}</strong><br>
-                                ${raidSoEscape(uiText('runtime.restoreMergeDescription'))}
+                            <div style="font-size:12.5px; line-height:1.6; margin-bottom:14px; color: var(--text-main);">
+                                ${fileSummaryText}
+                                復元方法を選択してください:
                             </div>
                             <div style="display:flex; flex-direction:column; gap:10px;">
-                                <button class="btn-danger-soft" id="restore-opt-overwrite" style="padding:10px; font-weight:bold; width:100%;">${raidSoEscape(uiText('runtime.restoreOverwrite'))}</button>
-                                <button class="btn-primary" id="restore-opt-merge" style="padding:10px; font-weight:bold; width:100%;">${raidSoEscape(uiText('runtime.restoreMerge'))}</button>
-                                <button class="btn-secondary" id="restore-opt-cancel" style="padding:10px; font-weight:bold; width:100%;">${raidSoEscape(langMap[currentLang].cancel)}</button>
+                                <button class="btn-primary" id="restore-opt-merge" style="padding:10px; font-weight:bold; width:100%; font-size:12px; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                                    <span>✨ 統合追加（現在のデータに追加・結合）</span>
+                                    <span style="font-weight:normal; font-size:10.5px; opacity:0.9;">既存のデータを消さずに、バックアップ内のデータを結合します</span>
+                                </button>
+                                <button class="btn-danger-soft" id="restore-opt-overwrite" style="padding:10px; font-weight:bold; width:100%; font-size:12px; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                                    <span>⚠️ 該当項目のみ上書き（対象項目を置き換え）</span>
+                                    <span style="font-weight:normal; font-size:10.5px; opacity:0.9;">ファイルに含まれる対象項目のみを置き換えます（他の項目は維持されます）</span>
+                                </button>
+                                <button class="btn-secondary" id="restore-opt-cancel" style="padding:8px; font-weight:bold; width:100%; font-size:12px;">${raidSoEscape(langMap[currentLang].cancel)}</button>
                             </div>
                         `,
                         onOpen: ({ resolveWith }) => {
@@ -5009,8 +5899,9 @@ window.copyCommonTag = copyCommonTag;
                     });
 
                     if (choice === 'overwrite') {
-                        // 完全上書き
+                        // ファイル内に含まれる項目のみを安全に上書き（含まれない項目は100%維持）
                         if (Array.isArray(d.config)) localStorage.setItem('stream_config_v16', JSON.stringify(d.config));
+                        if (d.titleTagConfig) localStorage.setItem('title_tag_config_v1', JSON.stringify(d.titleTagConfig));
                         if (Array.isArray(d.friends)) localStorage.setItem('stream_friends_v16', JSON.stringify(d.friends));
                         if (isBackupRecord(d.settings)) {
                             const currentSettings = JSON.parse(localStorage.getItem('stream_settings_v16') || '{}');
@@ -5018,23 +5909,22 @@ window.copyCommonTag = copyCommonTag;
                             localStorage.setItem('stream_settings_v16', JSON.stringify(restoredSettings));
                         }
                         if (Array.isArray(d.memoList)) localStorage.setItem('stream_memo_v16', JSON.stringify(d.memoList));
-                        if (isBackupRecord(d.raidShoutOut)) {
-                            localStorage.setItem(RAIDSO_STORAGE_KEY, JSON.stringify(removeDeprecatedRaidSoObsSettings(d.raidShoutOut)));
-                        }
+                        if (isBackupRecord(d.raidShoutOut)) localStorage.setItem(RAIDSO_STORAGE_KEY, JSON.stringify(removeDeprecatedRaidSoObsSettings(d.raidShoutOut)));
                         if (Array.isArray(d.raidShoutOutTemplates)) localStorage.setItem(RAIDSO_CUSTOM_TEMPLATES_KEY, JSON.stringify(d.raidShoutOutTemplates));
                         if (Array.isArray(d.supporterArchives)) localStorage.setItem(SUPPORTER_ARCHIVE_STORAGE_KEY, JSON.stringify(d.supporterArchives.slice(0, SUPPORTER_ARCHIVE_LIMIT)));
                         if (Array.isArray(d.cpGroups)) localStorage.setItem('cp_groups_v1', JSON.stringify(d.cpGroups));
                         if (Array.isArray(d.cpAppRewardIds)) localStorage.setItem('cp_app_reward_ids_v1', JSON.stringify([...new Set(d.cpAppRewardIds.map(String))]));
+                        if (Array.isArray(d.ytPresetGroups)) localStorage.setItem('yt_manager_dock_preset_groups', JSON.stringify(d.ytPresetGroups));
+                        if (isBackupRecord(d.ytSettings)) localStorage.setItem('yt_manager_dock_settings', JSON.stringify(d.ytSettings));
 
                         raidSoLog(uiText('runtime.operationLog.backupOverwriteRestored'));
-                        showToast(uiText('runtime.restoreOverwriteDone'), 'success');
+                        showToast('該当項目を上書き復元しました', 'success');
                         setTimeout(() => location.reload(), 1000);
                     } else if (choice === 'merge') {
-                        // 差分統合マージ処理
+                        // ファイル内に含まれる項目のみを安全にマージ統合
                         mergeBackupData(d);
-
                         raidSoLog(uiText('runtime.operationLog.backupMergeRestored'));
-                        showToast(uiText('runtime.restoreMergeDone'), 'success');
+                        showToast('該当項目を統合追加しました', 'success');
                         setTimeout(() => location.reload(), 1000);
                     } else {
                         showToast(uiText('runtime.restoreCanceled'), 'info');
@@ -5042,7 +5932,8 @@ window.copyCommonTag = copyCommonTag;
                 } catch (error) {
                     showToast(uiText('runtime.restoreFailed'), 'error');
                 }
-            }; reader.readAsText(file);
+            };
+            reader.readAsText(file);
             reader.onerror = () => showToast(uiText('runtime.restoreFailed'), 'error');
         }
 
@@ -5061,13 +5952,27 @@ window.copyCommonTag = copyCommonTag;
         }
 
         function mergeBackupData(d) {
-            // 1. config
+            // 1. config (タイトルカテゴリ・レコードの統合)
             if (d.config && Array.isArray(d.config)) {
                 let localConfig = JSON.parse(localStorage.getItem('stream_config_v16') || '[]');
                 d.config.forEach(cfg => {
-                    const idx = localConfig.findIndex(c => c.id === cfg.id);
-                    if (idx > -1) localConfig[idx] = cfg;
-                    else localConfig.push(cfg);
+                    if (!cfg) return;
+                    const idx = localConfig.findIndex(c => (c.id && cfg.id && c.id === cfg.id) || (c.name && cfg.name && c.name === cfg.name));
+                    if (idx > -1) {
+                        const localCat = localConfig[idx];
+                        if (!Array.isArray(localCat.records)) localCat.records = [];
+                        (cfg.records || []).forEach(bkRec => {
+                            if (!bkRec) return;
+                            const recIdx = localCat.records.findIndex(r => (r.label && bkRec.label && r.label === bkRec.label) || (r.title && bkRec.title && r.title === bkRec.title));
+                            if (recIdx > -1) {
+                                localCat.records[recIdx] = { ...localCat.records[recIdx], ...bkRec };
+                            } else {
+                                localCat.records.push(bkRec);
+                            }
+                        });
+                    } else {
+                        localConfig.push(cfg);
+                    }
                 });
                 localStorage.setItem('stream_config_v16', JSON.stringify(localConfig));
             }
@@ -5083,13 +5988,15 @@ window.copyCommonTag = copyCommonTag;
             if (d.friends && Array.isArray(d.friends)) {
                 let localFriends = JSON.parse(localStorage.getItem('stream_friends_v16') || '[]');
                 d.friends.forEach(bkCat => {
+                    if (!bkCat) return;
                     let targetCat = localFriends.find(c => c.name === bkCat.name);
                     if (!targetCat) {
                         localFriends.push(bkCat);
                     } else {
                         if (!targetCat.friends) targetCat.friends = [];
-                        bkCat.friends.forEach(bkF => {
-                            let existingFriend = targetCat.friends.find(f => f.twitch === bkF.twitch || (bkF.name && f.name === bkF.name));
+                        (bkCat.friends || []).forEach(bkF => {
+                            if (!bkF) return;
+                            let existingFriend = targetCat.friends.find(f => (bkF.twitch && f.twitch === bkF.twitch) || (bkF.name && f.name === bkF.name));
                             if (!existingFriend) {
                                 targetCat.friends.push(bkF);
                             } else {
@@ -5105,6 +6012,7 @@ window.copyCommonTag = copyCommonTag;
             if (d.memoList && Array.isArray(d.memoList)) {
                 let localMemo = JSON.parse(localStorage.getItem('stream_memo_v16') || '[]');
                 d.memoList.forEach(bkM => {
+                    if (!bkM) return;
                     let existingMemo = localMemo.find(m => m.title === bkM.title);
                     if (!existingMemo) {
                         localMemo.push(bkM);
@@ -5126,6 +6034,7 @@ window.copyCommonTag = copyCommonTag;
             if (d.raidShoutOutTemplates && Array.isArray(d.raidShoutOutTemplates)) {
                 let localRSOTemplates = JSON.parse(localStorage.getItem(RAIDSO_CUSTOM_TEMPLATES_KEY) || '[]');
                 d.raidShoutOutTemplates.forEach(bkT => {
+                    if (!bkT) return;
                     let idx = localRSOTemplates.findIndex(t => t.name === bkT.name);
                     if (idx > -1) localRSOTemplates[idx] = bkT;
                     else localRSOTemplates.push(bkT);
@@ -5137,7 +6046,7 @@ window.copyCommonTag = copyCommonTag;
             if (Array.isArray(d.supporterArchives)) {
                 let localArchives = JSON.parse(localStorage.getItem(SUPPORTER_ARCHIVE_STORAGE_KEY) || '[]');
                 d.supporterArchives.forEach(bkA => {
-                    if (!localArchives.some(a => a.id === bkA.id)) {
+                    if (bkA && !localArchives.some(a => a.id === bkA.id)) {
                         localArchives.push(bkA);
                     }
                 });
@@ -5161,13 +6070,25 @@ window.copyCommonTag = copyCommonTag;
                 localStorage.setItem('cp_groups_v1', JSON.stringify([...groupsById.values()]));
             }
 
-            // 10. titleTagConfig
-            if (d.titleTagConfig && Array.isArray(d.titleTagConfig.customTags)) {
-                titleTagConfig = d.titleTagConfig;
+            // 9. titleTagConfig (タイトルタグ設定の統合)
+            if (d.titleTagConfig && isBackupRecord(d.titleTagConfig)) {
+                let localTagConfig = JSON.parse(localStorage.getItem('title_tag_config_v1') || '{"customTags":[],"categoryMap":[]}');
+                const tagMap = new Map();
+                (localTagConfig.customTags || []).forEach(t => { if (t && t.name) tagMap.set(t.name, t); });
+                (d.titleTagConfig.customTags || []).forEach(t => { if (t && t.name) tagMap.set(t.name, { ...(tagMap.get(t.name) || {}), ...t }); });
+
+                const catMap = new Map();
+                (localTagConfig.categoryMap || []).forEach(c => { if (c && c.from) catMap.set(c.from, c); });
+                (d.titleTagConfig.categoryMap || []).forEach(c => { if (c && c.from) catMap.set(c.from, { ...(catMap.get(c.from) || {}), ...c }); });
+
+                titleTagConfig = {
+                    customTags: [...tagMap.values()],
+                    categoryMap: [...catMap.values()]
+                };
                 saveTitleTagConfig();
             }
 
-            // 9. rewards created by TwitchManager
+            // 10. rewards created by TwitchManager
             if (Array.isArray(d.cpAppRewardIds)) {
                 const localIds = JSON.parse(localStorage.getItem('cp_app_reward_ids_v1') || '[]');
                 const merged = [...new Set([...localIds, ...d.cpAppRewardIds].map(String))];
@@ -5177,22 +6098,87 @@ window.copyCommonTag = copyCommonTag;
                 }
             }
         }
-        async function copyBackupToClipboard() {
+        function createSelectedBackupObject() {
             collectRaidSoSettings();
+            const selectVal = document.getElementById('bk-export-select')?.value || 'all';
+
             const d = {
                 backupVersion: 3,
-                config,
-                friends: friendsConfig,
-                settings: backupSettingsWithoutToken(settings),
-                memoList: memoConfig,
-                raidShoutOut: removeDeprecatedRaidSoObsSettings(raidSoSettings),
-                raidShoutOutTemplates: customRaidSoTemplates,
-                supporterArchives: readSupporterArchives(),
-                cpGroups: JSON.parse(localStorage.getItem('cp_groups_v1') || '[]'),
-                cpAppRewardIds: JSON.parse(localStorage.getItem('cp_app_reward_ids_v1') || '[]')
+                exportedAt: new Date().toISOString()
             };
-            await copyTextToClipboard(JSON.stringify(d, null, 2));
+
+            if (selectVal === 'sort_cache') {
+                d.type = 'sort_cache';
+                d.commandClickCounts = JSON.parse(localStorage.getItem('stream_command_click_counts_v1') || '{}');
+                d.sortPreferences = {
+                    titlesSortOrder: localStorage.getItem('stream_titles_sort_order_v16'),
+                    titlesLayoutMode: localStorage.getItem('stream_titles_layout_mode_v16'),
+                    friendsSortOrder: localStorage.getItem('stream_friends_sort_order_v16'),
+                    friendsLayoutMode: localStorage.getItem('stream_friends_layout_mode_v16'),
+                    cmdSortOrder: localStorage.getItem('stream_cmd_sort_order_v1'),
+                    cmdLayoutMode: localStorage.getItem('stream_cmd_layout_mode_v1'),
+                    cpSortOrder: localStorage.getItem('stream_cp_sort_order_v1'),
+                    memoSortOrder: localStorage.getItem('stream_memo_sort_order_v1')
+                };
+                return d;
+            }
+
+            if (selectVal === 'all' || selectVal === 'title') {
+                d.config = config;
+                d.titleTagConfig = titleTagConfig;
+            }
+            if (selectVal === 'all' || selectVal === 'id') {
+                d.friends = friendsConfig;
+            }
+            if (selectVal === 'all' || selectVal === 'raidso') {
+                d.raidShoutOut = removeDeprecatedRaidSoObsSettings(raidSoSettings);
+                d.raidShoutOutTemplates = customRaidSoTemplates;
+                d.supporterArchives = readSupporterArchives();
+                d.cpGroups = JSON.parse(localStorage.getItem('cp_groups_v1') || '[]');
+                d.cpAppRewardIds = JSON.parse(localStorage.getItem('cp_app_reward_ids_v1') || '[]');
+            }
+            if (selectVal === 'all' || selectVal === 'settings') {
+                d.settings = backupSettingsWithoutToken(settings);
+                d.memoList = memoConfig;
+            }
+            return d;
         }
+
+        function downloadBackupFile() {
+            try {
+                const selectVal = document.getElementById('bk-export-select')?.value || 'all';
+                const d = createSelectedBackupObject();
+                const jsonStr = JSON.stringify(d, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const now = new Date();
+                const dateStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+                const suffix = (selectVal && selectVal !== 'all') ? `_${selectVal}` : '';
+                a.href = url;
+                a.download = `TwitchManager_Backup_${dateStr}${suffix}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('バックアップファイルを保存しました', 'success');
+            } catch (e) {
+                showToast('バックアップ保存に失敗しました: ' + (e.message || ''), 'error');
+            }
+        }
+
+        async function copyBackupToClipboard() {
+            try {
+                const d = createSelectedBackupObject();
+                await copyTextToClipboard(JSON.stringify(d, null, 2));
+                showToast(uiText('runtime.backupCopied'), 'success');
+            } catch (e) {
+                showToast(uiText('runtime.backupCopyFailed'), 'error');
+            }
+        }
+
+        window.downloadBackupFile = downloadBackupFile;
+        window.copyBackupToClipboard = copyBackupToClipboard;
 
 function getDefaultTitleConfig() {
     return [
@@ -5376,7 +6362,119 @@ window.restoreDefaultTitleConfig = restoreDefaultTitleConfig;
         return null;
     }
 
+    let cmdSortOrder = localStorage.getItem('stream_cmd_sort_order_v1') || 'category';
+    let cmdLayoutMode = localStorage.getItem('stream_cmd_layout_mode_v1') || 'group';
+
+    function trackCommandClick(cmdKey) {
+        if (!cmdKey) return;
+        try {
+            const key = String(cmdKey).trim();
+            const counts = JSON.parse(localStorage.getItem('stream_command_click_counts_v1') || '{}');
+            counts[key] = (counts[key] || 0) + 1;
+            localStorage.setItem('stream_command_click_counts_v1', JSON.stringify(counts));
+            if (cmdSortOrder === 'usage') {
+                renderCommandsUI();
+            }
+        } catch (e) {
+            console.error('trackCommandClick error:', e);
+        }
+    }
+    window.trackCommandClick = trackCommandClick;
+
+    function updateCmdLayoutToggleBtnUI() {
+        const btn = document.getElementById('cmd-layout-toggle-btn');
+        if (!btn) return;
+        const isGroup = cmdLayoutMode === 'group';
+        const gridSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`;
+        const listSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`;
+        const L = langMap[currentLang] || langMap.ja;
+        const labelText = isGroup ? (currentLang === 'ja' ? 'グループ別' : 'Group View') : (currentLang === 'ja' ? '一覧表示' : 'Flat View');
+        btn.innerHTML = `${isGroup ? gridSvg : listSvg} <span data-i18n="${isGroup ? 'layoutGrid' : 'layoutList'}">${raidSoEscape(labelText)}</span>`;
+    }
+
+    function changeCmdSortOrder(val) {
+        cmdSortOrder = val;
+        localStorage.setItem('stream_cmd_sort_order_v1', val);
+        const sel = document.getElementById('cmd-sort-select');
+        if (sel && sel.value !== val) sel.value = val;
+        renderCommandsUI();
+    }
+    window.changeCmdSortOrder = changeCmdSortOrder;
+
+    function toggleCmdLayoutMode() {
+        cmdLayoutMode = (cmdLayoutMode === 'group') ? 'flat' : 'group';
+        localStorage.setItem('stream_cmd_layout_mode_v1', cmdLayoutMode);
+        renderCommandsUI();
+    }
+    window.toggleCmdLayoutMode = toggleCmdLayoutMode;
+
+    function renderCommandsUI() {
+        const cmdEl = document.getElementById('cmd-container');
+        if (!cmdEl) return;
+        
+        const sel = document.getElementById('cmd-sort-select');
+        if (sel && sel.value !== cmdSortOrder) sel.value = cmdSortOrder;
+        updateCmdLayoutToggleBtnUI();
+
+        if (cmdSortOrder === 'category' && cmdLayoutMode === 'group') {
+            cmdEl.innerHTML = langMap[currentLang]?.cmdHtml || langMap.ja.cmdHtml;
+            restoreCategoryVisibility('cmd-tab');
+            return;
+        }
+
+        // Flat / Usage / Name sort mode
+        const counts = JSON.parse(localStorage.getItem('stream_command_click_counts_v1') || '{}');
+        const s = I18N_DATA[currentLang]?.twitch || I18N_DATA.ja.twitch;
+        const b = s.buttons || {};
+        
+        const allCmds = [];
+        Object.keys(b).forEach(k => {
+            const item = b[k];
+            if (Array.isArray(item) && item.length >= 2) {
+                allCmds.push({ key: k, label: item[0], command: item[1], tip: item[2] || item[0], raw: item });
+            }
+        });
+
+        if (cmdSortOrder === 'usage') {
+            allCmds.sort((a, b) => (counts[b.label] || counts[b.command] || 0) - (counts[a.label] || counts[a.command] || 0));
+        } else if (cmdSortOrder === 'name') {
+            allCmds.sort((a, b) => (a.label || '').localeCompare(b.label || '', currentLang));
+        }
+
+        const flatButtonsHtml = allCmds.map(cmd => {
+            const isAutoExec = !cmd.command.endsWith(' ');
+            const autoExecIcon = isAutoExec ? `<span class="command-exec-icon" title="${s.directExecTitle || '✦'}">✦</span>` : '';
+            const displayCmd = cmd.command.trim();
+            const actionTip = isAutoExec ? (s.directTip || s.copyTip || '') : (s.copyTip || '');
+            const tipText = cmd.tip && cmd.tip !== cmd.label ? (cmd.tip + ' / ' + actionTip) : actionTip;
+            const clickCountVal = counts[cmd.label] || counts[cmd.command] || 0;
+            const countBadge = clickCountVal > 0 ? `<span style="font-size:9.5px; color:var(--text-muted); opacity:0.8; margin-top:2px;">(使用: ${clickCountVal}回)</span>` : '';
+
+            return `<button class="btn-outline cmd-copy-btn has-tooltip" style="padding: 6px; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 52px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer; transition: var(--transition-fast);"
+                data-tooltip="${cmd.label}: ${cmd.command}&#10;${tipText}" 
+                onclick="handleCommandClick('${cmd.command}', '${cmd.label}', ${isAutoExec})">
+                <span class="cmd-label" style="margin-bottom: 2px; display: flex; align-items: center; text-align: center; line-height: 1.2;">${cmd.label}${autoExecIcon}</span>
+                <span class="cmd-code">${displayCmd}</span>
+                ${countBadge}
+            </button>`;
+        }).join('');
+
+        cmdEl.innerHTML = `
+        <div class="command-stack" style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="tab-lead-note">
+                <span><span style="color: var(--command-accent);">✦</span> ${s.directExecHint || '✦がつく項目は直接実行します'}</span>
+            </div>
+            <div class="category-box tw-section" style="margin-bottom: 0;">
+                <div class="tw-body" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; padding: 6px;">
+                    ${flatButtonsHtml}
+                </div>
+            </div>
+        </div>`;
+    }
+    window.renderCommandsUI = renderCommandsUI;
+
     async function handleCommandClick(cmd, label, isAutoExec) {
+        trackCommandClick(label || cmd);
         const cleanedCmd = String(cmd || '').trim();
         if (cleanedCmd === '/raid') {
             const target = await customPrompt(uiText('runtime.raidTargetPrompt'));
@@ -5634,11 +6732,10 @@ function safeSetLocal(key, value) {
         function renderVipSlotInfo(currentVipCount, maxVip) {
             const infoEl = document.getElementById('tw-vip-slot-info');
             if (!infoEl) return;
-            const remaining = Math.max(0, maxVip - currentVipCount);
-            if (maxVip === 0) {
-                infoEl.innerHTML = `<span>${raidSoEscape(uiText('runtime.currentVips'))}: <strong>${currentVipCount}${raidSoEscape(uiText('runtime.personSuffix'))}</strong> (${raidSoEscape(uiText('runtime.standardAccount'))})</span>`;
+            if (!maxVip || maxVip === 0) {
+                infoEl.innerHTML = `<span>${raidSoEscape(uiText('runtime.currentVips'))}: <strong>${currentVipCount}${raidSoEscape(uiText('runtime.personSuffix'))}</strong></span>`;
             } else {
-                infoEl.innerHTML = `<span>${raidSoEscape(uiText('runtime.currentVips'))}: <strong>${currentVipCount} / ${maxVip}${raidSoEscape(uiText('runtime.personSuffix'))}</strong></span><span>${raidSoEscape(uiText('runtime.remaining'))}: <strong>${remaining}${raidSoEscape(uiText('runtime.slotSuffix'))}</strong></span>`;
+                infoEl.innerHTML = `<span>${raidSoEscape(uiText('runtime.currentVips'))}: <strong>${currentVipCount}${raidSoEscape(uiText('runtime.personSuffix'))}</strong></span><span style="font-size:10px;opacity:0.8;">(推定枠上限: <strong>${maxVip}人</strong>)</span>`;
             }
         }
 
@@ -5652,18 +6749,192 @@ function safeSetLocal(key, value) {
             }
         }
 
-        function renderVipList(vips) {
+        let _subState = {
+            subscribers: [],
+            rawSubscribers: [],
+            total: 0,
+            currentPage: 1,
+            pageSize: Number(localStorage.getItem('tw_sub_page_size') || 10),
+            sortMode: localStorage.getItem('tw_sub_sort_mode') || 'default'
+        };
+        let _vipState = {
+            vips: [],
+            currentPage: 1,
+            pageSize: Number(localStorage.getItem('tw_vip_page_size') || 10)
+        };
+
+        function sortSubscribersArray(subscribers, sortMode) {
+            if (!Array.isArray(subscribers) || subscribers.length === 0) return subscribers || [];
+            const sorted = [...subscribers];
+            if (sortMode === 'tier_desc') {
+                sorted.sort((a, b) => (Number(b.tier) || 1000) - (Number(a.tier) || 1000));
+            } else if (sortMode === 'tier_asc') {
+                sorted.sort((a, b) => (Number(a.tier) || 1000) - (Number(b.tier) || 1000));
+            } else if (sortMode === 'gift_first') {
+                sorted.sort((a, b) => (b.is_gift ? 1 : 0) - (a.is_gift ? 1 : 0));
+            } else if (sortMode === 'direct_first') {
+                sorted.sort((a, b) => (a.is_gift ? 1 : 0) - (b.is_gift ? 1 : 0));
+            }
+            return sorted;
+        }
+
+        function renderSubscriberList(subscribers, total, page = 1, pageSize = null) {
+            const c = document.getElementById('tw-sub-list');
+            if (!c) return;
+            if (!subscribers || subscribers.length === 0) {
+                _subState.subscribers = [];
+                _subState.rawSubscribers = [];
+                _subState.total = 0;
+                _subState.currentPage = 1;
+                c.innerHTML = twitchListEmptyHtml();
+                return;
+            }
+
+            _subState.rawSubscribers = subscribers;
+            _subState.total = total !== undefined ? total : subscribers.length;
+            if (pageSize) _subState.pageSize = Number(pageSize) || 10;
+
+            const effectivePageSize = _subState.pageSize || 10;
+            const totalCount = _subState.total;
+
+            const sortedSubscribers = sortSubscribersArray(subscribers, _subState.sortMode);
+            _subState.subscribers = sortedSubscribers;
+
+            const totalPages = Math.ceil(sortedSubscribers.length / effectivePageSize) || 1;
+
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            _subState.currentPage = page;
+
+            // Sync top header selects if present
+            const subSizeSel = document.getElementById('tw-sub-size-select');
+            if (subSizeSel && String(subSizeSel.value) !== String(effectivePageSize)) {
+                subSizeSel.value = String(effectivePageSize);
+            }
+            const subSortSel = document.getElementById('tw-sub-sort-select');
+            if (subSortSel && String(subSortSel.value) !== String(_subState.sortMode)) {
+                subSortSel.value = String(_subState.sortMode || 'default');
+            }
+
+            let displayItems = sortedSubscribers;
+            if (sortedSubscribers.length > 10) {
+                const start = (page - 1) * effectivePageSize;
+                const end = start + effectivePageSize;
+                displayItems = sortedSubscribers.slice(start, end);
+            }
+
+            let html = `<p class="tw-list-summary">${raidSoEscape(uiText('runtime.total'))}: <strong>${totalCount}</strong>${raidSoEscape(uiText('runtime.personSuffix'))}</p>`;
+
+            html += displayItems.map(s => {
+                const tier = s.tier === '3000' ? 'T3' : s.tier === '2000' ? 'T2' : 'T1';
+                const col = s.tier === '3000' ? 'var(--warning-text)' : s.tier === '2000' ? 'var(--command-accent)' : 'var(--text-muted)';
+                return `<div class="tw-list-item"><span class="tw-list-name">${raidSoEscape(s.user_name || s.user_login || '')}</span><span class="tw-list-meta" style="color:${col};">${tier}${s.is_gift ? ' 🎁' : ''}</span></div>`;
+            }).join('');
+
+            if (sortedSubscribers.length > 10) {
+                html += `
+                <div class="tw-pagination-bar">
+                    <button type="button" class="tw-page-btn" onclick="changeSubPage(1)" ${page <= 1 ? 'disabled' : ''} title="最初のページへ">◁</button>
+                    <button type="button" class="tw-page-btn" onclick="changeSubPage(${page - 1})" ${page <= 1 ? 'disabled' : ''} title="一つ前のページへ">＜</button>
+                    <span class="tw-page-num">${page} / ${totalPages}</span>
+                    <button type="button" class="tw-page-btn" onclick="changeSubPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''} title="一つ後のページへ">＞</button>
+                    <button type="button" class="tw-page-btn" onclick="changeSubPage(${totalPages})" ${page >= totalPages ? 'disabled' : ''} title="最後のページへ">▷</button>
+                </div>`;
+            }
+
+            c.innerHTML = html;
+        }
+        window.renderSubscriberList = renderSubscriberList;
+
+        function changeSubPage(newPage) {
+            if (!_subState.subscribers || _subState.subscribers.length === 0) return;
+            renderSubscriberList(_subState.rawSubscribers || _subState.subscribers, _subState.total, newPage);
+        }
+        window.changeSubPage = changeSubPage;
+
+        function changeSubPageSize(newSize) {
+            const size = Number(newSize) || 10;
+            _subState.pageSize = size;
+            safeSetLocal('tw_sub_page_size', String(size));
+            renderSubscriberList(_subState.rawSubscribers || _subState.subscribers, _subState.total, 1, size);
+        }
+        window.changeSubPageSize = changeSubPageSize;
+
+        function changeSubSortMode(newSortMode) {
+            _subState.sortMode = newSortMode || 'default';
+            safeSetLocal('tw_sub_sort_mode', _subState.sortMode);
+            renderSubscriberList(_subState.rawSubscribers || _subState.subscribers, _subState.total, 1);
+        }
+        window.changeSubSortMode = changeSubSortMode;
+
+        function renderVipList(vips, page = 1, pageSize = null) {
             const list = document.getElementById('tw-vip-list');
             if (!list) return;
-            list.innerHTML = vips.length === 0
-                ? twitchListEmptyHtml()
-                : vips.map(v => {
-                    const name = raidSoEscape(v.user_name || v.user_login || '');
-                    const login = raidSoEscape(v.user_login || '');
-                    const tip = raidSoEscape(twExt('copyVipIdTip'));
-                    return `<div class="tw-list-item"><button type="button" class="tw-list-name has-tooltip" data-login="${login}" data-tooltip="${tip}" aria-label="${tip}: ${login}" onclick="copyVipLoginFromButton(this)">👑 ${name}</button><span class="tw-list-meta">${login}</span></div>`;
-                }).join('');
+            if (!vips || vips.length === 0) {
+                _vipState.vips = [];
+                _vipState.currentPage = 1;
+                list.innerHTML = twitchListEmptyHtml();
+                return;
+            }
+
+            _vipState.vips = vips;
+            if (pageSize) _vipState.pageSize = Number(pageSize) || 10;
+
+            const effectivePageSize = _vipState.pageSize || 10;
+            const totalPages = Math.ceil(vips.length / effectivePageSize) || 1;
+
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            _vipState.currentPage = page;
+
+            // Sync top header select if present
+            const vipSizeSel = document.getElementById('tw-vip-size-select');
+            if (vipSizeSel && String(vipSizeSel.value) !== String(effectivePageSize)) {
+                vipSizeSel.value = String(effectivePageSize);
+            }
+
+            let displayItems = vips;
+            if (vips.length > 10) {
+                const start = (page - 1) * effectivePageSize;
+                const end = start + effectivePageSize;
+                displayItems = vips.slice(start, end);
+            }
+
+            let html = displayItems.map(v => {
+                const name = raidSoEscape(v.user_name || v.user_login || '');
+                const login = raidSoEscape(v.user_login || '');
+                const tip = raidSoEscape(twExt('copyVipIdTip'));
+                return `<div class="tw-list-item"><button type="button" class="tw-list-name has-tooltip" data-login="${login}" data-tooltip="${tip}" aria-label="${tip}: ${login}" onclick="copyVipLoginFromButton(this)">👑 ${name}</button><span class="tw-list-meta">${login}</span></div>`;
+            }).join('');
+
+            if (vips.length > 10) {
+                html += `
+                <div class="tw-pagination-bar">
+                    <button type="button" class="tw-page-btn" onclick="changeVipPage(1)" ${page <= 1 ? 'disabled' : ''} title="最初のページへ">◁</button>
+                    <button type="button" class="tw-page-btn" onclick="changeVipPage(${page - 1})" ${page <= 1 ? 'disabled' : ''} title="一つ前のページへ">＜</button>
+                    <span class="tw-page-num">${page} / ${totalPages}</span>
+                    <button type="button" class="tw-page-btn" onclick="changeVipPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''} title="一つ後のページへ">＞</button>
+                    <button type="button" class="tw-page-btn" onclick="changeVipPage(${totalPages})" ${page >= totalPages ? 'disabled' : ''} title="最後のページへ">▷</button>
+                </div>`;
+            }
+
+            list.innerHTML = html;
         }
+        window.renderVipList = renderVipList;
+
+        function changeVipPage(newPage) {
+            if (!_vipState.vips || _vipState.vips.length === 0) return;
+            renderVipList(_vipState.vips, newPage);
+        }
+        window.changeVipPage = changeVipPage;
+
+        function changeVipPageSize(newSize) {
+            const size = Number(newSize) || 10;
+            _vipState.pageSize = size;
+            safeSetLocal('tw_vip_page_size', String(size));
+            renderVipList(_vipState.vips, 1, size);
+        }
+        window.changeVipPageSize = changeVipPageSize;
 
         function copyVipLoginFromButton(button) {
             const login = String(button?.dataset?.login || '').trim();
@@ -6452,6 +7723,13 @@ function getSortedCpRewards(rewards, sortBy) {
                 const aApp = isAppCreatedReward(a) ? 1 : 0;
                 const bApp = isAppCreatedReward(b) ? 1 : 0;
                 if (aApp !== bApp) return aApp - bApp;
+                return (a.title || '').localeCompare(b.title || '', 'ja');
+            });
+        case 'enabled_first':
+            return list.sort((a, b) => {
+                const aOn = (a.is_enabled && !a.is_paused) ? 1 : 0;
+                const bOn = (b.is_enabled && !b.is_paused) ? 1 : 0;
+                if (aOn !== bOn) return bOn - aOn;
                 return (a.title || '').localeCompare(b.title || '', 'ja');
             });
         case 'cost_asc':
@@ -7946,76 +9224,100 @@ window.saveTitleTagModalSettings = saveTitleTagModalSettings;
 
 let pendingDedupConflicts = [];
 
+function extractXId(str) {
+    if (!str) return '';
+    let val = String(str).trim();
+    val = val.replace(/^https?:\/\/(www\.)?x\.com\//i, '');
+    val = val.replace(/^https?:\/\/(www\.)?twitter\.com\//i, '');
+    val = val.split('/')[0].split('?')[0].split('#')[0];
+    val = val.replace(/^@/, '').trim();
+    if (!/^[a-zA-Z0-9_]{1,30}$/.test(val)) return '';
+    return val.toLowerCase();
+}
+
+function cleanBaseFriendName(name) {
+    if (!name) return '';
+    let val = String(name).trim();
+    val = val.replace(/[\(\（].*?[\)\）]/g, '');
+    val = val.replace(/さん$/i, '');
+    val = val.replace(/^@/, '');
+    return val.trim().toLowerCase();
+}
+
+function areFriendsSamePerson(f1, f2) {
+    if (!f1 || !f2) return false;
+    
+    // 1. Twitch ID match
+    const t1 = getFriendTwitchId(f1);
+    const t2 = getFriendTwitchId(f2);
+    if (t1 && t2 && t1.toLowerCase() === t2.toLowerCase()) return true;
+
+    // 2. X (Twitter) ID match
+    const x1 = extractXId(f1.x);
+    const x2 = extractXId(f2.x);
+    if (x1 && x2 && x1 === x2) return true;
+
+    // 3. Base Name match
+    const n1 = cleanBaseFriendName(f1.name || f1.displayName);
+    const n2 = cleanBaseFriendName(f2.name || f2.displayName);
+    if (n1 && n2) {
+        if (n1 === n2 || (n1.length >= 2 && n2.length >= 2 && (n1.includes(n2) || n2.includes(n1)))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function checkAndConsolidateDuplicateIds() {
     if (!Array.isArray(friendsConfig)) return;
 
-    const map = new Map();
-
+    const allItems = [];
     friendsConfig.forEach((cat, ci) => {
-        if (cat.kind === 'shoutout-history' || cat.kind === 'authenticated-user') return;
+        if (cat.kind === 'authenticated-user') return; // only skip self user account card
         (cat.friends || []).forEach((f, fi) => {
-            const raw = f.twitch || f.name || f.id || '';
-            const twitchId = extractTwitchId(raw);
-            if (!twitchId) return;
-            const key = twitchId.toLowerCase();
-
-            if (!map.has(key)) map.set(key, []);
-            map.get(key).push({ ci, fi, friend: f, catName: cat.name || '未分類', twitchId });
+            allItems.push({ ci, fi, friend: f, catName: cat.name || '未分類' });
         });
     });
 
-    let autoMergedCount = 0;
-    const conflicts = [];
+    if (allItems.length === 0) {
+        showToast('登録されているメンバーがいません。', 'info');
+        return;
+    }
 
-    map.forEach((items) => {
-        if (items.length <= 1) return;
+    const groups = [];
+    const usedIndices = new Set();
 
-        const first = items[0].friend;
-        const isIdentical = items.every(item => {
-            const f = item.friend;
-            return (f.name || '') === (first.name || '') &&
-                   (f.x || '') === (first.x || '') &&
-                   (f.youtube || '') === (first.youtube || '') &&
-                   (f.birthday || '') === (first.birthday || '') &&
-                   (f.anniversary || '') === (first.anniversary || '') &&
-                   (f.memo || '') === (first.memo || '');
-        });
+    for (let i = 0; i < allItems.length; i++) {
+        if (usedIndices.has(i)) continue;
+        const item1 = allItems[i];
+        const group = [item1];
+        usedIndices.add(i);
 
-        if (isIdentical) {
-            autoMergedCount += (items.length - 1);
-        } else {
-            conflicts.push({ twitchId: items[0].twitchId, items });
+        for (let j = i + 1; j < allItems.length; j++) {
+            if (usedIndices.has(j)) continue;
+            const item2 = allItems[j];
+
+            if (areFriendsSamePerson(item1.friend, item2.friend)) {
+                group.push(item2);
+                usedIndices.add(j);
+            }
         }
-    });
 
-    if (autoMergedCount === 0 && conflicts.length === 0) {
+        if (group.length > 1) {
+            const displayName = getFriendTwitchId(group[0].friend) || group[0].friend.name || '重複項目';
+            groups.push({ twitchId: displayName, items: group });
+        }
+    }
+
+    if (groups.length === 0) {
         showToast('重複するIDは見つかりませんでした。データは正常です。', 'info');
         return;
     }
 
-    if (conflicts.length === 0) {
-        performAutoDeduplicate(map);
-        showToast(`${autoMergedCount}件の完全重複IDを自動統合しました`, 'success');
-        renderFriends();
-        saveFriendsLocalDebounced();
-        return;
-    }
-
-    pendingDedupConflicts = conflicts;
-    renderDeduplicateModalRows(conflicts);
+    pendingDedupConflicts = groups;
+    renderDeduplicateModalRows(groups);
     openModal('idDeduplicateModal');
-}
-
-function performAutoDeduplicate(map) {
-    map.forEach((items) => {
-        if (items.length <= 1) return;
-        for (let i = items.length - 1; i >= 1; i--) {
-            const removeItem = items[i];
-            if (friendsConfig[removeItem.ci] && friendsConfig[removeItem.ci].friends) {
-                friendsConfig[removeItem.ci].friends.splice(removeItem.fi, 1);
-            }
-        }
-    });
 }
 
 function renderDeduplicateModalRows(conflicts) {
@@ -8024,34 +9326,33 @@ function renderDeduplicateModalRows(conflicts) {
 
     let html = '';
     conflicts.forEach((group, gIdx) => {
-        const idName = '@' + group.twitchId;
+        const idName = group.twitchId ? '@' + group.twitchId.replace(/^@/, '') : '重複メンバー';
         html += `
-        <div style="background:var(--bg-item); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:8px;">
-            <div style="font-weight:bold; font-size:13px; color:var(--command-accent); margin-bottom:8px; display:flex; justify-content:space-between;">
-                <span>ID: ${raidSoEscape(idName)}</span>
+        <div style="background:var(--bg-item); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; width:100%; box-sizing:border-box; writing-mode:horizontal-tb !important; direction:ltr !important;">
+            <div style="font-weight:bold; font-size:13px; color:var(--command-accent); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span>対象: ${raidSoEscape(idName)}</span>
                 <span style="font-size:11px; color:var(--text-muted); font-weight:normal;">(重複検出: ${group.items.length}件)</span>
             </div>
             
-            <div style="display:flex; flex-direction:column; gap:8px;">`;
+            <div style="display:flex; flex-direction:column; gap:8px; width:100%;">`;
 
         group.items.forEach((item, iIdx) => {
             const f = item.friend;
             const details = [];
-            if (f.name && f.name !== item.twitchId) details.push(`表示名: ${f.name}`);
+            if (f.twitch) details.push(`Twitch: ${f.twitch}`);
             if (f.x) details.push(`X: ${f.x}`);
             if (f.youtube) details.push(`YT: ${f.youtube}`);
             if (f.birthday) details.push(`誕生日: ${f.birthday}`);
             if (f.memo) details.push(`メモ: ${f.memo}`);
 
-            const checked = iIdx === 0 ? ' checked' : '';
             html += `
-                <label style="display:flex; gap:8px; align-items:flex-start; background:var(--bg-base); border:1px solid var(--border-color); border-radius:6px; padding:8px; cursor:pointer;">
-                    <input type="radio" name="dedup-choice-${gIdx}" value="${iIdx}"${checked} style="margin-top:2px; accent-color:var(--twitch-purple);">
-                    <div style="flex:1; font-size:11.5px; line-height:1.4;">
-                        <div style="font-weight:bold; color:var(--text-main);">
+                <label style="display:grid; grid-template-columns:24px minmax(0, 1fr); align-items:center; background:var(--bg-base); border:1px solid var(--border-color); border-radius:6px; padding:10px 12px; cursor:pointer; width:100%; box-sizing:border-box; writing-mode:horizontal-tb !important; direction:ltr !important;">
+                    <input type="radio" name="dedup-choice-${gIdx}" value="${iIdx}" style="margin:0; width:16px; height:16px; accent-color:var(--twitch-purple);">
+                    <div style="min-width:0; width:100%; font-size:12px; line-height:1.5; writing-mode:horizontal-tb !important; text-align:left; direction:ltr !important;">
+                        <div style="font-weight:bold; color:var(--text-main); white-space:normal;">
                             [${raidSoEscape(item.catName)}] ${raidSoEscape(f.name || idName)}
                         </div>
-                        <div style="color:var(--text-muted); font-size:10.5px; margin-top:2px;">
+                        <div style="color:var(--text-muted); font-size:11px; margin-top:2px; word-break:break-all; white-space:normal;">
                             ${raidSoEscape(details.join(' | ') || '(追加情報なし)')}
                         </div>
                     </div>
@@ -8059,14 +9360,14 @@ function renderDeduplicateModalRows(conflicts) {
         });
 
         html += `
-                <label style="display:flex; gap:8px; align-items:flex-start; background:rgba(145, 70, 255, 0.08); border:1px dashed var(--twitch-purple); border-radius:6px; padding:8px; cursor:pointer;">
-                    <input type="radio" name="dedup-choice-${gIdx}" value="merge" style="margin-top:2px; accent-color:var(--twitch-purple);">
-                    <div style="flex:1; font-size:11.5px; line-height:1.4;">
-                        <div style="font-weight:bold; color:var(--twitch-purple);">
-                            ✨ 両方の情報（メモ・SNS等）を結合して残す
+                <label style="display:grid; grid-template-columns:24px minmax(0, 1fr); align-items:center; background:rgba(145, 70, 255, 0.08); border:1px dashed var(--twitch-purple); border-radius:6px; padding:10px 12px; cursor:pointer; width:100%; box-sizing:border-box; writing-mode:horizontal-tb !important; direction:ltr !important;">
+                    <input type="radio" name="dedup-choice-${gIdx}" value="merge" checked style="margin:0; width:16px; height:16px; accent-color:var(--twitch-purple);">
+                    <div style="min-width:0; width:100%; font-size:12px; line-height:1.5; writing-mode:horizontal-tb !important; text-align:left; direction:ltr !important;">
+                        <div style="font-weight:bold; color:var(--twitch-purple); white-space:normal;">
+                            ✨ 両方の情報（Twitch/X/メモ等）を結合して最新カードを残す
                         </div>
-                        <div style="color:var(--text-muted); font-size:10.5px; margin-top:2px;">
-                            表示名やメモなどの情報を並列でまとめて1つの項目に統合します
+                        <div style="color:var(--text-muted); font-size:11px; margin-top:2px; white-space:normal;">
+                            表示名やID・メモなどの情報を統合し、不要な重複カードのみ削除します
                         </div>
                     </div>
                 </label>
@@ -8075,6 +9376,13 @@ function renderDeduplicateModalRows(conflicts) {
     });
 
     container.innerHTML = html;
+}
+
+function getCategoryPriority(catName, catKind) {
+    if (catKind === 'shoutout-history' || catName === '紹介履歴' || catName === '自動記録') return 1;
+    const uncategorizedName = (typeof uiText === 'function' ? uiText('idList.uncategorized') : '') || '未分類';
+    if (!catName || catName === uncategorizedName) return 2;
+    return 3;
 }
 
 function applyIdDeduplication() {
@@ -8092,21 +9400,79 @@ function applyIdDeduplication() {
         const val = selectedEl.value;
 
         if (val === 'merge') {
-            const keep = group.items[0];
-            const mergedMemos = group.items.map(it => it.friend.memo).filter(Boolean);
-            if (mergedMemos.length > 0) {
-                keep.friend.memo = [...new Set(mergedMemos)].join(' / ');
-            }
-            const mergedX = group.items.map(it => it.friend.x).filter(Boolean);
-            if (mergedX.length > 0) keep.friend.x = mergedX[0];
+            const sortedGroupItems = [...group.items].sort((a, b) => {
+                const catA = friendsConfig[a.ci];
+                const catB = friendsConfig[b.ci];
+                const prioA = getCategoryPriority(a.catName, catA?.kind);
+                const prioB = getCategoryPriority(b.catName, catB?.kind);
+                return prioB - prioA;
+            });
 
-            for (let i = 1; i < group.items.length; i++) {
-                itemsToRemove.push(group.items[i]);
-            }
+            const keepItem = sortedGroupItems[0];
+            const master = keepItem.friend;
+
+            let bestName = '';
+            let bestTwitch = '';
+            let bestX = '';
+            let bestYt = '';
+            let bestBday = '';
+            let bestAnniv = '';
+            let allMemos = [];
+
+            // 1. 全重複カードから最良のフィールド情報（ID、SNS、メモ等）を統合
+            group.items.forEach(it => {
+                const f = it.friend;
+                if (!bestName || (f.name && f.name.length > bestName.length)) bestName = f.name || bestName;
+                if (!bestTwitch && f.twitch) bestTwitch = f.twitch;
+                if (!bestX && f.x) bestX = f.x;
+                if (!bestYt && f.youtube) bestYt = f.youtube;
+                if (!bestBday && f.birthday) bestBday = f.birthday;
+                if (!bestAnniv && f.anniversary) bestAnniv = f.anniversary;
+                if (f.memo && f.memo.trim() && !allMemos.includes(f.memo.trim())) {
+                    allMemos.push(f.memo.trim());
+                }
+            });
+
+            if (bestName) master.name = bestName;
+            if (bestTwitch) master.twitch = bestTwitch;
+            if (bestX) master.x = bestX;
+            if (bestYt) master.youtube = bestYt;
+            if (bestBday) master.birthday = bestBday;
+            if (bestAnniv) master.anniversary = bestAnniv;
+            if (allMemos.length > 0) master.memo = allMemos.join(' / ');
+
+            // 2. 所属している固有グループタグ（MAG、ももねずコラボ等）を全て統合・引き継ぐ
+            const targetCustomCatNames = new Set();
+            group.items.forEach(it => {
+                const cat = friendsConfig[it.ci];
+                const prio = getCategoryPriority(it.catName, cat?.kind);
+                if (prio === 3 && it.catName) { // 固有グループタグ
+                    targetCustomCatNames.add(it.catName);
+                }
+            });
+
+            targetCustomCatNames.forEach(catName => {
+                const targetCat = friendsConfig.find(c => c.name === catName && c.kind !== 'shoutout-history' && c.kind !== 'authenticated-user');
+                if (targetCat && Array.isArray(targetCat.friends)) {
+                    const masterTwitch = (master.twitch || master.name || '').toLowerCase();
+                    const alreadyExists = targetCat.friends.some(f => (f.twitch || f.name || '').toLowerCase() === masterTwitch || f === master);
+                    if (!alreadyExists) {
+                        targetCat.friends.push({ ...master });
+                    }
+                }
+            });
+
+            // 3. 不要な重複カード（未分類、紹介履歴、同一グループ内の余分なカード）を除去対象へ
+            group.items.forEach(it => {
+                if (it !== keepItem && !itemsToRemove.includes(it)) {
+                    itemsToRemove.push(it);
+                }
+            });
         } else {
             const keepIdx = parseInt(val, 10);
-            group.items.forEach((item, iIdx) => {
-                if (iIdx !== keepIdx) {
+            const keepItem = group.items[keepIdx];
+            group.items.forEach((item) => {
+                if (item !== keepItem && !itemsToRemove.includes(item)) {
                     itemsToRemove.push(item);
                 }
             });
@@ -8128,17 +9494,36 @@ function applyIdDeduplication() {
     closeModal('idDeduplicateModal');
     showToast(`${resolvedCount}件の重複IDを統合・整理しました`, 'success');
     renderFriends();
-    saveFriendsLocalDebounced();
+    saveFriendsLocal(false);
 }
 
 window.checkAndConsolidateDuplicateIds = checkAndConsolidateDuplicateIds;
 window.renderDeduplicateModalRows = renderDeduplicateModalRows;
 window.applyIdDeduplication = applyIdDeduplication;
 
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        loadTitleTagConfig();
-        renderCommonTagBar();
-    } catch (e) {}
-});
+function hideAppLoadingScreen() {
+    const screen = document.getElementById('app-loading-screen');
+    if (screen && !screen.classList.contains('hidden')) {
+        screen.classList.add('hidden');
+        setTimeout(() => {
+            screen.style.display = 'none';
+        }, 350);
+    }
+}
+window.hideAppLoadingScreen = hideAppLoadingScreen;
+
+if (document.readyState === 'complete') {
+    hideAppLoadingScreen();
+} else {
+    window.addEventListener('load', hideAppLoadingScreen);
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            loadTitleTagConfig();
+            renderCommonTagBar();
+        } catch (e) {}
+        setTimeout(hideAppLoadingScreen, 150);
+    });
+}
+setTimeout(hideAppLoadingScreen, 1800);
+
 

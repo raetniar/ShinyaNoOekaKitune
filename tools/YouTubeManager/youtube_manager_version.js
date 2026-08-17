@@ -1,1 +1,0 @@
-window.YOUTUBE_MANAGER_VERSION = "1.0.0";

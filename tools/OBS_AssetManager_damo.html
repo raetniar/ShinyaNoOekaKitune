@@ -831,6 +831,13 @@
             align-items: center;
             gap: 8px;
         }
+        .header-title-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
         .back-home-btn {
             display: inline-flex;
             align-items: center;
@@ -1086,6 +1093,7 @@
             text-decoration: underline;
         }
 </style>
+<script src="i18n.js" defer></script>
 </head>
 
 <body id="mainBody" class="light-mode theme-text">
@@ -1097,6 +1105,8 @@
     <header class="tool-header-bar">
         <div class="tool-title-area">
             <div class="tool-title-row">
+                <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="Icon" class="tool-title-avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1.5px solid rgba(145, 70, 255, 0.6); display: inline-block;">
+                <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="Logo" class="header-title-icon">
                 <h1 class="tool-name-heading">OBS Asset Manager</h1>
                 <span class="tool-safety-note" title="安全性の詳細">
                     <i class="fa-solid fa-shield-halved"></i>
@@ -1113,9 +1123,7 @@
             <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener noreferrer" class="header-booth-btn">
                 <i class="fa-solid fa-shop"></i> <span class="btn-text">booth</span>
             </a>
-            <a href="../index.html" class="back-home-btn">
-                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span>
-            </a>
+            <a href="../index.html" class="back-home-btn" title="TOPに戻る"><i class="fa-solid fa-arrow-left"></i> <span class="btn-text">TOPに戻る</span></a>
         </div>
     </header>
 

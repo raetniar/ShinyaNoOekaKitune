@@ -200,6 +200,7 @@
         async function esSubscribe(type, version, condition) {
             if (!_esSessionId || !settings.clientId || !settings.token) return;
             try {
+                await new Promise(res => setTimeout(res, 100));
                 await apiRequest('/eventsub/subscriptions', 'POST', {
                     type, version, condition,
                     transport: { method: 'websocket', session_id: _esSessionId }
@@ -222,8 +223,14 @@
             _esWs.onopen = () => esLog('SYS', uiText('runtime.supporter.websocketConnected'));
 
             _esWs.onmessage = async (e) => {
-                const msg = JSON.parse(e.data);
-                const mtype = msg.metadata?.message_type;
+                let msg;
+                try {
+                    msg = JSON.parse(e.data);
+                } catch (err) {
+                    esLog('ERR', `WebSocket parse error: ${err.message}`);
+                    return;
+                }
+                const mtype = msg?.metadata?.message_type;
                 if (mtype === 'session_welcome') {
                     _esSessionId = msg.payload?.session?.id;
                     esSetStatus(true);
