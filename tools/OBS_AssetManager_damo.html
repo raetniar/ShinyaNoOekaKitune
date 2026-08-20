@@ -809,6 +809,29 @@
             transform: rotate(90deg);
         }
 
+        /* === Background Watermark Decoration === */
+        body::before {
+            content: '';
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            width: min(40vw, 45vh, 360px);
+            height: min(40vw, 45vh, 360px);
+            background-image: url('https://avatars.githubusercontent.com/u/98635212?v=4');
+            background-repeat: no-repeat;
+            background-position: right bottom;
+            background-size: contain;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            transition: opacity 0.3s ease;
+        }
+
+        body.light-mode::before {
+            opacity: 0.09;
+        }
+
         /* Tool Header & Back Button (aligned to index.html design) */
         .tool-header-bar {
             display: flex;
@@ -818,6 +841,13 @@
             background-color: var(--card);
             border-bottom: 1px solid var(--bd);
             flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1000;
             font-family: 'Outfit', 'Noto Sans JP', sans-serif;
         }
         .tool-title-area {
@@ -830,6 +860,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: nowrap;
         }
         .header-title-icon {
             width: 32px;
@@ -969,6 +1000,15 @@
             .tool-safety-text {
                 display: none;
             }
+            .tool-description-sub {
+                display: none;
+            }
+            .tool-header-actions .btn-text {
+                display: none;
+            }
+            .tool-header-actions {
+                gap: 8px;
+            }
             .tool-safety-note {
                 margin-left: 4px;
             }
@@ -979,21 +1019,26 @@
                 top: 25px;
                 background: #111111;
                 color: #ffffff;
-                padding: 6px 12px;
-                border-radius: 4px;
-                font-size: 0.7rem;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 0.72rem;
+                line-height: 1.4;
                 z-index: 999;
-                white-space: nowrap;
+                white-space: normal;
+                width: max-content;
+                max-width: 300px;
                 opacity: 0;
                 visibility: hidden;
-                transition: opacity 0.3s ease, visibility 0.3s ease;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                pointer-events: none;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.35);
                 border: 1px solid #333333;
             }
             body.light-mode .tool-safety-note::after {
                 background: #ffffff;
                 color: #111111;
                 border: 1px solid #d1d5db;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             }
             .tool-safety-note:hover::after {
                 opacity: 1;
@@ -1001,9 +1046,6 @@
             }
         }
         @media (max-width: 600px) {
-            .tool-header-actions .btn-text {
-                display: none;
-            }
             .tool-header-bar {
                 padding: 10px 10px;
             }

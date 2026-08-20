@@ -157,6 +157,29 @@ head_content = """<!DOCTYPE html>
         html.audio-source-mode, html.audio-source-mode body { margin: 0; min-height: 100%; background: transparent !important; }
         html.audio-source-mode body { visibility: hidden; }
 
+        /* === Background Watermark Decoration === */
+        body::before {
+            content: '';
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            width: min(40vw, 45vh, 360px);
+            height: min(40vw, 45vh, 360px);
+            background-image: url('https://avatars.githubusercontent.com/u/98635212?v=4');
+            background-repeat: no-repeat;
+            background-position: right bottom;
+            background-size: contain;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            transition: opacity 0.3s ease;
+        }
+
+        body.light-mode::before, body.light-theme::before, html.light-mode::before, html.light-theme::before {
+            opacity: 0.09;
+        }
+
         /* ==========================================================================
            Web Tool Common Header Integration & Spacing Fixes
            ========================================================================== */
@@ -169,9 +192,14 @@ head_content = """<!DOCTYPE html>
             padding: 12px 16px;
             background-color: var(--bg-card, #1b1b1f);
             border-bottom: 1px solid var(--border-color, #3f3f46);
-            position: relative;
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            box-sizing: border-box;
             z-index: 2000;
-            margin: -15px -15px 16px -15px !important;
+            margin: 0 0 16px 0 !important;
         }
 
         body.light-mode .tool-header-bar {
@@ -192,7 +220,7 @@ head_content = """<!DOCTYPE html>
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .tool-name-heading {
@@ -202,6 +230,7 @@ head_content = """<!DOCTYPE html>
             color: var(--text-main, #efeff1);
             margin: 0;
             line-height: 1.2;
+            white-space: nowrap;
         }
 
         body.light-mode .tool-name-heading {
@@ -382,12 +411,21 @@ head_content = """<!DOCTYPE html>
             padding-bottom: calc(var(--common-footer-height, 38px) + 30px) !important;
         }
 
-        @media (max-width: 600px) {
-            .tool-header-bar .btn-text {
-                display: none;
-            }
+        @media (max-width: 1024px) {
             .tool-description-sub {
                 display: none;
+            }
+            .tool-header-actions .btn-text {
+                display: none;
+            }
+            .tool-header-actions {
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .tool-header-actions {
+                gap: 6px;
             }
         }
     </style>

@@ -298,6 +298,33 @@
             min-height: 100vh;
 
 
+            position: relative;
+
+
+        }
+
+
+        /* === Background Watermark Decoration === */
+        body::before {
+            content: '';
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            width: min(40vw, 45vh, 360px);
+            height: min(40vw, 45vh, 360px);
+            background-image: url('https://avatars.githubusercontent.com/u/98635212?v=4');
+            background-repeat: no-repeat;
+            background-position: right bottom;
+            background-size: contain;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            transition: opacity 0.3s ease;
+        }
+
+        body.light-mode::before {
+            opacity: 0.09;
         }
 
 
@@ -461,50 +488,22 @@
 
 
         .tool-header-bar {
-
-
             display: flex;
-
-
             align-items: flex-start;
-
-
             justify-content: space-between;
-
-
             flex-wrap: nowrap;
-
-
             gap: 16px;
-
-
             padding: 12px 20px;
-
-
             background-color: var(--bg-secondary);
-
-
             border-bottom: 1px solid var(--border-color);
-
-
             flex-shrink: 0;
-
-
-            position: fixed;
-
-
+            position: sticky;
             top: 0;
-
-
             left: 0;
-
-
             right: 0;
-
-
+            width: 100%;
+            box-sizing: border-box;
             z-index: 1000;
-
-
         }
 
 
@@ -544,7 +543,7 @@
             gap: 8px;
 
 
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
 
 
         }
@@ -679,7 +678,7 @@
             line-height: 1.2;
 
 
-            white-space: normal;
+            white-space: nowrap;
 
 
         }
@@ -949,196 +948,65 @@
 
 
 
-        /* Beta Notice Banner */
 
-
-        .beta-notice {
-
-
-            width: calc(100% + 24px);
-
-
-            margin: -8px -12px 8px;
-
-
-            background-color: rgba(251, 191, 36, 0.12);
-
-
-            color: #92701a;
-
-
-            font-size: 0.72rem;
-
-
-            font-weight: 400;
-
-
-            line-height: 1.5;
-
-
-            padding: 6px 20px;
-
-
-            text-align: center;
-
-
-            letter-spacing: 0.01em;
-
-
-            border-bottom: 1px solid rgba(251, 191, 36, 0.35);
-
-
-        }
-
-
-        .beta-notice strong {
-
-
-            font-weight: 700;
-
-
-            margin-right: 4px;
-
-
-        }
-
-
-        body.dark-mode .beta-notice {
-
-
-            background-color: rgba(251, 191, 36, 0.08);
-
-
-            color: #c9992a;
-
-
-            border-bottom-color: rgba(251, 191, 36, 0.25);
-
-
-        }
 
 
 
 
 
         /* Responsive Constraints */
-
-
         @media (max-width: 1024px) {
-
-
             .tool-safety-text {
-
-
                 display: none;
-
-
             }
-
-
+            .tool-description-sub {
+                display: none;
+            }
+            .tool-header-actions .btn-text {
+                display: none;
+            }
+            .tool-header-actions {
+                gap: 8px;
+            }
             .tool-safety-note {
-
-
                 margin-left: 4px;
-
-
             }
-
-
             .tool-safety-note::after {
-
-
-                content: "アップロードされた画像データはローカルブラウザでのみ処理され、サーバーへ送信されることはありません";
-
-
+                content: "Twitch用の各種画像をかんたんリサイズ＆プレビュー。編集データはブラウザのキャッシュ（localStorage）にのみ保存され、サーバーへ送信されることはありません。";
                 position: absolute;
-
-
                 left: 0;
-
-
                 top: 25px;
-
-
                 background: #111111;
-
-
                 color: #ffffff;
-
-
-                padding: 6px 12px;
-
-
-                border-radius: 4px;
-
-
-                font-size: 0.7rem;
-
-
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 0.72rem;
+                line-height: 1.4;
                 z-index: 999;
-
-
-                white-space: nowrap;
-
-
+                white-space: normal;
+                width: max-content;
+                max-width: 300px;
                 opacity: 0;
-
-
                 visibility: hidden;
-
-
-                transition: opacity 0.3s ease, visibility 0.3s ease;
-
-
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-
-
+                pointer-events: none;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.35);
                 border: 1px solid #333333;
-
-
             }
-
-
             body.light-mode .tool-safety-note::after {
-
-
                 background: #ffffff;
-
-
                 color: #111111;
-
-
                 border: 1px solid #d1d5db;
-
-
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             }
-
-
             .tool-safety-note:hover::after {
-
-
                 opacity: 1;
-
-
                 visibility: visible;
-
-
             }
-
-
         }
 
 
         @media (max-width: 600px) {
-
-
-            .tool-header-actions .btn-text {
-
-
-                display: none;
-
-
-            }
 
 
             .tool-header-bar {
@@ -6040,6 +5908,15 @@
         .disclaimer-notice-banner {
 
 
+            grid-column: 1 / -1;
+
+
+            width: 100%;
+
+
+            box-sizing: border-box;
+
+
             background-color: rgba(239, 68, 68, 0.08);
 
 
@@ -6534,4 +6411,24 @@
 
 #editor-canvas:active {
     cursor: grabbing;
+}
+
+/* === Header Clearance & Layout Adjustments === */
+body {
+    padding-top: 0 !important;
+}
+
+.tool-main-container, main, .app-main-layout {
+    margin-top: 16px !important;
+}
+
+.disclaimer-notice-banner {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    z-index: 10 !important;
+    margin-top: 0 !important;
+    margin-bottom: 16px !important;
+    clear: both !important;
 }
