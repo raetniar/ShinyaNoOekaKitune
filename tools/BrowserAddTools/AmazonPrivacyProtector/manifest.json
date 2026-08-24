@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Shopping Stream Privacy (for Amazon 非公式)",
+  "version": "1.0.0",
+  "description": "【非公式・個人開発】Amazon閲覧・配信時に、お届け先住所・氏名・注文履歴などの個人情報を自動でマスキング保護します。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.amazon.co.jp/*",
+    "https://*.amazon.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.amazon.co.jp/*",
+        "https://*.amazon.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

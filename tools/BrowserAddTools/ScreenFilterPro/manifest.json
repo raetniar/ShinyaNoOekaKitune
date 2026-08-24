@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Screen Filter (画面フィルター＆輝度調整)",
+  "version": "1.0.0",
+  "description": "配信や深夜作業時の目の負担を軽減する、画面全体のブルーライトカット・白黒度・明度・コントラスト調整拡張機能です。",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

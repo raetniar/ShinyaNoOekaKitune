@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Filter Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-area">
+        <svg class="monitor-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#a78bfa;">
+          <rect width="20" height="14" x="2" y="3" rx="2"/>
+          <line x1="8" x2="16" y1="21" y2="21"/>
+          <line x1="12" x2="12" y1="17" y2="21"/>
+        </svg>
+        <h1>Screen Filter</h1>
+      </div>
+    </header>
+
+    <main>
+      <!-- 白黒（グレースケール）スライダー -->
+      <div class="control-group">
+        <div class="control-header">
+          <span class="label">白黒化 (Grayscale)</span>
+          <span class="value" id="grayscaleValue">0%</span>
+        </div>
+        <div class="slider-wrapper">
+          <input type="range" id="grayscaleSlider" min="0" max="100" value="0">
+        </div>
+      </div>
+
+      <!-- 輝度（明るさ）スライダー -->
+      <div class="control-group">
+        <div class="control-header">
+          <span class="label">明るさ (Brightness)</span>
+          <span class="value" id="brightnessValue">100%</span>
+        </div>
+        <div class="slider-wrapper">
+          <input type="range" id="brightnessSlider" min="30" max="100" value="100">
+        </div>
+      </div>
+
+      <!-- プリセット -->
+      <div class="presets-section">
+        <span class="section-title">クイックプリセット</span>
+        <div class="presets-grid">
+          <button class="btn-preset" id="presetDefault" data-gray="0" data-bright="100">
+            <span class="btn-text">通常</span>
+          </button>
+          <button class="btn-preset" id="presetDim" data-gray="0" data-bright="70">
+            <span class="btn-text">夜間</span>
+          </button>
+          <button class="btn-preset" id="presetMono" data-gray="100" data-bright="100">
+            <span class="btn-text">白黒</span>
+          </button>
+          <button class="btn-preset" id="presetSleep" data-gray="100" data-bright="70">
+            <span class="btn-text">おやすみ</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <span>Screen Filter Pro v1.0.0</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+/* Amazon Privacy Protector - Stylesheet */
+
+/* 個人情報が含まれる可能性のある要素を強力にぼかします */
+html[data-amazon-privacy-shield="true"] #nav-global-location-slot,
+html[data-amazon-privacy-shield="true"] #nav-global-location-popover-link,
+html[data-amazon-privacy-shield="true"] #nav-link-accountList-nav-line-1,
+html[data-amazon-privacy-shield="true"] .recipient,
+html[data-amazon-privacy-shield="true"] .yohtmlc-recipient,
+html[data-amazon-privacy-shield="true"] span.recipient,
+html[data-amazon-privacy-shield="true"] #address-ui-container,
+html[data-amazon-privacy-shield="true"] #address-grid,
+html[data-amazon-privacy-shield="true"] .address-column,
+html[data-amazon-privacy-shield="true"] .displayAddressDiv,
+html[data-amazon-privacy-shield="true"] .ship-to-address,
+html[data-amazon-privacy-shield="true"] .address-book-entry,
+html[data-amazon-privacy-shield="true"] #deliveryBlockMessage,
+html[data-amazon-privacy-shield="true"] #exports_desktop_qualifiedBuybox_deliveryMessage_feature_div,
+html[data-amazon-privacy-shield="true"] [id^="contextualIngressPt"],
+html[data-amazon-privacy-shield="true"] #contextualIngressPtLabel_deliveryShortLine,
+html[data-amazon-privacy-shield="true"] #contextualIngressPtLabel,
+html[data-amazon-privacy-shield="true"] #contextualIngressPt,
+html[data-amazon-privacy-shield="true"] .pmts-payment-method-details,
+html[data-amazon-privacy-shield="true"] .pmts-instrument-detail-rows,
+html[data-amazon-privacy-shield="true"] [class*="pmts-"],
+html[data-amazon-privacy-shield="true"] [class*="payment-method"],
+html[data-amazon-privacy-shield="true"] #paymentInformation,
+html[data-amazon-privacy-shield="true"] .payment-details,
+html[data-amazon-privacy-shield="true"] .nav-username,
+html[data-amazon-privacy-shield="true"] #nav-item-signout,
+html[data-amazon-privacy-shield="true"] .profile-card,
+html[data-amazon-privacy-shield="true"] .profile-name,
+html[data-amazon-privacy-shield="true"] #customer-profile-name,
+html[data-amazon-privacy-shield="true"] .profile-at-name,
+html[data-amazon-privacy-shield="true"] #profile-avatar,
+html[data-amazon-privacy-shield="true"] .profile-avatar,
+html[data-amazon-privacy-shield="true"] .customer-name,
+html[data-amazon-privacy-shield="true"] .profile-location,
+html[data-amazon-privacy-shield="true"] [data-reviewer-name],
+html[data-amazon-privacy-shield="true"] #sc-buy-box-shipping-message,
+html[data-amazon-privacy-shield="true"] #shippingAddressDisplay,
+html[data-amazon-privacy-shield="true"] .address-field,
+html[data-amazon-privacy-shield="true"] .displayAddressUl,
+html[data-amazon-privacy-shield="true"] .address-display-box,
+html[data-amazon-privacy-shield="true"] .od-shipping-address-container,
+html[data-amazon-privacy-shield="true"] .order-info-recipient,
+html[data-amazon-privacy-shield="true"] .yohtmlc-order-id,
+html[data-amazon-privacy-shield="true"] [class*="order-id"],
+html[data-amazon-privacy-shield="true"] [id*="order-id"],
+html[data-amazon-privacy-shield="true"] .order-id,
+html[data-amazon-privacy-shield="true"] .tracking-id,
+html[data-amazon-privacy-shield="true"] [class*="tracking-id"],
+html[data-amazon-privacy-shield="true"] [id*="tracking-id"],
+html[data-amazon-privacy-shield="true"] .yohtmlc-tracking-id,
+html[data-amazon-privacy-shield="true"] .shipment-tracking,
+html[data-amazon-privacy-shield="true"] .device-name,
+html[data-amazon-privacy-shield="true"] [class*="device-name"],
+html[data-amazon-privacy-shield="true"] [id*="device-name"],
+html[data-amazon-privacy-shield="true"] .myx-device-name,
+html[data-amazon-privacy-shield="true"] input[id*="listSettings"],
+html[data-amazon-privacy-shield="true"] select[id*="listSettings"],
+html[data-amazon-privacy-shield="true"] input[name*="listSettings"],
+html[data-amazon-privacy-shield="true"] select[name*="listSettings"],
+html[data-amazon-privacy-shield="true"] input[id*="Recipient"],
+html[data-amazon-privacy-shield="true"] input[id*="Email"],
+html[data-amazon-privacy-shield="true"] select[id*="Birth"],
+html[data-amazon-privacy-shield="true"] input[name*="recipient"],
+html[data-amazon-privacy-shield="true"] input[name*="email"],
+html[data-amazon-privacy-shield="true"] select[name*="birthday"] {
+  filter: blur(8px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transition: filter 0.2s ease;
+}
+
+/* 欲しいものリスト・干し芋のリスト名・オーナー名・説明文・リスト一覧のぼかし (hideWishlist設定が有効の場合のみ) */
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #profile-wlp-name,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #profile-wlp-name *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #profile-wlp-name-display,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #profile-wlp-name-display *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id*="wlp-name"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id*="wlp-name"] *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id*="profile-wlp"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id*="profile-wlp"] *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [data-action*="wl-list"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [data-action*="wl-list"] *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] span[id^="profile-wlp-name"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #profile-name-text,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-intro-title,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-intro-title *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-intro-title-text,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .al-intro-title,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .al-intro-title *,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-intro-description,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #profile-wlp-description,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .al-intro-description,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .g-story-title,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .al-intro-subtitle,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-intro-subtitle,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .g-party-name,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .g-profile-name,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #g-profile-name,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id*="ListName"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id^="ListName_"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id^="ListName-"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #your-lists-nav .a-list-item,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #your-lists-nav a,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-your-lists .a-list-item,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #al-your-lists a,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #your-profile-nav .a-list-item,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] a[href*="/hz/wishlist/ls/"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] a[href*="/gp/registry/wishlist"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .wl-list-entry,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .wl-list-link,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .wl-list-item-title,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] [id^="atwl-list-name"],
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .atwl-list-name,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #list-name,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #list-name-text,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #wl-list-title,
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] #nav-al-wishlist .nav-text {
+  filter: blur(8px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transition: filter 0.2s ease;
+}
+
+/* 注文履歴ページの「注文詳細」リンクなどの中の住所や宛名もぼかす */
+html[data-amazon-privacy-shield="true"] .a-box-group .a-box[class*="recipient"],
+html[data-amazon-privacy-shield="true"] .a-box-group .a-box[class*="address"] {
+  filter: blur(8px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* JSで動的に追加されたクラスに対するぼかし処理 */
+html[data-amazon-privacy-shield="true"] .amazon-privacy-masked,
+html[data-amazon-privacy-shield="true"] .amazon-privacy-dynamic-masked {
+  filter: blur(8px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+html[data-amazon-privacy-shield="true"][data-amazon-privacy-hide-wishlist="true"] .amazon-privacy-wishlist-masked {
+  filter: blur(8px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}

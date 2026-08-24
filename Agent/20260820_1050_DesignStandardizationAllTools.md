@@ -29,7 +29,7 @@
 5. **トップページ（コレクション一覧）Card 6 のデザイン・文言調整**:
    - 淡い水色のグラデーション背景（`thumb-color-2`）と50%アイコン（`72px × 72px`）。
    - 説明文: 「不定期にだいたい深夜23時以降などにTwitchにて生息・配信中。ソロゲーム実況やお絵描きなどを主にしています。」
-   - リンク先: `https://www.twitch.tv/uikouka`
+   - リンク先: `https://www.twitch.tv/uikouka`（単独ボタン表示）
 6. **タイポグラフィ & カラーシステム**:
    - フォント: `Outfit`, `Noto Sans JP`
    - モード切替（`body.light-mode` / `body.dark-mode`）の美しいコントラスト維持。
@@ -58,8 +58,13 @@
 6. **Twitch Manager**
    - `tools/TwitchManager/TwitchManager.html`
    - `tools/TwitchManager/build_demo.py`
+7. **ルール・記録**
+   - `AGENTS.md`
+   - `Agent/20260820_1030_TwitchResizerHeaderFix.md`
+   - `Agent/20260820_1050_DesignStandardizationAllTools.md`
 
 ---
 
-## 3. 検証結果
-- トップページのCard 6オーバーレイ説明文が指定通りの新しい文言に更新されていることを確認。
+## 3. Git操作ログ
+- **コミット**: `feat: 全ツールページのデザイン統一（Stickyヘッダー・レスポンシブ・背景ウォーターマーク）、AGENTS.md策定、トップページTwitchカード追加` (`7307ba4`)
+- **Push先**: `origin main`（正常完了）

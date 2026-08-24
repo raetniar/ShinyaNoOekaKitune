@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TWlist - Twitch配信通知</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          </svg>
+        </div>
+        <span class="brand-title">TWlist</span>
+        <span id="liveBadge" class="live-count-badge">0 LIVE</span>
+      </div>
+      <div class="header-actions">
+        <button id="refreshBtn" class="icon-btn" title="配信情報を更新">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+        <button id="optionsBtn" class="icon-btn" title="設定を開く">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Add Channel Bar -->
+    <div class="add-channel-section">
+      <form id="addChannelForm" class="add-channel-form">
+        <input 
+          type="text" 
+          id="channelInput" 
+          class="channel-input" 
+          placeholder="TwitchのURLまたはユーザー名を入力"
+          autocomplete="off"
+          required
+        >
+        <button type="submit" id="addBtn" class="add-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          追加
+        </button>
+      </form>
+      <div id="addMessage" class="add-message"></div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Live Section -->
+      <section class="section">
+        <div class="section-title-row">
+          <h2 class="section-title">
+            <span class="live-indicator-dot"></span>
+            配信中 (<span id="liveCountText">0</span>)
+          </h2>
+        </div>
+        <div id="liveList" class="channel-list live-list">
+          <!-- JSで動的挿入 -->
+        </div>
+        <div id="liveEmpty" class="empty-state">
+          <div class="empty-icon">🎮</div>
+          <p>現在配信中のチャンネルはありません</p>
+        </div>
+      </section>
+
+      <!-- Offline Section -->
+      <section class="section offline-section">
+        <div class="section-title-row collapsible-header" id="toggleOfflineBtn">
+          <h2 class="section-title">
+            オフライン (<span id="offlineCountText">0</span>)
+          </h2>
+          <svg class="chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div id="offlineList" class="channel-list offline-list">
+          <!-- JSで動的挿入 -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span id="lastUpdatedText" class="last-updated">更新: 未確認</span>
+      <span id="footerOpenModeHint" class="footer-hint">クリック: プレイヤーで開く</span>
+    </footer>
+  </div>
+
+  <script src="../common/twitch-api.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

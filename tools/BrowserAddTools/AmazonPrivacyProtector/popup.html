@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Stream Privacy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-area">
+        <svg class="shield-icon" id="shieldSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+          <path d="M3 6h18"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <h1>Shopping Stream Privacy</h1>
+      </div>
+    </header>
+
+    <main>
+      <div class="status-card" id="statusCard">
+        <div class="status-indicator">
+          <span class="dot" id="statusDot"></span>
+          <span class="status-text" id="statusText">保護有効</span>
+        </div>
+        <p class="status-desc" id="statusDesc">お届け先、アカウント名、注文履歴などの個人情報を隠しています</p>
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <span class="control-label">プライバシー保護（全体）</span>
+          <label class="switch">
+            <input type="checkbox" id="shieldToggle" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="section-title">詳細保護設定</div>
+
+        <div class="control-row sub-row" id="wishlistControlRow">
+          <div class="label-container">
+            <span class="control-label">干し芋のリストを隠す</span>
+            <span class="sub-label">欲しいものリスト名・作成者を非表示</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="wishlistToggle" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>お届け先住所・郵便番号のぼかし</span>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>アカウント宛名・氏名のぼかし</span>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>注文履歴の受取人・注文番号・追跡番号のぼかし</span>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>クレジットカード・お支払い情報のぼかし</span>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>公開プロフィール名・所有端末名のぼかし</span>
+        </div>
+        <div class="feature-item" id="wishlistFeatureItem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>欲しいものリスト（干し芋）名のぼかし</span>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <span>Amazon Privacy Protector v1.0.0</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
