@@ -78,10 +78,26 @@ def apply_replace_dict(text: str, replace_dict: dict) -> str:
             text = text.replace(bad_word, good_word)
     return text
 
-def transcribe_audio_segment(model, audio_path: str, initial_prompt: str = "初狐羽鹿, Vtuber, 逆転裁判, 切り抜き", replace_dict: dict = None, start_offset: float = 0.0, end_offset: float = 0.0) -> list:
+def get_optimal_device():
+    """CUDA GPUが利用可能か判定し、最適なデバイス文字列 ('cuda' or 'cpu') とステータスを返す"""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            device_name = torch.cuda.get_device_name(0)
+            return "cuda", f"🚀 GPU (CUDA: {device_name}) 加速モード有効"
+        else:
+            return "cpu", "⚡ CPU モード (ピンポイント抽出で高速動作)"
+    except Exception:
+        return "cpu", "⚡ CPU モード"
+
+def transcribe_audio_segment(model, audio_path: str, initial_prompt: str = "初狐羽鹿, Vtuber, 逆転裁判, 切り抜き", replace_dict: dict = None, start_offset: float = 0.0, end_offset: float = 0.0, device: str = None) -> list:
     """指定されたWAVの音声ファイルをモデルに入力して文字起こしし、セグメントのリストを返す"""
+    if device is None:
+        device, _ = get_optimal_device()
+    use_fp16 = (device == "cuda")
+    
     audio_np = load_wav_as_numpy(audio_path)
-    result = model.transcribe(audio_np, language="ja", fp16=False, initial_prompt=initial_prompt, word_timestamps=True)
+    result = model.transcribe(audio_np, language="ja", fp16=use_fp16, initial_prompt=initial_prompt, word_timestamps=True)
     
     segments = []
     for s in result["segments"]:
@@ -89,9 +105,14 @@ def transcribe_audio_segment(model, audio_path: str, initial_prompt: str = "初�
         s_end = max(0.0, float(s["end"]) + end_offset)
         if s_start >= s_end:
             s_end = s_start + 0.1
+        orig_text = s["text"].strip()
+        final_text = apply_replace_dict(orig_text, replace_dict)
         segments.append({
             "start": s_start,
             "end": s_end,
-            "text": apply_replace_dict(s["text"].strip(), replace_dict)
+            "text": final_text,
+            "raw_text": orig_text,
+            "raw_start": float(s["start"]),
+            "raw_end": float(s["end"])
         })
     return segments

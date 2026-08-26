@@ -13,8 +13,15 @@ if sys.stdout is None:
 if sys.stderr is None:
     sys.stderr = DummyWriter()
 
-# アプリ用ディレクトリ
-config_dir = os.path.join(os.getenv('APPDATA'), 'KirinukiTool')
+def get_app_root_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    else:
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# アプリ用ディレクトリ (ツール直下およびsystem_files)
+app_root = get_app_root_dir()
+config_dir = os.path.join(app_root, 'system_files')
 config_path = os.path.join(config_dir, 'config.json')
 
 # スプラッシュ画面の設定と起動

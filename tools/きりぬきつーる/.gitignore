@@ -1,4 +1,4 @@
-﻿*.exe
+*.exe
 system_files/build/
 system_files/dist/
 system_files/_internal/
@@ -10,4 +10,8 @@ system_files/_internal/
 画像/*
 !画像/.gitkeep
 temp/
+system_files/learned/*
+!system_files/learned/.gitkeep
+system_files/config.json
+!system_files/config.example.json
 *.wav

@@ -2,7 +2,10 @@ import os
 import shutil
 import subprocess
 import numpy as np
-from src.utils import format_srt_time, seconds_to_hms, seconds_to_hms_ms
+try:
+    from src.utils import format_srt_time, seconds_to_hms, seconds_to_hms_ms
+except ImportError:
+    from utils import format_srt_time, seconds_to_hms, seconds_to_hms_ms
 
 # 遅延ロード用
 VideoFileClip = None

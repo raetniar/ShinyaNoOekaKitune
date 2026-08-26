@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title_manager_MultiLang_v1.1</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --twitch-purple: #9146ff;
+            --twitch-purple-hover: #a970ff;
+            --bg-base: #0e0e10;
+            --bg-card: #1b1b1f;
+            --bg-header: #252529;
+            --border-color: #3f3f46;
+            --border-hover: #52525b;
+            --text-main: #efeff1;
+            --text-muted: #adadb8;
+            --success: #00ca4e;
+            --danger: #ff4a4a;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.5);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+            background-color: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #4b0082, var(--twitch-purple));
+            border-radius: 10px;
+            border: 2px solid var(--bg-base);
+        }
+
+        .sticky-top-wrapper {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-base);
+            z-index: 1000;
+            margin: -15px -15px 15px -15px;
+            padding: 15px 15px 0 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+
+        .app-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #796991;
+            margin: 0;
+        }
+
+        .btn-head-purple {
+            background: #252529 !important;
+            border: 1px solid #3f3f46 !important;
+            color: #efeff1 !important;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border-radius: var(--radius-md);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .btn-head-purple.unlocked {
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .btn-head-purple[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 100;
+            border: 1px solid var(--twitch-purple);
+        }
+
+        .btn-head-purple:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        .has-tooltip { position: relative; }
+        .has-tooltip[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f1f23;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
+            z-index: 1000;
+            border: 1px solid var(--twitch-purple);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .has-tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-header);
+            color: #bf94ff;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding-top: 15px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .category-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+            padding: 20px;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+        }
+
+        .category-box:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #bf94ff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: grab;
+        }
+
+        .category-box.closed .category-records,
+        .category-box.closed textarea {
+            display: none !important;
+        }
+
+        .category-name span::before {
+            content: "▼ ";
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .category-box.closed .category-name span::before {
+            transform: rotate(-90deg);
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--twitch-purple);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .record-card {
+            background: #000;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .record-header {
+            padding: 12px;
+            cursor: grab;
+            background: var(--bg-header);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: var(--radius-md);
+        }
+
+        .record-body {
+            display: none;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .record-card.open .record-body {
+            display: block;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 10px;
+            transition: border-color var(--transition-fast);
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--twitch-purple);
+            box-shadow: 0 0 0 2px rgba(145, 70, 255, 0.2);
+        }
+
+        .field-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: block;
+            font-weight: bold;
+        }
+
+        .info-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.6;
+            padding: 0 10px;
+            line-height: 1.4;
+        }
+
+        .btn-primary {
+            background: var(--twitch-purple);
+            color: white;
+            padding: 12px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            border: none;
+            transition: background var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .btn-primary:hover {
+            background: var(--twitch-purple-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: #323239;
+            color: white;
+            padding: 8px 14px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            border-radius: 8px;
+            display: block;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 5000;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            opacity: 1;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-open {
+            display: flex !important;
+        }
+
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            word-break: break-all;
+            padding: 35px 25px 25px 25px !important;
+            background: var(--bg-base);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 580px;
+        }
+
+        .modal-close-top {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #323239;
+            border: none;
+            color: var(--text-main);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delete-item,
+        .btn-delete-cat {
+            display: none !important;
+        }
+
+        .delete-mode-on .btn-delete-item,
+        .delete-mode-on .btn-delete-cat {
+            display: inline-flex !important;
+        }
+
+        .delete-mode-on .btn-add-item {
+            display: none !important;
+        }
+
+        .sticky-footer-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-base);
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+
+        body {
+            padding-bottom: 80px;
+        }
+
+        /* Custom Dialog & Spinner */
+        .custom-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .custom-dialog-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-dialog {
+            background: var(--bg-header);
+            border: 1px solid var(--twitch-purple);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: var(--shadow-md);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .custom-dialog-overlay.show .custom-dialog {
+            transform: translateY(0);
+        }
+
+        .cd-input-field {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+            outline: none;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .cd-input-field:focus {
+            border-color: var(--twitch-purple);
+        }
+
+        .spinner {
+            animation: rotate 2s linear infinite;
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        .spinner circle {
+            stroke: currentColor;
+            stroke-width: 3;
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+            animation: dash 1.5s ease-in-out infinite;
+            stroke-linecap: round;
+            fill: none;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 200;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 90, 200;
+                stroke-dashoffset: -35px;
+            }
+
+            100% {
+                stroke-dasharray: 90, 200;
+                stroke-dashoffset: -124px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast">完了</div>
+
+    <div class="sticky-top-wrapper">
+        <div class="app-header">
+            <h1 class="app-title" style="display:flex; align-items:center;">◆ <span id="today-date"
+                    style="margin-left: 8px; color: var(--text-muted); font-weight: normal; font-size: 11px;"></span>
+                <button id="ui-btn-copy-date" class="btn-secondary has-tooltip" style="margin-left: 10px; padding: 4px 8px; font-size: 11px; font-weight: bold; background: rgba(145, 70, 255, 0.1); border: 1px solid var(--twitch-purple); color: #bf94ff; border-radius: 6px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(145, 70, 255, 0.2)'" onmouseout="this.style.background='rgba(145, 70, 255, 0.1)'" onclick="copyRaw('{date}')" data-tooltip="${L.copyDateTip}">● {date}</button>
+            </h1>
+            <div style="display:flex; gap:8px;">
+                <select id="lang-select" class="has-tooltip" data-tooltip="Language" onchange="setLanguage(this.value)"
+                    style="background: var(--bg-card, #18181b); border: 1px solid var(--border-color, #444); color: var(--text-main, #efeff1); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: bold; cursor: pointer; outline: none; transition: border-color var(--transition-fast), background var(--transition-fast); height: 32px;">
+                    <option value="ja">JP</option>
+                    <option value="en">EN</option>
+                    <option value="zh">ZH</option>
+                </select>
+                <button id="lock-btn" class="btn-head-purple" data-tooltip="並べ替え" onclick="toggleSortLock()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></button>
+                <button class="btn-head-purple" id="ui-btn-guide" data-tooltip="つかいかた"
+                    onclick="openModal('guideModal')">❔</button>
+                <button class="btn-head-purple" id="ui-btn-settings" data-tooltip="設定"
+                    onclick="openModal('settingModal')">⚙</button>
+            </div>
+        </div>
+        <div class="tab-nav" id="tab-navigation"></div>
+    </div>
+
+    <div id="main-tab" class="tab-content active" style="padding-top: 0; margin-top: -8px;">
+        <details style="margin-bottom: 10px; padding: 0 5px;">
+            <summary id="ui-info-summary"
+                style="cursor: pointer; color: var(--text-muted); font-weight: bold; font-size: 11px; outline: none; list-style: none; display: flex; align-items: center;">
+                <span style="font-size: 8px; margin-right: 5px; opacity: 0.6;">▼</span>
+                <span id="ui-info-summary-text">ご注意</span>
+            </summary>
+            <div
+                style="margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.6; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                <p id="ui-main-info-top" style="margin: 0 0 10px 0;"></p>
+                <p id="ui-main-info-bottom" style="margin: 0;"></p>
+            </div>
+        </details>
+
+        <div id="main-container" class="sortable-container"></div>
+
+        <div class="sticky-footer-wrapper">
+            <button id="del-mode-main" class="btn-secondary" style="flex: 2; padding: 15px; background: #444;"
+                onclick="toggleDeleteMode('main-tab')">削除</button>
+            <button class="btn-secondary btn-add-item" id="ui-add-template-main" style="flex: 5; padding: 15px;"
+                onclick="addFriendCategory('main-container')">＋ テンプレートを追加</button>
+            <button class="btn-primary" id="ui-save-main" style="flex: 3; padding: 15px;"
+                onclick="saveAllLocal(true)">保存</button>
+        </div>
+    </div>
+
+    <div id="cmd-tab" class="tab-content">
+        <div id="cmd-container"></div>
+    </div>
+
+    <div id="friends-tab" class="tab-content" style="padding-top: 0; margin-top: -8px;">
+        <details style="margin-bottom: 10px; padding: 0 5px;">
+            <summary
+                style="cursor: pointer; color: var(--text-muted); font-weight: bold; font-size: 11px; outline: none; list-style: none; display: flex; align-items: center;">
+                <span style="font-size: 8px; margin-right: 5px; opacity: 0.6;">▼</span>
+                <span class="ui-info-summary-text-common">ご注意</span>
+            </summary>
+            <div
+                style="margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.6; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                <p class="ui-common-warning" style="margin: 0;"></p>
+            </div>
+        </details>
+
+        <div id="friends-container" class="sortable-container"></div>
+
+        <div class="sticky-footer-wrapper">
+            <button id="del-mode-friends" class="btn-secondary" style="flex: 2; padding: 15px; background: #444;"
+                onclick="toggleDeleteMode('friends-tab')">削除</button>
+            <button class="btn-secondary btn-add-item" id="ui-add-template-friends" style="flex: 5; padding: 15px;"
+                onclick="addFriendCategory('friends-container')">＋ テンプレートを追加</button>
+            <button class="btn-primary" id="ui-save-friends" style="flex: 3; padding: 15px;"
+                onclick="saveFriendsLocal(true)">保存</button>
+        </div>
+    </div>
+
+    <div id="memo-tab" class="tab-content" style="padding-top: 0; margin-top: -8px;">
+        <details style="margin-bottom: 10px; padding: 0 5px;">
+            <summary
+                style="cursor: pointer; color: var(--text-muted); font-weight: bold; font-size: 11px; outline: none; list-style: none; display: flex; align-items: center;">
+                <span style="font-size: 8px; margin-right: 5px; opacity: 0.6;">▼</span>
+                <span class="ui-info-summary-text-common">ご注意</span>
+            </summary>
+            <div
+                style="margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.6; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                <p class="ui-common-warning" style="margin: 0;"></p>
+            </div>
+        </details>
+
+        <div id="memo-container" class="sortable-container"></div>
+
+        <div class="sticky-footer-wrapper">
+            <button id="del-mode-memo" class="btn-secondary" style="flex: 2; padding: 15px; background: #444;"
+                onclick="toggleDeleteMode('memo-tab')">削除</button>
+            <button class="btn-secondary btn-add-item" id="ui-add-memo" style="flex: 5; padding: 15px;"
+                onclick="addMemo()">＋ 新しいメモを追加</button>
+            <button class="btn-primary" id="ui-save-memo" style="flex: 3; padding: 15px;"
+                onclick="saveMemoLocal(true)">保存</button>
+        </div>
+    </div>
+
+    <div id="backup-tab" class="tab-content" style="padding-top: 0; margin-top: -8px;">
+        <details style="margin-bottom: 10px; padding: 0 5px;">
+            <summary
+                style="cursor: pointer; color: var(--text-muted); font-weight: bold; font-size: 11px; outline: none; list-style: none; display: flex; align-items: center;">
+                <span style="font-size: 8px; margin-right: 5px; opacity: 0.6;">▼</span>
+                <span class="ui-info-summary-text-common">💡 使い方・注意事項を表示</span>
+            </summary>
+            <div
+                style="margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.6; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                <p class="ui-backup-warning" style="margin: 0;"></p>
+            </div>
+        </details>
+
+        <div class="category-box">
+            <div class="category-name" id="ui-backup-title">Backup</div>
+            <button class="btn-primary" id="ui-backup-copy" style="width:100%;"
+                onclick="copyBackupToClipboard()">コピー</button>
+        </div>
+        <div class="category-box">
+            <div class="category-subtitle" id="ui-restore-title">▼ Restore</div>
+            <input type="file" id="restore-file-input" accept=".txt,.json">
+            <button class="btn-outline" id="ui-restore-btn" style="width:100%; padding: 15px;"
+                onclick="restoreFromFile()">復元</button>
+        </div>
+    </div>
+
+    <div id="guideModal" class="modal-overlay" onclick="if(event.target===this)closeModal('guideModal')">
+        <div class="modal-content">
+            <button class="modal-close-top" onclick="closeModal('guideModal')">×</button>
+            <div id="ui-guide-content"></div>
+        </div>
+    </div>
+
+    <div id="settingModal" class="modal-overlay" onclick="if(event.target===this)closeModal('settingModal')">
+        <div class="modal-content">
+            <button class="modal-close-top" onclick="closeModal('settingModal')">×</button>
+            <h3 id="ui-settings-title" style="color:#bf94ff; font-size:18px; margin-bottom:20px;">⚙ Settings</h3>
+            <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border-left:4px solid var(--twitch-purple);">
+                <div class="category-subtitle" id="ui-settings-auth-title" style="margin-bottom:8px; font-weight:bold; color:var(--text-main);">Twitch認証</div>
+                <p class="settings-help" id="ui-settings-auth-help" style="font-size:11px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">Twitch Token Generatorでアクセストークンを取得し、ここに貼り付けて保存します。Client IDと連携ユーザー情報は自動で検証・取得されます。</p>
+                <input type="hidden" id="user_id">
+                <input type="hidden" id="user_login">
+                <input type="hidden" id="client_id">
+                <div class="auth-status is-warning" id="ui-settings-auth-status" style="font-size:12px; padding:6px 10px; border-radius:6px; margin-bottom:12px; background:rgba(255,255,255,0.08);">Twitchとはまだ連携していません。</div>
+                <span class="field-label" id="ui-settings-access-token">アクセストークン</span>
+                <div style="position: relative; display: flex; align-items: center; margin-bottom: 12px;">
+                    <input type="password" id="token" style="margin-bottom: 0; padding-right: 40px;" placeholder="例: ACCESS TOKEN または oauth:..." oninput="onTokenInputChanged()">
+                    <button type="button" onclick="togglePasswordVisibility()"
+                        style="position: absolute; right: 5px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px;">👁</button>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                    <button type="button" class="btn-secondary" id="ui-settings-auth-btn" onclick="openOfficialAuth()" style="padding:6px 10px; font-size:11px; border-radius:6px; cursor:pointer;">Twitch Token GeneratorのURLをコピー</button>
+                    <button type="button" class="btn-secondary" id="ui-settings-revoke-auth-btn" onclick="revokeTwitchAuth()" style="padding:6px 10px; font-size:11px; border-radius:6px; cursor:pointer; color:#ff7597;">Twitch連携を解除</button>
+                </div>
+                <span class="field-label" id="ui-settings-date-format-label">日付の表示形式 ({date}用)</span>
+                <select id="date_format"
+                    style="width: 100%; background: var(--bg-card, #18181b); border: 1px solid var(--border-color, #444); color: var(--text-main, #efeff1); padding: 10px; border-radius: 8px; font-size: 13px; outline: none; margin-bottom: 10px; transition: border-color var(--transition-fast); cursor: pointer;">
+                    <option value="MM/DD" selected>MM/DD (例: 05/12)</option>
+                    <option value="M/D">M/D (例: 5/12)</option>
+                    <option value="MM月DD日">MM月DD日 (例: 05月12日)</option>
+                    <option value="YYYY/MM/DD">YYYY/MM/DD (例: 2026/05/12)</option>
+                    <option value="YYYY年MM月DD日">YYYY年MM月DD日 (例: 2026年05月12日)</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="ui-settings-save" style="width:100%;" onclick="saveSettings()">Save</button>
+        </div>
+    </div>
+
+
+    <div id="custom-dialog-overlay" class="custom-dialog-overlay">
+        <div class="custom-dialog">
+            <h3 id="cd-title" style="margin-top: 0; color: #bf94ff; font-size: 16px;">Notice</h3>
+            <p id="cd-message"
+                style="margin-bottom: 20px; color: var(--text-main); font-size: 13px; line-height: 1.6; word-break: break-all;">
+            </p>
+            <input type="text" id="cd-input" class="cd-input-field" style="display: none;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="cd-btn-cancel" class="btn-secondary"
+                    style="display: none; padding: 10px 20px; font-size: 13px;">キャンセル</button>
+                <button id="cd-btn-ok" class="btn-primary" style="padding: 10px 20px; font-size: 13px;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const cmdSets = {
+            ja: { so: '応援/シャウトアウト', collab: 'コラボ連携 URL生成', collabInput: '相手のID', stream: '配信管理', mod: 'モデレート', ads: '広告管理', copy: 'URL生成', tips: {
+                    so: '指定したIDの応援コマンドをコピー', collab: '複数窓視聴用URLを生成',
+                    title: "配信タイトルを変更", game: "配信カテゴリを変更", marker: "配信にマーカーを追加", announce: "チャットに告知を送信",
+                    clear: "チャットの履歴をクリア", unique: "ユニークチャット(R9K)モード", poll: "アンケートを作成", predict: "予想を作成",
+                    slow: "スローモードを有効化", sub: "サブスク限定モードを有効化", ads30: "30秒の広告を流す", ads60: "60秒の広告を流す", ads180: "3分の広告を流す"
+                }
+            },
+            en: { so: 'Shoutout', collab: 'Collaboration URL Generator', collabInput: 'User IDs', stream: 'Management', mod: 'Moderation', ads: 'Ads', copy: 'Generate', tips: {
+                    so: 'Copy shoutout command for ID', collab: 'Generate multi-view URL',
+                    title: "Change stream title", game: "Change stream category", marker: "Add stream marker", announce: "Send announcement",
+                    clear: "Clear chat history", unique: "Unique chat mode", poll: "Create a poll", predict: "Create a prediction",
+                    slow: "Enable slow mode", sub: "Enable sub-only mode", ads30: "Run 30s ad", ads60: "Run 60s ad", ads180: "Run 3m ad"
+                }
+            },
+            zh: { so: '推荐 / Shoutout', collab: '多路直播 URL 生成', collabInput: '对方 ID', stream: '直播管理', mod: '频道管理', ads: '广告管理', copy: '生成', tips: {
+                    so: '复制指定ID的推荐指令', collab: '生成多路直播URL',
+                    title: "修改直播标题", game: "修改直播分类", marker: "添加直播标记", announce: "发送频道公告",
+                    clear: "清除聊天记录", unique: "唯一聊天模式", poll: "发起投票", predict: "发起预测",
+                    slow: "开启慢速模式", sub: "开启订阅者专属模式", ads30: "播放30秒广告", ads60: "播放60秒广告", ads180: "播放3分钟广告"
+                }
+            }
+        };
+
+        const getCmdHtml = (l) => `
+        <!-- 1. 配信管理 -->
+        <div class="category-box"><div class="category-name">${cmdSets[l].stream}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.title}" onclick="copyRaw('!title ')">!title</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.game}" onclick="copyRaw('!game ')">!game</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.marker}" onclick="copyRaw('/marker ')">${l === 'ja' ? 'マーカー' : (l === 'zh' ? '标记' : 'Marker')}</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.announce}" onclick="copyRaw('/announce ')">${l === 'ja' ? '告知' : (l === 'zh' ? '公告' : 'Announce')}</button></div></div>
+        
+        <!-- 2. 広告管理 -->
+        <div class="category-box"><div class="category-name">${cmdSets[l].ads}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;"><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.ads30}" onclick="copyRaw('/commercial 30')">30s</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.ads60}" onclick="copyRaw('/commercial 60')">60s</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.ads180}" onclick="copyRaw('/commercial 180')">3m</button></div></div>
+        
+        <!-- 3. シャウトアウト -->
+        <div class="category-box" style="border: 1px solid var(--twitch-purple);"><div class="category-name">${cmdSets[l].so}</div><div style="display:flex;gap:8px;"><input type="text" id="so-user-input" placeholder="ID" style="flex:1;margin-bottom:0;"><button class="btn-primary has-tooltip" data-tooltip="${cmdSets[l].tips.so}" onclick="const u=document.getElementById('so-user-input').value.trim(); if(u) copyRaw('/shoutout '+u); else showToast('ID!')">/shoutout</button></div></div>
+        
+        <!-- 4. モデレート -->
+        <div class="category-box"><div class="category-name">${cmdSets[l].mod}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.clear}" onclick="copyRaw('/clear')">Clear</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.unique}" onclick="copyRaw('/uniquechat')">Unique</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.poll}" onclick="copyRaw('/poll')">Poll</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.predict}" onclick="copyRaw('/prediction')">Prediction</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.slow}" onclick="copyRaw('/slow ')">Slow</button><button class="btn-outline has-tooltip" data-tooltip="${cmdSets[l].tips.sub}" onclick="copyRaw('/subscribers')">Sub-only</button></div></div>
+        
+        <!-- 5. コラボURL -->
+        <div class="category-box" style="border: 1px dotted var(--twitch-purple);"><div class="category-name">${cmdSets[l].collab}</div><div style="display:flex;gap:8px;margin-bottom:10px;"><input type="text" id="collab-user-input" placeholder="${cmdSets[l].collabInput}" style="flex:1;margin-bottom:0;"><button class="btn-primary has-tooltip" data-tooltip="${cmdSets[l].tips.collab}" onclick="generateMultiUrl()">${cmdSets[l].copy}</button></div><div style="display:flex;justify-content:space-around;font-size:11px;"><label><input type="radio" name="multi-service" value="multi" checked> multistre.am</label><label><input type="radio" name="multi-service" value="theater"> twitchtheater.tv</label></div></div>`;
+
+        const langMap = {
+        ja: {
+            tabs: ["記録", "コマンド", "IDリスト", "メモ", "Backup"],
+            cancel: "キャンセル",
+            confirm: "確認",
+            save: "保存",
+            delete: "削除",
+            edit: "編集",
+            addTemplate: "＋ 追加",
+            addMemo: "＋ 新規メモ",
+            addFriend: "＋ ID追加",
+            toast: "コピーしました",
+            lock: "並べ替え",
+            dateFormatLabel: "日付の表示形式 ({date}用)",
+            copyDateTip: "クリックでコピー",
+            tips: {
+                copyId: "IDのみコピー",
+                openTwitch: "Twitchを開く",
+                openX: "Xを開く",
+                guide: "つかいかた",
+                settings: "設定",
+                sync: "SYNC (Twitchから取得)",
+                push: "PUSH (Twitchへ反映)",
+                editTitle: "タイトルを編集",
+                deleteCategory: "カテゴリーを削除",
+                deleteItem: "アイテムを削除"
+            },
+            alerts: {
+                confirmDelete: "本当に削除しますか？",
+                enterTitle: "タイトルを入力してください",
+                enterName: "名前を入力してください",
+                enterContentName: "コンテンツ名を指定してください",
+                requireBroadcaster: "設定(⚙)からアクセストークンを保存してください。",
+                requireToken: "設定(⚙)からアクセストークンを設定してください。",
+                categoryNotFound: "カテゴリー「{game}」が見つかりませんでした。正確な名称をご確認ください。",
+                pushSuccess: "Twitchへ反映しました！",
+                pushFail: "Twitchへの反映に失敗しました。トークンの有効期限や権限をご確認ください。",
+                syncSuccess: "Twitchから取得しました！",
+                syncFail: "Twitchからの取得に失敗しました。設定をご確認ください。",
+                copyNoUrl: "URLが入力されていません",
+                idCopied: "IDをコピーしました！",
+                renameId: "名前(ID)を変更",
+                notice: "お知らせ",
+                input: "入力",
+                fetchingTwitch: "Twitchから取得中...",
+                pushingTwitch: "Twitchへ送信中...",
+                authCopiedToast: "Token Generator URLをコピーしました！ブラウザで開いてトークンを取得してください。",
+                confirmRevoke: "Twitch連携を解除しますか？保存されているアクセストークンとID情報が消去されます。",
+                revokeSuccess: "Twitch連携を解除しました",
+                authError: "Twitch認証エラー",
+                settingsSaved: "設定を保存しました"
+            },
+            settings: {
+                title: "設定",
+                authTitle: "Twitch連携",
+                authHelp: "Twitch Token Generatorでアクセストークンを取得し、ここに貼り付けて保存します。Client IDと連携ユーザー情報は自動で検証・取得されます。",
+                authStatusEmpty: "Twitchとはまだ連携していません。",
+                authStatusLoggedIn: "ログイン中: {login}",
+                accessToken: "アクセストークン",
+                tokenPlaceholder: "例: ACCESS TOKEN または oauth:...",
+                copyAuthUrl: "Twitch Token GeneratorのURLをコピー",
+                revokeAuth: "Twitch連携を解除",
+                languageLabel: "表示言語",
+                saveBtn: "設定を保存"
+            },
+            dateFormatOptions: {
+                "MM/DD": "MM/DD (例: 05/12)",
+                "M/D": "M/D (例: 5/12)",
+                "MM月DD日": "MM月DD日 (例: 05月12日)",
+                "YYYY/MM/DD": "YYYY/MM/DD (例: 2026/05/12)",
+                "YYYY年MM月DD日": "YYYY年MM月DD日 (例: 2026年05月12日)"
+            },
+            infoSummary: "注意事項・仕様",
+            mainInfoTop: "・SYNC（同期）: Twitchの最新配信情報を読み込み上書きします。 | ・PUSH（反映）: 選択中の内容をTwitchに即時反映します。<br>※OBSで配信中または管理画面を開いている場合、PUSH後に配信情報の更新（Ctrl+R）をお願いします。",
+            mainInfoBottom: "・本ツールはブラウザ内（ローカル）にデータを保存します。キャッシュクリア等に備え、定期的にBackupタブから外部保存してください。<br>・Twitch APIの仕様上、カテゴリ名はSYNCで取得した正確な名称をご使用いただくことを推奨します。",
+            commonWarning: "・本ツールはブラウザ内（ローカル）にデータを保存します。キャッシュクリア等に備え、定期的にBackupタブから外部保存してください。",
+            backupWarning: "・アクセストークンには有効期限があります。反映・取得時にエラーが出る場合は、再度Token Generatorからトークンを再発行してください。<br><br>・ブラウザの履歴やCookie・サイトデータを全消去すると保存データもリセットされます。大切なデータは「バックアップ作成」からコピーしてテキストファイル等に保存してください。",
+            backupTitle: "バックアップ作成",
+            backupCopy: "コピー",
+            restoreTitle: "データ復元",
+            restoreBtn: "復元実行",
+            labels: { game: "CATEGORY", title: "TITLE", notif: "NOTIFICATION", tags: "TAGS", memo: "MEMO" },
+            guideHtml: `
+                <div style="color: var(--text-main); line-height: 1.8; font-size: 13px;">
+                    <h2 style="color: var(--twitch-purple); font-size: 18px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px;">💡 つかいかた</h2>
+                    
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">1. Twitch連携の設定</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted); margin-bottom: 15px;">
+                            <li><strong>Twitch Token Generator:</strong> 設定(⚙)からURLをコピーしてブラウザで開き、ACCESS TOKENを発行します。</li>
+                            <li><strong>アクセストークン:</strong> 発行されたACCESS TOKENを設定欄に貼り付けて保存するだけで、Client IDや連携情報は自動検証・取得されます。</li>
+                            <li><strong>更新:</strong> 反映や取得時にエラーが出るようになった場合は、再度Tokenを発行して上書き保存してください。</li>
+                        </ul>
+                        <div style="background: rgba(255, 74, 74, 0.1); border-left: 4px solid #ff4a4a; padding: 12px; border-radius: 8px;">
+                            <strong style="color: #ff4a4a;">⚠️ セキュリティについて（重要）</strong><br>
+                            アクセストークンはあなたの配信権限そのものです。第三者に共有したり配信画面に映さないよう厳重に管理してください。万が一流出した場合は、GeneratorからTokenを再発行（Revoke）してください。
+                        </div>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">2. 「保存」と「反映」について</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted);">
+                            <li><strong>保存 / 自動保存:</strong> 編集内容はブラウザ内（キャッシュ）に保存されます。ツールを閉じても保持されます。</li>
+                            <li><strong>反映 (PUSH):</strong> 選択中のテンプレート内容をTwitchの最新配信情報へ即時反映します。</li>
+                            <li><strong>取得 (SYNC):</strong> 現在Twitchに設定されている最新のタイトルやカテゴリーを読み込んでカードを作成・上書きします。</li>
+                        </ul>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">3. バックアップと注意事項</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted);">
+                            <li>キャッシュ消去等による万が一のデータ消失を防ぐため、「Backup」タブから定期的にテキストファイル等へバックアップを保存してください。</li>
+                            <li>OBSのカスタムブラウザドックとして利用する場合、PUSH後に配信情報の更新（Ctrl+R）を行ってください。</li>
+                        </ul>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <a href="https://note.com/konpeito_fox/n/na3b5b6d69748" target="_blank" style="display: block; background: #252529; border: 1px solid var(--border-color); color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold;">📖 詳しい解説記事を開く (note)</a>
+                    </section>
+
+                    <section style="margin-bottom: 24px; background: rgba(145, 70, 255, 0.08); border: 1px solid var(--twitch-purple, #9146FF); border-radius: 8px; padding: 14px 16px;">
+                        <h3 style="font-size: 14px; color: #bf94ff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            ✨ より多機能な統合管理ツール「Twitch Manager」
+                        </h3>
+                        <p style="font-size: 12px; color: var(--text-main); margin-bottom: 12px; line-height: 1.6;">
+                            Twitchのアレヤコレヤをすべて一つのdockで管理したいという人向けのツールです。
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="https://toumei2suisai.booth.pm/items/8654630" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 130px; background: var(--twitch-purple, #9146FF); color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                🛍️ BOOTHで見る
+                            </a>
+                            <a href="https://github.com/MagnestGames/TwitchManager/releases" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 130px; background: var(--bg-card, #1f1f23); border: 1px solid var(--border-color, #444); color: var(--text-main); text-decoration: none; padding: 8px 12px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                📦 GitHub Releases
+                            </a>
+                        </div>
+                    </section>
+                    <div style="font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <strong>【免責事項】</strong><br>
+                        本ツールは個人制作品です。動作検証は十分に行っておりますが、予期せぬ不具合等によりデータが消失する可能性はゼロではありません。大切なデータはご自身で定期的にバックアップを取るなど、自己責任でのご利用をお願いいたします。疑問点などございましたら、DMもしくはXのリプライ、配信のコメントなどでご相談ください。
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border-color, #444); padding-top: 15px; margin-top: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 2px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="初狐羽鹿" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--twitch-purple, #9146FF);" onerror="this.style.display='none'" />
+                                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                                    <strong style="color: var(--text-main); font-size: 12px;">初狐羽鹿</strong>
+                                    <span style="font-size: 10px; color: var(--text-muted);">uikouka</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="Twitch" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"></path></svg>
+                                </a>
+                                <a href="https://x.com/uikouka" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="X (Twitter)" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16zM4 20l6.768 -6.768m2.46 -2.46L20 4"></path></svg>
+                                </a>
+                                <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="BOOTH" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                                </a>
+                                <a href="https://note.com/konpeito_fox" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="note" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+        },
+        en: {
+            tabs: ["Records", "Commands", "ID List", "Memos", "Backup"],
+            cancel: "Cancel",
+            confirm: "Confirm",
+            save: "Save",
+            delete: "Delete",
+            edit: "Edit",
+            addTemplate: "+ Add Item",
+            addMemo: "+ New Memo",
+            addFriend: "+ Add ID",
+            toast: "Copied to clipboard",
+            lock: "Sort",
+            dateFormatLabel: "Date Format (for {date})",
+            copyDateTip: "Click to copy",
+            tips: {
+                copyId: "Copy ID only",
+                openTwitch: "Open Twitch",
+                openX: "Open X",
+                guide: "Guide",
+                settings: "Settings",
+                sync: "SYNC (Fetch from Twitch)",
+                push: "PUSH (Apply to Twitch)",
+                editTitle: "Edit Title",
+                deleteCategory: "Delete Category",
+                deleteItem: "Delete Item"
+            },
+            alerts: {
+                confirmDelete: "Are you sure you want to delete this?",
+                enterTitle: "Please enter a title",
+                enterName: "Please enter a name",
+                enterContentName: "Please enter a content name",
+                requireBroadcaster: "Broadcaster ID is missing. Please save your Access Token in Settings (⚙).",
+                requireToken: "Access Token is missing. Please set it in Settings (⚙).",
+                categoryNotFound: "Category '{game}' was not found. Please verify the exact name.",
+                pushSuccess: "Applied to Twitch successfully!",
+                pushFail: "Failed to apply to Twitch. Please check token expiration and scopes.",
+                syncSuccess: "Fetched from Twitch successfully!",
+                syncFail: "Failed to fetch from Twitch. Please check your settings.",
+                copyNoUrl: "No URL provided",
+                idCopied: "ID copied!",
+                renameId: "Rename (ID)",
+                notice: "Notice",
+                input: "Input",
+                fetchingTwitch: "Fetching from Twitch...",
+                pushingTwitch: "Applying to Twitch...",
+                authCopiedToast: "Token Generator URL copied! Open in your browser to get a token.",
+                confirmRevoke: "Disconnect Twitch? Saved access token and channel info will be cleared.",
+                revokeSuccess: "Disconnected from Twitch",
+                authError: "Twitch Auth Error",
+                settingsSaved: "Settings saved successfully"
+            },
+            settings: {
+                title: "Settings",
+                authTitle: "Twitch Integration",
+                authHelp: "Generate an Access Token with Twitch Token Generator, paste it here, and save. Client ID and channel info will be automatically verified.",
+                authStatusEmpty: "Not connected to Twitch yet.",
+                authStatusLoggedIn: "Logged in as: {login}",
+                accessToken: "Access Token",
+                tokenPlaceholder: "e.g. ACCESS TOKEN or oauth:...",
+                copyAuthUrl: "Copy Token Generator URL",
+                revokeAuth: "Disconnect Twitch",
+                languageLabel: "Language",
+                saveBtn: "Save Settings"
+            },
+            dateFormatOptions: {
+                "MM/DD": "MM/DD (e.g. 05/12)",
+                "M/D": "M/D (e.g. 5/12)",
+                "MM月DD日": "MM/DD Japanese (e.g. 05/12)",
+                "YYYY/MM/DD": "YYYY/MM/DD (e.g. 2026/05/12)",
+                "YYYY年MM月DD日": "YYYY/MM/DD Japanese (e.g. 2026/05/12)"
+            },
+            infoSummary: "Important Notes",
+            mainInfoTop: "• SYNC: Fetches and overwrites current stream info from Twitch. | • PUSH: Applies current item to Twitch immediately.<br>※ If OBS dock is open during stream, please refresh (Ctrl+R) after PUSH.",
+            mainInfoBottom: "• Data is saved in your local browser storage. Please export periodic backups from the Backup tab.<br>• For Twitch categories, we recommend using exact names verified via SYNC.",
+            commonWarning: "• Data is saved in your local browser storage. Please make periodic backups to prevent data loss.",
+            backupWarning: "• Access Tokens expire over time. If errors occur, generate a new token via Token Generator.<br><br>• Clearing browser data or cache will erase saved templates. Copy and store backup text safely.",
+            backupTitle: "Create Backup",
+            backupCopy: "Copy JSON",
+            restoreTitle: "Restore Data",
+            restoreBtn: "Restore",
+            labels: { game: "CATEGORY", title: "TITLE", notif: "NOTIFICATION", tags: "TAGS", memo: "MEMO" },
+            guideHtml: `
+                <div style="color: var(--text-main); line-height: 1.8; font-size: 13px;">
+                    <h2 style="color: var(--twitch-purple); font-size: 18px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px;">💡 Usage Guide</h2>
+                    
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">1. Setup Twitch Integration</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted); margin-bottom: 15px;">
+                            <li><strong>Twitch Token Generator:</strong> Copy the URL from Settings (⚙) and generate an ACCESS TOKEN in your browser.</li>
+                            <li><strong>Access Token:</strong> Simply paste your ACCESS TOKEN into the settings field and save. Client ID and channel info are automatically verified and fetched.</li>
+                            <li><strong>Renewal:</strong> If you encounter authorization errors when applying or syncing, regenerate a new Token from the Generator and save it.</li>
+                        </ul>
+                        <div style="background: rgba(255, 74, 74, 0.1); border-left: 4px solid #ff4a4a; padding: 12px; border-radius: 8px;">
+                            <strong style="color: #ff4a4a;">⚠️ Security Notice (Important)</strong><br>
+                            Your Access Token grants permissions to your Twitch channel. Never share it publicly or show it on stream. If compromised, revoke it immediately via Token Generator.
+                        </div>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">2. About "Save" and "Apply"</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted);">
+                            <li><strong>Save / Auto-Save:</strong> Content is saved in your local browser storage and persists across sessions.</li>
+                            <li><strong>Apply (PUSH):</strong> Applies the selected template content to your live Twitch stream information immediately.</li>
+                            <li><strong>Fetch (SYNC):</strong> Fetches the current live stream title and category from Twitch and saves it to a card.</li>
+                        </ul>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">3. Backup & Notes</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted);">
+                            <li>To prevent data loss from browser cache clearing, export periodic backups from the "Backup" tab.</li>
+                            <li>When using as an OBS Custom Browser Dock, refresh the dock (Ctrl+R) after PUSH if needed.</li>
+                        </ul>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <a href="https://note.com/konpeito_fox/n/na3b5b6d69748" target="_blank" style="display: block; background: #252529; border: 1px solid var(--border-color); color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold;">📖 Open Detailed Manual (note)</a>
+                    </section>
+
+                    <section style="margin-bottom: 24px; background: rgba(145, 70, 255, 0.08); border: 1px solid var(--twitch-purple, #9146FF); border-radius: 8px; padding: 14px 16px;">
+                        <h3 style="font-size: 14px; color: #bf94ff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            ✨ All-in-One Dock Tool: "Twitch Manager"
+                        </h3>
+                        <p style="font-size: 12px; color: var(--text-main); margin-bottom: 12px; line-height: 1.6;">
+                            An all-in-one dock tool designed for streamers who want to manage everything on Twitch from a single dock.
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="https://toumei2suisai.booth.pm/items/8654630" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 130px; background: var(--twitch-purple, #9146FF); color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                🛍️ View on BOOTH
+                            </a>
+                            <a href="https://github.com/MagnestGames/TwitchManager/releases" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 130px; background: var(--bg-card, #1f1f23); border: 1px solid var(--border-color, #444); color: var(--text-main); text-decoration: none; padding: 8px 12px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                📦 GitHub Releases
+                            </a>
+                        </div>
+                    </section>
+                    <div style="font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <strong>[Disclaimer]</strong><br>
+                        This is a personal project. While tested thoroughly, please maintain regular backups. Use at your own risk. For questions or feedback, reach out via X (Twitter) or stream comments.
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border-color, #444); padding-top: 15px; margin-top: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 2px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="初狐羽鹿" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--twitch-purple, #9146FF);" onerror="this.style.display='none'" />
+                                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                                    <strong style="color: var(--text-main); font-size: 12px;">初狐羽鹿</strong>
+                                    <span style="font-size: 10px; color: var(--text-muted);">uikouka</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="Twitch" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"></path></svg>
+                                </a>
+                                <a href="https://x.com/uikouka" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="X (Twitter)" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16zM4 20l6.768 -6.768m2.46 -2.46L20 4"></path></svg>
+                                </a>
+                                <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="BOOTH" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                                </a>
+                                <a href="https://note.com/konpeito_fox" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="note" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+        },
+        zh: {
+            tabs: ["记录", "指令", "ID列表", "便签", "备份"],
+            cancel: "取消",
+            confirm: "确认",
+            save: "保存",
+            delete: "删除",
+            edit: "编辑",
+            addTemplate: "＋ 添加项目",
+            addMemo: "＋ 新建便签",
+            addFriend: "＋ 添加 ID",
+            toast: "已复制到剪贴板",
+            lock: "排序",
+            dateFormatLabel: "日期显示格式 ({date}用)",
+            copyDateTip: "点击复制",
+            tips: {
+                copyId: "仅复制 ID",
+                openTwitch: "打开 Twitch",
+                openX: "打开 X",
+                guide: "使用说明",
+                settings: "设置",
+                sync: "SYNC (从 Twitch 获取)",
+                push: "PUSH (应用到 Twitch)",
+                editTitle: "编辑标题",
+                deleteCategory: "删除分类",
+                deleteItem: "删除项目"
+            },
+            alerts: {
+                confirmDelete: "确定要删除吗？",
+                enterTitle: "请输入标题",
+                enterName: "请输入名称",
+                enterContentName: "请指定内容名称",
+                requireBroadcaster: "未设置主播 ID，请在设置(⚙)中保存 Access Token。",
+                requireToken: "未设置 Access Token，请在设置(⚙)中填写。",
+                categoryNotFound: "未找到分类「{game}」，请确认名称是否准确。",
+                pushSuccess: "已成功应用到 Twitch！",
+                pushFail: "应用到 Twitch 失败，请检查 Token 有效期与权限。",
+                syncSuccess: "已成功从 Twitch 获取！",
+                syncFail: "从 Twitch 获取失败，请检查设置。",
+                copyNoUrl: "未提供 URL",
+                idCopied: "已复制 ID！",
+                renameId: "重命名 (ID)",
+                notice: "提示",
+                input: "输入",
+                fetchingTwitch: "正在从 Twitch 获取...",
+                pushingTwitch: "正在同步至 Twitch...",
+                authCopiedToast: "已复制 Token Generator 链接！请在浏览器中打开并获取 Token。",
+                confirmRevoke: "确定解除 Twitch 绑定吗？已保存的 Token 和频道信息将被清空。",
+                revokeSuccess: "已解除 Twitch 绑定",
+                authError: "Twitch 认证错误",
+                settingsSaved: "设置已保存"
+            },
+            settings: {
+                title: "设置",
+                authTitle: "Twitch 授权绑定",
+                authHelp: "在 Twitch Token Generator 获取 Access Token 并粘贴至此处保存。Client ID 和频道信息将自动验证获取。",
+                authStatusEmpty: "尚未绑定 Twitch 账号。",
+                authStatusLoggedIn: "当前登录: {login}",
+                accessToken: "访问令牌 (Access Token)",
+                tokenPlaceholder: "例: ACCESS TOKEN 或 oauth:...",
+                copyAuthUrl: "复制 Token Generator 链接",
+                revokeAuth: "解除 Twitch 绑定",
+                languageLabel: "显示语言",
+                saveBtn: "保存设置"
+            },
+            dateFormatOptions: {
+                "MM/DD": "MM/DD (例: 05/12)",
+                "M/D": "M/D (例: 5/12)",
+                "MM月DD日": "MM月DD日 (例: 05月12日)",
+                "YYYY/MM/DD": "YYYY/MM/DD (例: 2026/05/12)",
+                "YYYY年MM月DD日": "YYYY年MM月DD日 (例: 2026年05月12日)"
+            },
+            infoSummary: "注意事项与规范",
+            mainInfoTop: "・SYNC（同步）: 读取并覆盖 Twitch 当前最新直播信息。 | ・PUSH（应用）: 将选中项目立即应用到 Twitch。<br>※ 若在 OBS Dock 中使用，PUSH 后请刷新 Dock（Ctrl+R）。",
+            mainInfoBottom: "・数据保存在本地浏览器中。请定期从备份页面导出保存，以防缓存清除丢失。<br>・Twitch 分类建议使用 SYNC 验证过的准确名称。",
+            commonWarning: "・数据保存在本地浏览器中。请定期导出备份以防数据丢失。",
+            backupWarning: "・Access Token 具有有效期限。若同步或应用时报错，请重新生成 Token。<br><br>・清理浏览器缓存或网站数据会导致模板重置。重要数据请在“创建备份”中复制保存。",
+            backupTitle: "创建备份",
+            backupCopy: "复制 JSON",
+            restoreTitle: "恢复数据",
+            restoreBtn: "执行恢复",
+            labels: { game: "CATEGORY", title: "TITLE", notif: "NOTIFICATION", tags: "TAGS", memo: "MEMO" },
+            guideHtml: `
+                <div style="color: var(--text-main); line-height: 1.8; font-size: 13px;">
+                    <h2 style="color: var(--twitch-purple); font-size: 18px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px;">💡 使用说明</h2>
+                    
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">1. Twitch 授权绑定</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted); margin-bottom: 15px;">
+                            <li><strong>Twitch Token Generator:</strong> 从设置(⚙)复制链接在浏览器中打开，生成 ACCESS TOKEN。</li>
+                            <li><strong>访问令牌 (Access Token):</strong> 将生成的 ACCESS TOKEN 粘贴到设置栏中保存即可，Client ID 和频道信息将自动验证获取。</li>
+                            <li><strong>更新令牌:</strong> 若同步或应用时出现权限错误，请重新生成 Token 并覆盖保存。</li>
+                        </ul>
+                        <div style="background: rgba(255, 74, 74, 0.1); border-left: 4px solid #ff4a4a; padding: 12px; border-radius: 8px;">
+                            <strong style="color: #ff4a4a;">⚠️ 安全提示（重要）</strong><br>
+                            Access Token 代表您的直播间操作权限。切勿泄露或在直播中展示。若意外泄露，请立即在 Token Generator 中撤销（Revoke）。
+                        </div>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">2. 关于“保存”与“应用”</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted);">
+                            <li><strong>保存 / 自动保存:</strong> 模板内容保存在本地浏览器缓存中，关闭工具后依然保留。</li>
+                            <li><strong>应用 (PUSH):</strong> 将选中的模板内容立即应用到 Twitch 直播间信息中。</li>
+                            <li><strong>同步 (SYNC):</strong> 读取 Twitch 当前设置的最新标题与分类并保存至卡片。</li>
+                        </ul>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; color: #bf94ff; margin-bottom: 12px;">3. 备份与注意事项</h3>
+                        <ul style="padding-left: 20px; color: var(--text-muted);">
+                            <li>为防浏览器清理缓存导致数据丢失，请定期在“备份”页面导出并妥善保存。</li>
+                            <li>作为 OBS 自定义浏览器 Dock 使用时，PUSH 后可刷新 Dock（Ctrl+R）确认。</li>
+                        </ul>
+                    </section>
+
+                    <section style="margin-bottom: 24px;">
+                        <a href="https://note.com/konpeito_fox/n/na3b5b6d69748" target="_blank" style="display: block; background: #252529; border: 1px solid var(--border-color); color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold;">📖 打开详细使用教程 (note)</a>
+                    </section>
+
+                    <section style="margin-bottom: 24px; background: rgba(145, 70, 255, 0.08); border: 1px solid var(--twitch-purple, #9146FF); border-radius: 8px; padding: 14px 16px;">
+                        <h3 style="font-size: 14px; color: #bf94ff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            ✨ 多功能整合管理工具「Twitch Manager」
+                        </h3>
+                        <p style="font-size: 12px; color: var(--text-main); margin-bottom: 12px; line-height: 1.6;">
+                            专为想在一个 OBS Dock 中搞定 Twitch 所有直播管理操作的主播打造。
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="https://toumei2suisai.booth.pm/items/8654630" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 130px; background: var(--twitch-purple, #9146FF); color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                🛍️ 在 BOOTH 查看
+                            </a>
+                            <a href="https://github.com/MagnestGames/TwitchManager/releases" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 130px; background: var(--bg-card, #1f1f23); border: 1px solid var(--border-color, #444); color: var(--text-main); text-decoration: none; padding: 8px 12px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                📦 GitHub Releases
+                            </a>
+                        </div>
+                    </section>
+                    <div style="font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <strong>[免责声明]</strong><br>
+                        本工具为个人制作。虽经充分测试，仍建议定期备份重要数据。使用风险由个人承担。如有疑问，可通过 X 或直播弹幕进行交流。
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border-color, #444); padding-top: 15px; margin-top: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 2px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="https://avatars.githubusercontent.com/u/98635212?v=4" alt="初狐羽鹿" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--twitch-purple, #9146FF);" onerror="this.style.display='none'" />
+                                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                                    <strong style="color: var(--text-main); font-size: 12px;">初狐羽鹿</strong>
+                                    <span style="font-size: 10px; color: var(--text-muted);">uikouka</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <a href="https://www.twitch.tv/uikouka" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="Twitch" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"></path></svg>
+                                </a>
+                                <a href="https://x.com/uikouka" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="X (Twitter)" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16zM4 20l6.768 -6.768m2.46 -2.46L20 4"></path></svg>
+                                </a>
+                                <a href="https://toumei2suisai.booth.pm/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="BOOTH" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                                </a>
+                                <a href="https://note.com/konpeito_fox" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; transition: 0.2s;" title="note" onmouseover="this.style.color='var(--twitch-purple)';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+        }
+    };
+
+        let currentLang = 'ja', config = [], friendsConfig = [], memoConfig = [], settings = {}, isSortLocked = true, sortableInstances = [];
+
+        function initLanguage() {
+            const savedLang = (settings && settings.language) ? settings.language : (navigator.language.toLowerCase().startsWith('zh') ? 'zh' : (navigator.language.toLowerCase().startsWith('en') ? 'en' : 'ja'));
+            currentLang = savedLang;
+            setLanguage(currentLang);
+        }
+
+        function setLanguage(lang) {
+            const langSel = document.getElementById('lang-select');
+            if (langSel && langSel.value !== lang) {
+                langSel.value = lang;
+            }
+            const at = document.querySelector('.tab-content.active')?.id || 'main-tab';
+            currentLang = lang;
+            if (typeof settings === 'object') {
+                settings.language = lang;
+                try { localStorage.setItem('stream_settings_v16', JSON.stringify(settings)); } catch(e){}
+            } const L = langMap[currentLang];
+
+            document.getElementById('toast').innerText = L.toast;
+            document.getElementById('lock-btn').setAttribute('data-tooltip', L.lock);
+
+            // 折りたたみテキストの更新
+            const summaryMain = document.getElementById('ui-info-summary-text');
+            if (summaryMain) summaryMain.innerText = L.infoSummary;
+            document.querySelectorAll('.ui-info-summary-text-common').forEach(el => el.innerText = L.infoSummary);
+
+            // 注意書きテキストの更新
+            const topInfo = document.getElementById('ui-main-info-top');
+            if (topInfo) topInfo.innerHTML = L.mainInfoTop || '';
+            const bottomInfo = document.getElementById('ui-main-info-bottom');
+            if (bottomInfo) bottomInfo.innerHTML = L.mainInfoBottom || '';
+            document.querySelectorAll('.ui-common-warning').forEach(el => el.innerHTML = L.commonWarning || '');
+            document.querySelectorAll('.ui-backup-warning').forEach(el => el.innerHTML = L.backupWarning || '');
+
+            // ボタン類などの更新
+            document.querySelectorAll('[id^="del-mode-"]').forEach(el => el.innerText = L.delete);
+            document.querySelectorAll('[id^="ui-add-template-"]').forEach(el => el.innerText = L.addTemplate);
+            document.querySelectorAll('[id^="ui-save-"]').forEach(el => el.innerText = L.save);
+            document.getElementById('ui-add-memo').innerText = L.addMemo;
+            document.getElementById('ui-backup-title').innerText = L.backupTitle;
+            document.getElementById('ui-backup-copy').innerText = L.backupCopy;
+            document.getElementById('ui-restore-title').innerText = L.restoreTitle;
+            document.getElementById('ui-restore-btn').innerText = L.restoreBtn;
+            document.getElementById('ui-btn-guide').setAttribute('data-tooltip', L.tips.guide);
+            document.getElementById('ui-btn-settings').setAttribute('data-tooltip', L.tips.settings);
+            const dateBtn = document.getElementById('ui-btn-copy-date');
+            if (dateBtn) dateBtn.setAttribute("data-tooltip", L.copyDateTip || "Copy");
+            
+            const dfLabel = document.getElementById('ui-settings-date-format-label');
+            if (dfLabel) dfLabel.innerText = L.dateFormatLabel || "Date Format";
+
+            const dfSelect = document.getElementById('date_format');
+            if (dfSelect) {
+                let targetVal = settings.dateFormat;
+                if (!VALID_DATE_FORMATS.includes(targetVal)) {
+                    targetVal = 'MM/DD';
+                    settings.dateFormat = 'MM/DD';
+                }
+                const opts = L.dateFormatOptions || {
+                    "MM/DD": "MM/DD (例: 05/12)",
+                    "M/D": "M/D (例: 5/12)",
+                    "MM月DD日": "MM月DD日 (例: 05月12日)",
+                    "YYYY/MM/DD": "YYYY/MM/DD (例: 2026/05/12)",
+                    "YYYY年MM月DD日": "YYYY年MM月DD日 (例: 2026年05月12日)"
+                };
+                Array.from(dfSelect.options).forEach(opt => {
+                    if (opts[opt.value]) opt.text = opts[opt.value];
+                });
+                dfSelect.value = targetVal;
+                if (dfSelect.selectedIndex === -1 || !dfSelect.value) {
+                    dfSelect.selectedIndex = 0;
+                    dfSelect.value = 'MM/DD';
+                }
+            }
+
+            // モーダルとコマンドの更新
+            const guideEl = document.getElementById('ui-guide-content');
+            if (guideEl) guideEl.innerHTML = L.guideHtml;
+            const cmdEl = document.getElementById('cmd-container');
+            if (cmdEl) cmdEl.innerHTML = getCmdHtml(currentLang);
+
+            // タブの再構築
+            const tn = document.getElementById('tab-navigation');
+            if (tn) {
+                tn.innerHTML = '';
+                const tids = ['main-tab', 'cmd-tab', 'friends-tab', 'memo-tab', 'backup-tab'];
+                L.tabs.forEach((n, i) => {
+                    const b = document.createElement('button');
+                    b.className = "tab-btn" + (tids[i] === at ? " active" : "");
+                    b.innerText = n;
+                    b.onclick = (e) => switchTab(tids[i], e.target);
+                    tn.appendChild(b);
+                });
+            }
+
+            // 描画更新
+            render(); renderFriends(); renderMemo();
+        }
+
+
+        const SPINNER_SVG = `<svg class="spinner" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20"></circle></svg>`;
+
+        function showCustomDialog(options) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('custom-dialog-overlay');
+                const titleEl = document.getElementById('cd-title');
+                const msgEl = document.getElementById('cd-message');
+                const inputEl = document.getElementById('cd-input');
+                const btnCancel = document.getElementById('cd-btn-cancel');
+                const btnOk = document.getElementById('cd-btn-ok');
+
+                titleEl.innerText = options.title || langMap[currentLang].alerts.notice;
+                msgEl.innerHTML = options.message || "";
+
+                inputEl.style.display = options.type === 'prompt' ? 'block' : 'none';
+                btnCancel.style.display = (options.type === 'confirm' || options.type === 'prompt') ? 'block' : 'none';
+                btnCancel.innerText = langMap[currentLang]?.cancel || "キャンセル";
+
+                if (options.type === 'prompt') {
+                    inputEl.value = options.defaultValue || "";
+                    setTimeout(() => inputEl.focus(), 100);
+                }
+
+                const closeDialog = () => {
+                    overlay.classList.remove('show');
+                    btnOk.onclick = null;
+                    btnCancel.onclick = null;
+                    inputEl.onkeydown = null;
+                };
+
+                btnOk.onclick = () => { closeDialog(); resolve(options.type === 'prompt' ? inputEl.value : true); };
+                btnCancel.onclick = () => { closeDialog(); resolve(options.type === 'prompt' ? null : false); };
+
+                if (options.type === 'prompt') {
+                    inputEl.onkeydown = (e) => { if (e.key === 'Enter') btnOk.onclick(); };
+                }
+
+                overlay.classList.add('show');
+            });
+        }
+
+        async function customAlert(message) { await showCustomDialog({ type: 'alert', message: message }); }
+        async function customConfirm(message) { return await showCustomDialog({ type: 'confirm', message: message, title: langMap[currentLang].alerts.confirm }); }
+        async function customPrompt(message, defaultValue = "") { return await showCustomDialog({ type: 'prompt', message: message, defaultValue: defaultValue, title: langMap[currentLang].alerts.input }); }
+
+        function showToast(m, type = "success") {
+            const t = document.getElementById('toast');
+            t.innerText = m;
+            if (type === "error") t.style.background = "var(--danger)";
+            else if (type === "info") t.style.background = "var(--twitch-purple)";
+            else t.style.background = "var(--success)";
+            t.className = "show";
+            setTimeout(() => t.className = "", 2500);
+        }
+
+        function switchTab(id, b) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); document.getElementById(id).classList.add('active'); b.classList.add('active'); initSortable(); }
+        function openModal(id) {
+            if (id === 'settingModal') {
+                updateSettingsAuthStatus();
+                const df = document.getElementById('date_format');
+                if (df) {
+                    const validVal = VALID_DATE_FORMATS.includes(settings.dateFormat) ? settings.dateFormat : 'MM/DD';
+                    df.value = validVal;
+                    if (df.selectedIndex === -1 || !df.value) {
+                        df.selectedIndex = 0;
+                        df.value = 'MM/DD';
+                    }
+                }
+            } document.getElementById(id).classList.add('modal-open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('modal-open'); }
+        async function copyRaw(t) { await navigator.clipboard.writeText(t); showToast("Copied"); }
+
+        const LOCK_LOCKED_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+        const LOCK_UNLOCKED_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
+
+        function toggleSortLock() {
+            isSortLocked = !isSortLocked;
+            const b = document.getElementById('lock-btn');
+            if (b) {
+                b.innerHTML = isSortLocked ? LOCK_LOCKED_SVG : LOCK_UNLOCKED_SVG;
+                b.className = "btn-head-purple" + (isSortLocked ? "" : " unlocked");
+            }
+            initSortable();
+            showToast(isSortLocked ? "Locked" : "Sortable");
+        }
+
+        function toggleDeleteMode(tid) {
+            const isOn = document.getElementById(tid).classList.toggle('delete-mode-on');
+            const b = document.getElementById('del-mode-' + tid.replace('-tab', ''));
+            if (b) { b.style.background = isOn ? "#ff4a4a" : "#444"; b.innerText = isOn ? "..." : langMap[currentLang].delete; }
+        }
+
+        // ★ 更新版：絵文字をSVGアイコンに変更
+        function render() {
+            const c = document.getElementById('main-container'); if (!c) return; c.innerHTML = "";
+            const L = langMap[currentLang].labels;
+            config.forEach((cat, ci) => {
+                const d = document.createElement('div'); d.className = "category-box" + (cat.isClosed ? " closed" : ""); d.setAttribute('data-idx', ci);
+                d.innerHTML = `<div class="category-name" onclick="toggleCategory(this, ${ci})"><span>${cat.name}</span><button class="btn-secondary" onclick="event.stopPropagation(); addRecord(${ci})">＋</button></div><div class="category-records sortable-items" data-cat-idx="${ci}"></div>`;
+                cat.records?.forEach((r, ri) => {
+                    const card = document.createElement('div'); card.className = "record-card" + (r.isOpen ? " open" : ""); card.setAttribute('data-idx', ri);
+
+                    card.innerHTML = `
+                <div class="record-header" onclick="toggleRecordOpen(${ci}, ${ri})">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>● ${r.label || 'NEW'}</span>
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" onclick="event.stopPropagation(); renameRecord(${ci}, ${ri})">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" title="${langMap[currentLang]?.tips?.sync || 'SYNC'}" onclick="event.stopPropagation(); syncWithTwitch(${ci}, ${ri}, this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+                        </button>
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" title="${langMap[currentLang]?.tips?.push || 'PUSH'}" onclick="event.stopPropagation(); pushToTwitch(${ci}, ${ri}, this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        </button>
+                        <button class="btn-delete-item" onclick="event.stopPropagation(); deleteRecord(${ci}, ${ri})">✕</button>
+                    </div>
+                </div>
+                <div class="record-body">
+                    <span class="field-label">${L.game}</span>
+                    <input type="text" value="${r.game || ''}" oninput="config[${ci}].records[${ri}].game=this.value; saveAllLocal(false)">
+                    
+                    <span class="field-label">${L.title}</span>
+                    <textarea onchange="config[${ci}].records[${ri}].title=this.value; saveAllLocal(false)">${r.title || ''}</textarea>
+
+                    <span class="field-label">${L.notif}</span>
+                    <textarea onchange="config[${ci}].records[${ri}].notif=this.value; saveAllLocal(false)">${r.notif || ''}</textarea>
+
+                    <span class="field-label">${L.tags}</span>
+                    <input type="text" value="${r.tags || ''}" oninput="config[${ci}].records[${ri}].tags=this.value; saveAllLocal(false)">
+
+                    <span class="field-label">${L.memo}</span>
+                    <textarea onchange="config[${ci}].records[${ri}].memo=this.value; saveAllLocal(false)">${r.memo || ''}</textarea>
+                </div>`;
+                    d.querySelector('.category-records').appendChild(card);
+                });
+                c.appendChild(d);
+            });
+            initSortable();
+        }
+
+        // --- 追加機能：リネーム ---
+        async function renameRecord(ci, ri) {
+            const newName = await customPrompt(langMap[currentLang].alerts.enterContentName, config[ci].records[ri].label);
+            if (newName !== null) {
+                config[ci].records[ri].label = newName;
+                saveAllLocal(false);
+                render();
+            }
+        }
+
+        // --- Twitch API通信・認証ロジック (TwitchManager方式) ---
+        const TWITCH_API_BASE = 'https://api.twitch.tv/helix';
+        const VALID_DATE_FORMATS = ['MM/DD', 'M/D', 'MM月DD日', 'YYYY/MM/DD', 'YYYY年MM月DD日'];
+        const TITLE_DOCK_REQUIRED_SCOPES = [
+            'channel:manage:broadcast',
+            'user:read:chat',
+            'user:write:chat',
+            'clips:edit',
+            'moderator:manage:announcements',
+            'moderator:manage:shoutouts'
+        ];
+
+        function extractTwitchAccessToken(value) {
+            const raw = String(value || '').trim();
+            if (!raw) return '';
+            const withoutOauthPrefix = raw.replace(/^oauth:/i, '');
+            const hashIndex = withoutOauthPrefix.indexOf('#');
+            const queryIndex = withoutOauthPrefix.indexOf('?');
+            const paramText = hashIndex >= 0 ? withoutOauthPrefix.slice(hashIndex + 1) : (queryIndex >= 0 ? withoutOauthPrefix.slice(queryIndex + 1) : '');
+            if (paramText) {
+                const params = new URLSearchParams(paramText);
+                const token = params.get('access_token');
+                if (token) return token.trim();
+            }
+            const looseMatch = withoutOauthPrefix.match(/access_token=([^&\s]+)/);
+            return looseMatch ? decodeURIComponent(looseMatch[1]).trim() : withoutOauthPrefix;
+        }
+
+        function sanitizeTwitchClientId(value) {
+            const raw = String(value || '').trim();
+            if (!raw) return '';
+            const compact = raw.replace(/[\s_-]+/g, '').toLowerCase();
+            if (/^(demo|sample|example|your)?clientid\d*$/.test(compact)) return '';
+            if (/^[a-z]+$/i.test(raw) && raw.length < 20) return '';
+            return raw;
+        }
+
+        function getEffectiveTwitchClientId() {
+            return sanitizeTwitchClientId(settings.clientId || '');
+        }
+
+        function buildTwitchTokenGeneratorUrl() {
+            const scopes = TITLE_DOCK_REQUIRED_SCOPES.join('+');
+            return `https://twitchtokengenerator.com/quick/${scopes}`;
+        }
+
+        async function openOfficialAuth() {
+            const url = buildTwitchTokenGeneratorUrl();
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast(langMap[currentLang]?.alerts?.authCopiedToast || "Copied URL!");
+            } catch (e) {
+                window.open(url, '_blank');
+            }
+        }
+
+        async function revokeTwitchAuth() {
+            const confirmRevoke = await customConfirm(langMap[currentLang]?.alerts?.confirmRevoke || "Disconnect Twitch?");
+            if (!confirmRevoke) return;
+            settings.token = '';
+            settings.userId = '';
+            settings.userLogin = '';
+            settings.clientId = '';
+            localStorage.setItem('stream_settings_v16', JSON.stringify(settings));
+            const tokenInput = document.getElementById('token');
+            if (tokenInput) tokenInput.value = '';
+            updateSettingsAuthStatus();
+            showToast(langMap[currentLang]?.alerts?.revokeSuccess || "Disconnected");
+        }
+
+        function applyTwitchValidationData(data) {
+            if (!data) return;
+            if (data.client_id) settings.clientId = sanitizeTwitchClientId(data.client_id);
+            if (data.user_id) settings.userId = data.user_id;
+            if (data.login) settings.userLogin = data.login;
+            const userIdInput = document.getElementById('user_id');
+            const userLoginInput = document.getElementById('user_login');
+            const clientIdInput = document.getElementById('client_id');
+            if (userIdInput) userIdInput.value = settings.userId || '';
+            if (userLoginInput) userLoginInput.value = settings.userLogin || '';
+            if (clientIdInput && settings.clientId) clientIdInput.value = settings.clientId;
+            updateSettingsAuthStatus();
+        }
+
+        function updateSettingsAuthStatus() {
+            const el = document.getElementById('ui-settings-auth-status');
+            if (!el) return;
+            const login = settings.userLogin || settings.userId || '';
+            if (login) {
+                el.innerText = (langMap[currentLang]?.settings?.authStatusLoggedIn || 'Logged in: {login}').replace('{login}', login);
+                el.style.background = 'rgba(145, 70, 255, 0.15)';
+                el.style.color = '#bf94ff';
+                el.style.border = '1px solid rgba(145, 70, 255, 0.4)';
+            } else {
+                el.innerText = langMap[currentLang]?.settings?.authStatusEmpty || 'Not connected to Twitch yet.';
+                el.style.background = 'rgba(255, 255, 255, 0.08)';
+                el.style.color = 'var(--text-muted)';
+                el.style.border = '1px solid var(--border-color)';
+            }
+        }
+
+        let tokenInputDebounceTimer = null;
+        function onTokenInputChanged() {
+            clearTimeout(tokenInputDebounceTimer);
+            tokenInputDebounceTimer = setTimeout(() => {
+                const rawVal = document.getElementById('token')?.value || '';
+                const token = extractTwitchAccessToken(rawVal);
+                if (token && token.length > 15) {
+                    refreshTwitchAuthFromToken(false);
+                }
+            }, 600);
+        }
+
+        async function refreshTwitchAuthFromToken(showError = false) {
+            const token = extractTwitchAccessToken(settings.token || document.getElementById('token')?.value || '');
+            if (!token) return null;
+            try {
+                const response = await fetch('https://id.twitch.tv/oauth2/validate', {
+                    headers: { 'Authorization': `OAuth ${token}` }
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.message || (langMap[currentLang]?.alerts?.tokenValidateFail || 'Token validation failed'));
+                applyTwitchValidationData(data);
+                localStorage.setItem('stream_settings_v16', JSON.stringify(settings));
+                return data;
+            } catch (e) {
+                if (showError) await customAlert(`${langMap[currentLang]?.alerts?.authError || 'Twitch Auth Error'}: ${e.message}`);
+                return null;
+            }
+        }
+
+        
+        // --- コラボURL生成 ---
+        function generateMultiUrl() {
+            const input = document.getElementById('collab-user-input')?.value.trim();
+            if (!input) {
+                showToast(langMap[currentLang]?.alerts?.enterName || 'IDを入力してください', 'error');
+                return;
+            }
+            const myId = (settings.userLogin || '').trim();
+            const ids = input.split(/[\s,、]+/).filter(Boolean);
+            if (myId && !ids.includes(myId)) {
+                ids.unshift(myId);
+            }
+            const svc = document.querySelector('input[name="multi-service"]:checked')?.value || 'multi';
+            const url = svc === 'multi' ? `https://multistre.am/${ids.join('/')}` : `https://www.twitchtheater.tv/${ids.join('/')}`;
+            copyRaw(url);
+        }
+
+        // --- {date} 日付フォーマット変換 ---
+        function formatDateToken(date, format) {
+            const d = date || new Date();
+            const YYYY = d.getFullYear();
+            const YY = String(YYYY).slice(-2);
+            const M = d.getMonth() + 1;
+            const MM = String(M).padStart(2, '0');
+            const D = d.getDate();
+            const DD = String(D).padStart(2, '0');
+
+            switch (format) {
+                case 'MM/DD':
+                    return `${MM}/${DD}`;
+                case 'M/D':
+                    return `${M}/${D}`;
+                case 'MM月DD日':
+                    return `${MM}月${DD}日`;
+                case 'YYYY/MM/DD':
+                    return `${YYYY}/${MM}/${DD}`;
+                case 'YYYY年MM月DD日':
+                    return `${YYYY}年${MM}月${DD}日`;
+                default:
+                    return `${MM}/${DD}`;
+            }
+        }
+
+        async function apiRequest(endpoint, method = 'GET', body = null) {
+            const token = extractTwitchAccessToken(settings.token);
+            const clientId = getEffectiveTwitchClientId();
+            if (!clientId || !token) {
+                await customAlert(langMap[currentLang]?.alerts?.requireToken || "アクセストークンとClient IDを設定してください。");
+                return null;
+            }
+            const headers = {
+                'Client-ID': clientId,
+                'Authorization': `Bearer ${token}`
+            };
+            if (body) headers['Content-Type'] = 'application/json';
+
+            try {
+                const res = await fetch(`${TWITCH_API_BASE}${endpoint}`, { method, headers, body: body ? JSON.stringify(body) : null });
+                if (!res.ok) {
+                    console.error("API Error:", await res.text());
+                    return null;
+                }
+                return res.status === 204 ? true : await res.json();
+            } catch (error) {
+                console.error("Network Error:", error);
+                return null;
+            }
+        }
+
+        async function pushToTwitch(ci, ri, btnEl) {
+            const originalContent = btnEl.innerHTML;
+            btnEl.innerHTML = SPINNER_SVG;
+            btnEl.disabled = true;
+            btnEl.style.opacity = '0.5';
+
+            if ((!settings.userId || !getEffectiveTwitchClientId()) && settings.token) {
+                await refreshTwitchAuthFromToken(false);
+            }
+
+            const record = config[ci].records[ri];
+            const broadcasterId = settings.userId;
+            if (!broadcasterId) {
+                btnEl.innerHTML = originalContent;
+                btnEl.disabled = false;
+                btnEl.style.opacity = '1';
+                return await customAlert(langMap[currentLang]?.alerts?.requireBroadcaster || "配信者IDが未設定です。設定からアクセストークンを保存してください。");
+            }
+
+            showToast(langMap[currentLang]?.alerts?.pushingTwitch || "Twitchへ反映中...", "info");
+            let gameId = "";
+
+            if (record.game) {
+                const gameData = await apiRequest(`/games?name=${encodeURIComponent(record.game)}`);
+                if (gameData && gameData.data && gameData.data.length > 0) {
+                    gameId = gameData.data[0].id;
+                } else {
+                    await customAlert((langMap[currentLang]?.alerts?.categoryNotFound || "カテゴリー '{game}' が見つかりませんでした。").replace("{game}", record.game));
+                    btnEl.innerHTML = originalContent;
+                    btnEl.disabled = false;
+                    btnEl.style.opacity = '1';
+                    return;
+                }
+            }
+
+            let finalTitle = record.title || "";
+            if (finalTitle.includes('{date}')) {
+                finalTitle = finalTitle.replace(/{date}/g, formatDateToken(new Date(), settings.dateFormat || "MM/DD"));
+            }
+
+            const body = { title: finalTitle };
+            if (gameId) body.game_id = gameId;
+
+            const result = await apiRequest(`/channels?broadcaster_id=${broadcasterId}`, 'PATCH', body);
+            if (result) showToast(langMap[currentLang]?.alerts?.pushSuccess || "Twitchへ反映しました！", "success");
+            else await customAlert(langMap[currentLang]?.alerts?.pushFail || "Twitchへの反映に失敗しました。");
+
+            btnEl.innerHTML = originalContent;
+            btnEl.disabled = false;
+            btnEl.style.opacity = '1';
+        }
+
+        async function syncWithTwitch(ci, ri, btnEl) {
+            const originalContent = btnEl.innerHTML;
+            btnEl.innerHTML = SPINNER_SVG;
+            btnEl.disabled = true;
+            btnEl.style.opacity = '0.5';
+
+            if ((!settings.userId || !getEffectiveTwitchClientId()) && settings.token) {
+                await refreshTwitchAuthFromToken(false);
+            }
+
+            const broadcasterId = settings.userId;
+            if (!broadcasterId) {
+                btnEl.innerHTML = originalContent;
+                btnEl.disabled = false;
+                btnEl.style.opacity = '1';
+                return await customAlert(langMap[currentLang]?.alerts?.requireBroadcaster || "配信者IDが未設定です。設定からアクセストークンを保存してください。");
+            }
+
+            showToast(langMap[currentLang]?.alerts?.fetchingTwitch || "Twitchから取得中...", "info");
+            const channelData = await apiRequest(`/channels?broadcaster_id=${broadcasterId}`);
+
+            if (channelData && channelData.data && channelData.data.length > 0) {
+                const info = channelData.data[0];
+                config[ci].records[ri].title = info.title;
+                config[ci].records[ri].game = info.game_name;
+                saveAllLocal(false);
+                render();
+                showToast(langMap[currentLang]?.alerts?.syncSuccess || "Twitchから取得しました！", "success");
+            } else {
+                await customAlert(langMap[currentLang]?.alerts?.syncFail || "Twitchからの取得に失敗しました。");
+            }
+
+            btnEl.innerHTML = originalContent;
+            btnEl.disabled = false;
+            btnEl.style.opacity = '1';
+        }
+
+        // ★ 更新版：IDリストのUIと機能を画像に合わせて復元
+        function renderFriends() {
+            const L = langMap[currentLang];
+            const c = document.getElementById('friends-container'); if (!c) return; c.innerHTML = "";
+
+            (friendsConfig || []).forEach((cat, ci) => {
+                const d = document.createElement('div'); d.className = "category-box" + (cat.isClosed ? " closed" : ""); d.setAttribute('data-idx', ci);
+                d.innerHTML = `
+                <div class="category-name" onclick="toggleFriendCategory(this, ${ci})">
+                    <span>${cat.name}</span>
+                    <button class="btn-secondary" onclick="event.stopPropagation(); addFriendRecord(${ci})">＋</button>
+                </div>
+                <div class="category-records sortable-items" data-cat-idx="${ci}"></div>`;
+
+                (cat.friends || []).forEach((f, fi) => {
+                    const card = document.createElement('div');
+                    card.className = "record-card" + (f.isOpen ? " open" : "");
+                    card.setAttribute('data-idx', fi);
+
+                    card.innerHTML = `
+                <div class="record-header" onclick="toggleFriendRecordOpen(${ci}, ${fi})">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>● ${f.name || 'USER'}</span>
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" onclick="event.stopPropagation(); renameFriendRecord(${ci}, ${fi})">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" title="${L.tips.copyId}" onclick="event.stopPropagation(); copyTwitchId(${ci}, ${fi})">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" title="${L.tips.openTwitch}" onclick="event.stopPropagation(); openTwitchLink(${ci}, ${fi})">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"></path></svg>
+                        </button>
+                        <button class="icon-btn" style="padding:4px; display:flex; align-items:center; justify-content:center;" title="${L.tips.openX}" onclick="event.stopPropagation(); openXLink(${ci}, ${fi})">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16zM4 20l6.768 -6.768m2.46 -2.46L20 4"></path></svg>
+                        </button>
+                        <button class="btn-delete-item" onclick="event.stopPropagation(); deleteFriendRecord(${ci}, ${fi})">✕</button>
+                    </div>
+                </div>
+                <div class="record-body">
+                    <span class="field-label">TWITCH ID / URL</span>
+                    <input type="text" value="${f.twitch || ''}" oninput="friendsConfig[${ci}].friends[${fi}].twitch=this.value; saveFriendsLocal(false)">
+                    
+                    <span class="field-label">X URL</span>
+                    <input type="text" value="${f.x || ''}" oninput="friendsConfig[${ci}].friends[${fi}].x=this.value; saveFriendsLocal(false)">
+                    
+                    <span class="field-label">MEMO</span>
+                    <textarea onchange="friendsConfig[${ci}].friends[${fi}].memo=this.value; saveFriendsLocal(false)">${f.memo || ''}</textarea>
+                </div>`;
+                    d.querySelector('.category-records').appendChild(card);
+                });
+                c.appendChild(d);
+            });
+            initSortable();
+        }
+
+        // --- IDリスト専用の追加関数 ---
+        function toggleFriendRecordOpen(ci, ri) {
+            friendsConfig[ci].friends[ri].isOpen = !friendsConfig[ci].friends[ri].isOpen;
+            renderFriends();
+        }
+
+
+        function addFriendRecord(i) {
+            if (!friendsConfig[i].friends) friendsConfig[i].friends = [];
+            friendsConfig[i].friends.push({ name: "USER", twitch: "", x: "", memo: "", isOpen: true });
+            renderFriends();
+            saveFriendsLocal(false);
+        }
+
+        // --- 各種ボタンの動作（追加ロジック） ---
+        function copyTwitchId(ci, fi) {
+            let val = friendsConfig[ci].friends[fi].twitch || "";
+            if (!val) return showToast(langMap[currentLang].alerts.copyNoUrl);
+            let id = val.trim();
+
+            // URL形式の場合、自動でID部分のみを抽出（例: https://www.twitch.tv/hakuryu_haruno -> hakuryu_haruno）
+            const match = id.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
+            if (match && match[1]) id = match[1];
+
+            navigator.clipboard.writeText(id).then(() => showToast(langMap[currentLang].alerts.idCopied));
+        }
+
+        function openTwitchLink(ci, fi) {
+            let val = friendsConfig[ci].friends[fi].twitch || "";
+            if (!val) return;
+            let url = val.trim();
+            // IDのみが入力されている場合でも自動でURLを補完
+            if (!url.startsWith('http')) url = 'https://www.twitch.tv/' + url;
+            window.open(url, '_blank');
+        }
+
+        function openXLink(ci, fi) {
+            let val = friendsConfig[ci].friends[fi].x || "";
+            if (!val) return;
+            let url = val.trim();
+            if (!url.startsWith('http')) url = 'https://x.com/' + url;
+            window.open(url, '_blank');
+        }
+
+        async function renameFriendRecord(ci, ri) {
+            const newName = await customPrompt(langMap[currentLang].alerts.renameId, friendsConfig[ci].friends[ri].name);
+            if (newName !== null) {
+                friendsConfig[ci].friends[ri].name = newName;
+                saveFriendsLocal(false);
+                renderFriends();
+            }
+        }
+
+
+        function renderMemo() {
+            const c = document.getElementById('memo-container'); if (!c) return; c.innerHTML = "";
+            memoConfig.forEach((m, i) => {
+                const d = document.createElement('div'); d.className = "category-box" + (m.isClosed ? " closed" : ""); d.setAttribute('data-idx', i);
+                d.innerHTML = `<div class="category-name" onclick="toggleMemoCategory(this, ${i})"><span>${m.title}</span><button class="btn-delete-item btn-secondary" onclick="event.stopPropagation(); deleteMemo(${i})">✕</button></div>
+            <textarea style="min-height:150px;" oninput="memoConfig[${i}].content=this.value; saveMemoLocal()">${m.content || ''}</textarea>`;
+                c.appendChild(d);
+            });
+            initSortable();
+        }
+
+        function initSortable() {
+            if (typeof Sortable === 'undefined') return;
+            sortableInstances.forEach(i => i.destroy()); sortableInstances = [];
+            const opts = { animation: 150, handle: '.category-name', disabled: isSortLocked };
+            const itemOpts = (list, save, renderFunc, groupName) => ({
+                animation: 150, handle: '.record-header', disabled: isSortLocked, group: groupName,
+                onEnd: (evt) => {
+                    const fromIdx = parseInt(evt.from.getAttribute('data-cat-idx')), toIdx = parseInt(evt.to.getAttribute('data-cat-idx'));
+                    const item = list[fromIdx][groupName === 'main' ? 'records' : 'friends'].splice(evt.oldIndex, 1)[0];
+                    list[toIdx][groupName === 'main' ? 'records' : 'friends'].splice(evt.newIndex, 0, item);
+                    save(false); renderFunc();
+                }
+            });
+
+            const mc = document.getElementById('main-container'); if (mc) {
+                sortableInstances.push(new Sortable(mc, { ...opts, onEnd: (e) => { const i = config.splice(e.oldIndex, 1)[0]; config.splice(e.newIndex, 0, i); saveAllLocal(false); render(); } }));
+                mc.querySelectorAll('.sortable-items').forEach(el => sortableInstances.push(new Sortable(el, itemOpts(config, saveAllLocal, render, 'main'))));
+            }
+            const fc = document.getElementById('friends-container'); if (fc) {
+                sortableInstances.push(new Sortable(fc, { ...opts, onEnd: (e) => { const i = friendsConfig.splice(e.oldIndex, 1)[0]; friendsConfig.splice(e.newIndex, 0, i); saveFriendsLocal(false); renderFriends(); } }));
+                fc.querySelectorAll('.sortable-items').forEach(el => sortableInstances.push(new Sortable(el, itemOpts(friendsConfig, saveFriendsLocal, renderFriends, 'friends'))));
+            }
+            const memc = document.getElementById('memo-container'); if (memc) {
+                sortableInstances.push(new Sortable(memc, { ...opts, onEnd: (e) => { const i = memoConfig.splice(e.oldIndex, 1)[0]; memoConfig.splice(e.newIndex, 0, i); saveMemoLocal(); renderMemo(); } }));
+            }
+        }
+
+        function toggleCategory(el, i) { config[i].isClosed = el.closest('.category-box').classList.toggle('closed'); saveAllLocal(false); }
+        function toggleFriendCategory(el, i) { friendsConfig[i].isClosed = el.closest('.category-box').classList.toggle('closed'); saveFriendsLocal(false); }
+        function toggleMemoCategory(el, i) { memoConfig[i].isClosed = el.closest('.category-box').classList.toggle('closed'); saveMemoLocal(false); }
+        function toggleRecordOpen(ci, ri) { config[ci].records[ri].isOpen = !config[ci].records[ri].isOpen; render(); }
+
+        function addRecord(i) { config[i].records.push({ label: "NEW", game: "", title: "", isOpen: true }); render(); saveAllLocal(false); }
+        async function deleteRecord(ci, ri) { if (await customConfirm(langMap[currentLang].alerts.confirmDelete)) { config[ci].records.splice(ri, 1); render(); saveAllLocal(false); } }
+        async function deleteFriendRecord(ci, fi) { if (await customConfirm(langMap[currentLang].alerts.confirmDelete)) { friendsConfig[ci].friends.splice(fi, 1); renderFriends(); saveFriendsLocal(false); } }
+        async function addMemo() { const t = await customPrompt(langMap[currentLang].alerts.enterTitle); if (t) { memoConfig.push({ title: t, content: "", isClosed: false }); renderMemo(); saveMemoLocal(); } }
+        async function deleteMemo(i) { if (await customConfirm(langMap[currentLang].alerts.confirmDelete)) { memoConfig.splice(i, 1); renderMemo(); saveMemoLocal(); } }
+
+        function saveAllLocal(s) { localStorage.setItem('stream_config_v16', JSON.stringify(config)); if (s) showToast("Saved"); }
+        function saveFriendsLocal(s) { localStorage.setItem('stream_friends_v16', JSON.stringify(friendsConfig)); if (s) showToast("Saved"); }
+        function saveMemoLocal() { localStorage.setItem('stream_memo_v16', JSON.stringify(memoConfig)); }
+        async function saveSettings() {
+            const rawToken = document.getElementById('token')?.value || '';
+            const normalizedToken = extractTwitchAccessToken(rawToken);
+            settings = {
+                ...settings,
+                userId: document.getElementById('user_id')?.value.trim() || settings.userId || '',
+                userLogin: document.getElementById('user_login')?.value.trim() || settings.userLogin || '',
+                clientId: document.getElementById('client_id')?.value.trim() || settings.clientId || '',
+                token: normalizedToken,
+                dateFormat: document.getElementById('date_format')?.value || 'MM/DD'
+            };
+
+            if (normalizedToken) {
+                await refreshTwitchAuthFromToken(true);
+            } else {
+                updateSettingsAuthStatus();
+            }
+
+            localStorage.setItem('stream_settings_v16', JSON.stringify(settings));
+            closeModal('settingModal');
+            showToast(langMap[currentLang]?.alerts?.settingsSaved || "Saved");
+        }
+        function togglePasswordVisibility() { const tokenInput = document.getElementById('token'); tokenInput.type = tokenInput.type === 'password' ? 'text' : 'password'; }
+
+        async function addFriendCategory(cid) { const n = await customPrompt(langMap[currentLang].alerts.enterName); if (!n) return; if (cid === 'main-container') { config.push({ name: n, records: [], isClosed: false }); render(); saveAllLocal(false); } else { friendsConfig.push({ name: n, friends: [], isClosed: false }); renderFriends(); saveFriendsLocal(false); } }
+
+        function restoreFromFile() {
+            const file = document.getElementById('restore-file-input').files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const d = JSON.parse(e.target.result);
+                    if (d.config && Array.isArray(d.config)) localStorage.setItem('stream_config_v16', JSON.stringify(d.config));
+                    if (d.friends && Array.isArray(d.friends)) localStorage.setItem('stream_friends_v16', JSON.stringify(d.friends));
+                    if (d.memoList && Array.isArray(d.memoList)) localStorage.setItem('stream_memo_v16', JSON.stringify(d.memoList));
+                    else if (d.memo && Array.isArray(d.memo)) localStorage.setItem('stream_memo_v16', JSON.stringify(d.memo));
+                    if (d.settings && typeof d.settings === 'object') localStorage.setItem('stream_settings_v16', JSON.stringify(d.settings));
+                    location.reload();
+                } catch (err) {
+                    showToast(langMap[currentLang]?.alerts?.restoreFail || "復元に失敗しました。ファイル形式をご確認ください。", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+        async function copyBackupToClipboard() { const d = { config, friends: friendsConfig, settings, memoList: memoConfig }; await navigator.clipboard.writeText(JSON.stringify(d, null, 2)); showToast("Copied"); }
+
+        window.onload = () => {
+            config = JSON.parse(localStorage.getItem('stream_config_v16') || '[]');
+            friendsConfig = JSON.parse(localStorage.getItem('stream_friends_v16') || '[]');
+            memoConfig = JSON.parse(localStorage.getItem('stream_memo_v16') || '[]');
+            settings = JSON.parse(localStorage.getItem('stream_settings_v16') || '{}');
+            if (!VALID_DATE_FORMATS.includes(settings.dateFormat)) {
+                settings.dateFormat = 'MM/DD';
+            }
+
+            // ★追加：保存されている設定(IDやToken)を設定画面の入力欄にセットして表示する
+            if (settings) {
+                if (settings.userId) document.getElementById('user_id').value = settings.userId;
+                if (settings.userLogin) document.getElementById('user_login').value = settings.userLogin;
+                if (settings.clientId) document.getElementById('client_id').value = settings.clientId;
+                if (settings.token) document.getElementById('token').value = settings.token;
+                if (settings.dateFormat) document.getElementById('date_format').value = settings.dateFormat;
+            }
+
+            initLanguage();
+            setInterval(() => { document.getElementById('today-date').innerText = new Date().toLocaleString(); }, 1000);
+        };
+    </script>
+</body>
+
+</html>

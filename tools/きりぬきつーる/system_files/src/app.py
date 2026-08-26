@@ -645,6 +645,8 @@ class App(ctk.CTk):
             self.has_pygame_audio = False
         self.loud_zoom_var = ctk.BooleanVar(value=False)
         self.overlay_enabled_var = ctk.BooleanVar(value=False)
+        self.youtube_url_var = tk.StringVar(value=self.config_data.get("last_youtube_url", ""))
+        self.gemini_api_key_var = tk.StringVar(value=self.config_data.get("gemini_api_key", ""))
 
         self.create_widgets()
         self.scan_environment()
@@ -727,16 +729,32 @@ class App(ctk.CTk):
         tf = ctk.CTkFrame(self.content_wizard)
         tf.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         tf.grid_columnconfigure(1, weight=1)
-        ctk.CTkLabel(tf, text="対象動画:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        
+        # 1行目: 対象動画ファイル
+        ctk.CTkLabel(tf, text="対象動画:").grid(row=0, column=0, padx=10, pady=4, sticky="w")
         self.video_entry = ctk.CTkEntry(tf, placeholder_text="動画ファイルを選択してください...")
-        self.video_entry.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
-        ctk.CTkButton(tf, text="参照...", width=80, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.select_video).grid(row=0, column=2, padx=10, pady=5)
-        ctk.CTkButton(tf, text="💾 作業保存", width=85, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.save_project).grid(row=0, column=3, padx=(5, 2), pady=5)
-        ctk.CTkButton(tf, text="📂 作業読込", width=85, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.load_project).grid(row=0, column=4, padx=(2, 5), pady=5)
+        self.video_entry.grid(row=0, column=1, padx=10, pady=4, sticky="ew")
+        ctk.CTkButton(tf, text="参照...", width=80, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.select_video).grid(row=0, column=2, padx=10, pady=4)
+        ctk.CTkButton(tf, text="💾 作業保存", width=85, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.save_project).grid(row=0, column=3, padx=(5, 2), pady=4)
+        ctk.CTkButton(tf, text="📂 作業読込", width=85, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover, command=self.load_project).grid(row=0, column=4, padx=(2, 5), pady=4)
         
         self.grayscale_var = ctk.BooleanVar(value=False)
         self.grayscale_switch = ctk.CTkSwitch(tf, text="グレースケール", variable=self.grayscale_var, command=self.toggle_grayscale)
-        self.grayscale_switch.grid(row=0, column=5, padx=(5, 10), pady=5)
+        self.grayscale_switch.grid(row=0, column=5, padx=(5, 10), pady=4)
+
+        # 2行目: YouTube動画リンク (Gemini自動解析と双方向リアルタイム連動)
+        ctk.CTkLabel(tf, text="YouTube URL:").grid(row=1, column=0, padx=10, pady=4, sticky="w")
+        self.header_yt_entry = ctk.CTkEntry(
+            tf, placeholder_text="https://www.youtube.com/watch?v=... (Gemini自動解析に連動)",
+            textvariable=self.youtube_url_var
+        )
+        self.header_yt_entry.grid(row=1, column=1, padx=10, pady=4, sticky="ew")
+        
+        def open_header_yt():
+            url = self.youtube_url_var.get().strip()
+            if url: webbrowser.open(url)
+        ctk.CTkButton(tf, text="🌐 開く", width=80, fg_color="#cc0000", hover_color="#990000", command=open_header_yt).grid(row=1, column=2, padx=10, pady=4)
+        
         self.tf = tf
 
         self.step_container = ctk.CTkFrame(self.content_wizard, fg_color="transparent")
@@ -756,11 +774,33 @@ class App(ctk.CTk):
         lf.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         lf.grid_columnconfigure(0, weight=1)
         lf.grid_rowconfigure(1, weight=1)
-        ctk.CTkLabel(lf, text="【1. Gemini出力コピペエリア】", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=2, sticky="w")
+        ctk.CTkLabel(lf, text="【1. Gemini出力コピペ / API自動解析エリア】", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=2, sticky="w")
         self.paste_textbox = ctk.CTkTextbox(lf, font=(self.ui_font_family, self.ui_font_size))
         self.paste_textbox.grid(row=1, column=0, padx=10, pady=2, sticky="nsew")
-        self.apply_inst_btn = ctk.CTkButton(lf, text="コピペから候補を読み込む", command=self.apply_paste_instructions, fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover)
-        self.apply_inst_btn.grid(row=2, column=0, padx=10, pady=6, sticky="ew")
+        
+        btn_frame = ctk.CTkFrame(lf, fg_color="transparent")
+        btn_frame.grid(row=2, column=0, padx=10, pady=6, sticky="ew")
+        btn_frame.grid_columnconfigure(0, weight=1)
+        btn_frame.grid_columnconfigure(1, weight=1)
+
+        self.step1_gemini_api_btn = ctk.CTkButton(
+            btn_frame,
+            text="✨ Gemini APIで自動解析",
+            command=self.start_gemini_api_analysis,
+            fg_color="#8a2be2",
+            hover_color="#7b1fa2",
+            font=ctk.CTkFont(weight="bold")
+        )
+        self.step1_gemini_api_btn.grid(row=0, column=0, padx=(0, 5), sticky="ew")
+
+        self.apply_inst_btn = ctk.CTkButton(
+            btn_frame,
+            text="📋 コピペから読み込む",
+            command=self.apply_paste_instructions,
+            fg_color=self.theme_primary_color,
+            hover_color=self.theme_primary_hover
+        )
+        self.apply_inst_btn.grid(row=0, column=1, padx=(5, 0), sticky="ew")
 
         cf = ctk.CTkFrame(self.step1_frame)
         cf.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
@@ -1406,10 +1446,43 @@ class App(ctk.CTk):
         self.buffer_slider.set(self.config_data.get("buffer_seconds", 0))
         self.buffer_slider.pack(side="left", padx=5, fill="x", expand=True)
 
+        # Gemini API Key setting
+        api_box = ctk.CTkFrame(frame)
+        api_box.pack(fill="x", padx=10, pady=15)
+        
+        ctk.CTkLabel(api_box, text="🔑 Google Gemini API Key 設定 (ツール内でのワンクリック自動解析用):", font=ctk.CTkFont(weight="bold", size=12)).pack(anchor="w", padx=10, pady=(10, 4))
+        
+        api_input_row = ctk.CTkFrame(api_box, fg_color="transparent")
+        api_input_row.pack(fill="x", padx=10, pady=4)
+        
+        self.gemini_api_key_entry = ctk.CTkEntry(
+            api_input_row,
+            placeholder_text="AIzaSy... (ここに入力して保存すると、Step 1でワンクリック自動解析が使えます)",
+            show="•",
+            font=("Consolas", 12),
+            textvariable=self.gemini_api_key_var
+        )
+        self.gemini_api_key_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
+        
+        self.show_api_key_var = ctk.BooleanVar(value=False)
+        def toggle_show_key():
+            self.gemini_api_key_entry.configure(show="" if self.show_api_key_var.get() else "•")
+        ctk.CTkCheckBox(api_input_row, text="表示", variable=self.show_api_key_var, command=toggle_show_key, width=50).pack(side="right")
+        
+        note_row = ctk.CTkFrame(api_box, fg_color="transparent")
+        note_row.pack(fill="x", padx=10, pady=(2, 10))
+        ctk.CTkLabel(note_row, text="※ APIキーはPC内（system_files/config.json）にのみ安全に保存されます（外部送信ゼロ）。", font=ctk.CTkFont(size=11), text_color="gray60").pack(side="left")
+        ctk.CTkButton(
+            note_row, text="🌐 APIキーを取得 (Google AI Studio)",
+            font=ctk.CTkFont(size=11), fg_color="transparent", text_color="#38bdf8", hover_color="#1e293b",
+            command=lambda: webbrowser.open("https://aistudio.google.com/app/apikey")
+        ).pack(side="right")
+
         # Save Button
         save_btn = ctk.CTkButton(
             frame, text="💾 設定を保存して適用",
-            font=ctk.CTkFont(weight="bold"),
+            font=ctk.CTkFont(weight="bold", size=13),
+            height=36,
             fg_color=self.theme_primary_color, hover_color=self.theme_primary_hover,
             command=self.save_global_ui_settings
         )
@@ -1419,8 +1492,10 @@ class App(ctk.CTk):
         self.config_data["ui_font_family"] = self.ui_font_menu.get()
         self.config_data["ui_font_size"] = int(self.ui_font_size_menu.get())
         self.config_data["buffer_seconds"] = int(self.buffer_slider.get())
+        if hasattr(self, "gemini_api_key_entry"):
+            self.config_data["gemini_api_key"] = self.gemini_api_key_entry.get().strip()
         self.config_manager.save_config(self.config_data)
-        messagebox.showinfo("保存完了", "全体・表示設定を保存しました。\nフォント設定はアプリの再起動後に適用されます。")
+        messagebox.showinfo("保存完了", "全体設定 ＆ Gemini APIキーを保存しました。\n※フォント設定はアプリの再起動後に適用されます。")
 
     def setup_prompt_tab(self):
         self.tab_prompt.grid_rowconfigure(0, weight=1)
@@ -1464,8 +1539,7 @@ class App(ctk.CTk):
         yf.grid_columnconfigure(1, weight=1)
         
         ctk.CTkLabel(yf, text="🎥 対象のYouTube動画リンク: ", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=8, sticky="w")
-        self.youtube_entry = ctk.CTkEntry(yf, placeholder_text="https://www.youtube.com/watch?v=...")
-        self.youtube_entry.insert(0, self.config_data.get("last_youtube_url", ""))
+        self.youtube_entry = ctk.CTkEntry(yf, placeholder_text="https://www.youtube.com/watch?v=...", textvariable=self.youtube_url_var)
         self.youtube_entry.grid(row=0, column=1, padx=10, pady=8, sticky="ew")
         
         count_frame = ctk.CTkFrame(yf, fg_color="transparent")
@@ -1485,12 +1559,13 @@ class App(ctk.CTk):
         self.prompt_textbox = ctk.CTkTextbox(pmf, font=(self.ui_font_family, self.ui_font_size))
         self.prompt_textbox.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
-        # 5行目: コピーボタン等
+        # 5行目: テンプレート保存 ＆ コピーボタン
         pbf = ctk.CTkFrame(left_frame)
         pbf.grid(row=4, column=0, padx=5, pady=10, sticky="ew")
-        ctk.CTkButton(pbf, text="現在のテンプレートに上書き保存", width=200, command=self.save_current_template).pack(side="left", padx=10, pady=10)
-        ctk.CTkButton(pbf, text="📋 プロンプトをコピー", font=ctk.CTkFont(size=14, weight="bold"), height=38,
-                      fg_color="forestgreen", hover_color="darkgreen", command=self.copy_prompt).pack(side="right", padx=10, pady=10)
+        ctk.CTkButton(pbf, text="現在のテンプレートに上書き保存", width=180, command=self.save_current_template).pack(side="left", padx=(10, 5), pady=10)
+        
+        ctk.CTkButton(pbf, text="📋 プロンプトをコピー", font=ctk.CTkFont(size=13, weight="bold"), height=38,
+                      fg_color="forestgreen", hover_color="darkgreen", command=self.copy_prompt).pack(side="right", padx=(5, 10), pady=10)
 
         # 右カラム: パーソナルデータ ＆ 動画情報設定 (スクロール可能)
         right_frame = ctk.CTkFrame(self.tab_prompt, fg_color="transparent")
@@ -1725,12 +1800,53 @@ class App(ctk.CTk):
         
         ctk.CTkLabel(timing_frame, text="※マイナス（例: -0.2）にすると、字幕の表示タイミングがその秒数だけ早まります。", font=ctk.CTkFont(size=11), text_color="gray60").pack(side="left", padx=10)
 
-        ctk.CTkButton(dict_frame, text="💾 辞書・単語登録・タイミング設定を保存", font=ctk.CTkFont(size=13, weight="bold"), fg_color="chocolate", hover_color="sienna",
-                      command=self.save_dictionary_settings).grid(row=7, column=0, padx=15, pady=15, sticky="ew")
+        # ④ AI自己学習データ管理 (ローカル適応)
+        ctk.CTkLabel(dict_frame, text="④ 🧠 AI自己学習データ管理 (ユーザー編集から完全ローカル自己学習):", font=ctk.CTkFont(weight="bold")).grid(row=7, column=0, padx=15, pady=(10, 2), sticky="w")
+        
+        learned_info_frame = ctk.CTkFrame(dict_frame, fg_color="transparent")
+        learned_info_frame.grid(row=8, column=0, padx=15, pady=5, sticky="ew")
+        
+        l_data = self.config_manager.learned_data
+        v_count = len(l_data.get("vocabulary", {}))
+        c_count = len(l_data.get("corrections", {}))
+        e_count = l_data.get("stats", {}).get("total_learned_edits", 0)
+        
+        self.learned_stats_label = ctk.CTkLabel(
+            learned_info_frame,
+            text=f"📊 学習済み頻出語: {v_count}語 | 自動誤字修正パターン: {c_count}件 | 累計学習差分: {e_count}回 (※外部通信なし・PC内完結)",
+            font=ctk.CTkFont(size=11), text_color="#2ed573"
+        )
+        self.learned_stats_label.pack(side="left", padx=(0, 15))
+        
+        ctk.CTkButton(
+            learned_info_frame, text="🔄 学習データをリセット", width=140, height=26,
+            fg_color="#e74c3c", hover_color="#c0392b", font=ctk.CTkFont(size=11, weight="bold"),
+            command=self.reset_learned_data_ui
+        ).pack(side="right")
+
+        ctk.CTkButton(dict_frame, text="💾 設定を保存 (辞書・単語・タイミング)", font=ctk.CTkFont(size=13, weight="bold"), fg_color="chocolate", hover_color="sienna",
+                      command=self.save_dictionary_settings).grid(row=9, column=0, padx=15, pady=15, sticky="ew")
+
+    def reset_learned_data_ui(self):
+        if messagebox.askyesno("確認", "これまでにユーザーの編集から自己学習された単語・誤字修正データをリセットしますか？\n（手動で登録した辞書や単語は保持されます）"):
+            self.config_manager.reset_learned_data()
+            self.update_learned_stats_label()
+            messagebox.showinfo("完了", "自己学習データを初期状態にリセットしました。")
+
+    def update_learned_stats_label(self):
+        if hasattr(self, "learned_stats_label"):
+            l_data = self.config_manager.learned_data
+            v_count = len(l_data.get("vocabulary", {}))
+            c_count = len(l_data.get("corrections", {}))
+            e_count = l_data.get("stats", {}).get("total_learned_edits", 0)
+            self.learned_stats_label.configure(
+                text=f"📊 学習済み頻出語: {v_count}語 | 自動誤字修正パターン: {c_count}件 | 累計学習差分: {e_count}回 (※外部通信なし・PC内完結)"
+            )
 
     def save_dictionary_settings(self):
         words = self.reg_words_textbox.get("1.0", "end-1c").strip()
         dict_text = self.replace_dict_textbox.get("1.0", "end-1c").strip()
+        api_key = self.gemini_api_key_entry.get().strip() if hasattr(self, "gemini_api_key_entry") else ""
         
         rep_dict = {}
         for line in dict_text.split("\n"):
@@ -1759,8 +1875,10 @@ class App(ctk.CTk):
         self.config_data["replace_dict"] = rep_dict
         self.config_data["whisper_start_offset"] = start_offset
         self.config_data["whisper_end_offset"] = end_offset
+        self.config_data["gemini_api_key"] = api_key
         self.config_manager.save_config(self.config_data)
-        messagebox.showinfo("保存完了", "辞書・単語・タイミング設定を保存しました。")
+        self.update_learned_stats_label()
+        messagebox.showinfo("保存完了", "辞書・単語・タイミング・API設定を保存しました。")
 
     def scan_environment(self):
         video_dir = "動画"
@@ -1878,6 +1996,86 @@ class App(ctk.CTk):
         results = []
         if not content: return results
         
+        # -------------------------------------------------------------
+        # 第1層: 構造化JSON形式 (```json ... ``` または 生JSON) の高精度パース
+        # -------------------------------------------------------------
+        json_candidates = []
+        json_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", content, re.IGNORECASE)
+        if json_match:
+            json_candidates.append(json_match.group(1).strip())
+        json_candidates.append(content.strip())
+        
+        for candidate in json_candidates:
+            candidate_results = []
+            try:
+                data = json.loads(candidate)
+                if isinstance(data, dict):
+                    for key in ["clips", "candidates", "results", "data", "items"]:
+                        if key in data and isinstance(data[key], list):
+                            data = data[key]
+                            break
+                    if isinstance(data, dict):
+                        data = [data]
+                if isinstance(data, list):
+                    for item in data:
+                        if not isinstance(item, dict): continue
+                        raw_start = item.get("start") or item.get("start_time")
+                        raw_end = item.get("end") or item.get("end_time")
+                        if raw_start is None or raw_end is None: continue
+                        
+                        s_sec = time_to_seconds(str(raw_start))
+                        e_sec = time_to_seconds(str(raw_end))
+                        if s_sec >= e_sec: continue
+                        
+                        raw_t = item.get("title") or item.get("name") or f"切り抜き_{len(candidate_results)+1}"
+                        clean_t = clean_filename(re.sub(r"\*\*|\[|\]|「|」|\"|'", "", str(raw_t)))
+                        intro_telop = str(item.get("intro_telop") or item.get("hook") or "")
+                        score_val = item.get("score_total") if item.get("score_total") is not None else item.get("score", 90)
+                        score_breakdown = item.get("score_breakdown", {})
+                        thumbnail_frame = str(item.get("thumbnail_frame") or "")
+                        context_check = str(item.get("context_check") or "")
+                        follow_hook = str(item.get("follow_hook") or "")
+                        loop_reason = str(item.get("loop_reason") or "")
+                        
+                        subtitles = []
+                        if intro_telop:
+                            subtitles.append({"start": 0.0, "end": 3.0, "text": intro_telop})
+                            
+                        candidate_results.append({
+                            "start": s_sec,
+                            "end": e_sec,
+                            "title": clean_t,
+                            "subtitles": subtitles,
+                            "fontsize": "36",
+                            "color": "#FFFF00",
+                            "intro_telop": intro_telop,
+                            "margin_v": 500,
+                            "bold": False,
+                            "italic": False,
+                            "outline_width": "2",
+                            "shadow_depth": "0",
+                            "outline_color": "#000000",
+                            "alignment": "中央寄せ",
+                            "shadow_alpha": 1.0,
+                            "score": score_val,
+                            "score_breakdown": score_breakdown,
+                            "thumbnail_frame": thumbnail_frame,
+                            "context_check": context_check,
+                            "follow_hook": follow_hook,
+                            "loop_reason": loop_reason
+                        })
+                    if candidate_results:
+                        try:
+                            print(f"[JSON Parser] Successfully loaded {len(candidate_results)} clips with score breakdown.")
+                        except Exception:
+                            pass
+                        return candidate_results
+            except Exception:
+                pass
+
+        # -------------------------------------------------------------
+        # 第2層: マークダウン・見出しテキストの正規表現フォールバックパース
+        # -------------------------------------------------------------
         blocks = re.split(r"\n\s*(?=(?:\d+[\.\)]|■|◆|●|★|【|###|---|\b候補|\b切り抜き|\bClip))", content)
         valid_blocks = [b.strip() for b in blocks if b.strip()]
         
@@ -2071,9 +2269,10 @@ class App(ctk.CTk):
             cb.pack(side="left", padx=(5, 2))
             self.check_widgets.append(cb)
             
+            score_txt = f"[{job['score']}点] " if job.get("score") else ""
             btn = ctk.CTkButton(
                 jf,
-                text=f"No.{i + 1} [{seconds_to_hms(job['start'])}～] {job['title']}",
+                text=f"No.{i + 1} {score_txt}({seconds_to_hms(job['start'])}～) {job['title']}",
                 anchor="w", 
                 fg_color="transparent", 
                 text_color="white", 
@@ -2130,14 +2329,16 @@ class App(ctk.CTk):
                 self.bulk_whisper_info["error"] = f"openai-whisper が利用できません。\n\n【詳細なエラー理由】:\n{audio_mod.WHISPER_LOAD_ERROR}"
                 return
             
-            self.bulk_whisper_info["status"] = "AIモデル(Whisper)をロード中..."
+            device, dev_status = audio_mod.get_optimal_device()
+            self.bulk_whisper_info["status"] = f"AIモデル(Whisper)をロード中... ({dev_status})"
             self.bulk_whisper_info["current"] = 1
+            print(f"🧠 Whisper Device: {dev_status}")
             
-            model = audio_mod.whisper.load_model("small")
+            model = audio_mod.whisper.load_model("small", device=device)
             total = len(selected_indices)
             
-            reg_words = self.config_data.get("registered_words", "初狐羽鹿, Vtuber, 逆転裁判, 切り抜き")
-            rep_dict = self.config_data.get("replace_dict", {})
+            reg_words = self.config_manager.get_effective_registered_words()
+            rep_dict = self.config_manager.get_effective_replace_dict()
             
             for seq_idx, idx in enumerate(selected_indices):
                 if self.bulk_whisper_info.get("cancel", False):
@@ -2147,7 +2348,7 @@ class App(ctk.CTk):
                 temp_audio = os.path.join("temp", f"temp_segment_audio_{idx}.wav")
                 
                 self.bulk_whisper_info["current"] = seq_idx + 2
-                self.bulk_whisper_info["status"] = f"選択 {seq_idx + 1} / {total} 件目の音声解析中...\n「{job['title']}」"
+                self.bulk_whisper_info["status"] = f"選択 {seq_idx + 1} / {total} 件目の音声解析中... [{dev_status}]\n「{job['title']}」"
                 
                 start_time = job["start"]
                 end_time = job["end"]
@@ -2157,6 +2358,7 @@ class App(ctk.CTk):
                     if start_time >= duration:
                         print(f"⚠️ スキップ: 開始時間 {seconds_to_hms(start_time)} が動画の長さ {seconds_to_hms(duration)} を超えています。")
                         job["subtitles"] = []
+                        job["raw_subtitles"] = []
                         continue
                     
                     safe_end_time = min(duration, end_time)
@@ -2171,7 +2373,7 @@ class App(ctk.CTk):
                 except ValueError: e_off = -0.2
                 subtitles = audio_mod.transcribe_audio_segment(
                     model, temp_audio, initial_prompt=reg_words, replace_dict=rep_dict,
-                    start_offset=s_off, end_offset=e_off
+                    start_offset=s_off, end_offset=e_off, device=device
                 )
                 
                 if job.get("intro_telop"):
@@ -2183,6 +2385,7 @@ class App(ctk.CTk):
                         "text": job["intro_telop"]
                     })
                 
+                job["raw_subtitles"] = [dict(s) for s in subtitles]
                 job["subtitles"] = subtitles
                 
                 for _ in range(10):
@@ -2215,8 +2418,8 @@ class App(ctk.CTk):
             model = audio_mod.whisper.load_model("small")
             total = len(jobs)
             
-            reg_words = self.config_data.get("registered_words", "初狐羽鹿, Vtuber, 逆転裁判, 切り抜き")
-            rep_dict = self.config_data.get("replace_dict", {})
+            reg_words = self.config_manager.get_effective_registered_words()
+            rep_dict = self.config_manager.get_effective_replace_dict()
             
             for idx, job in enumerate(jobs):
                 if self.bulk_whisper_info.get("cancel", False):
@@ -2235,6 +2438,7 @@ class App(ctk.CTk):
                     if start_time >= duration:
                         print(f"⚠️ スキップ: 開始時間 {seconds_to_hms(start_time)} が動画の長さ {seconds_to_hms(duration)} を超えています。")
                         job["subtitles"] = []
+                        job["raw_subtitles"] = []
                         continue
                     
                     safe_end_time = min(duration, end_time)
@@ -2261,6 +2465,7 @@ class App(ctk.CTk):
                         "text": job["intro_telop"]
                     })
                 
+                job["raw_subtitles"] = [dict(s) for s in subtitles]
                 job["subtitles"] = subtitles
                 
                 for _ in range(10):
@@ -2932,11 +3137,12 @@ class App(ctk.CTk):
 
             audio_mod.patch_whisper_assets()
 
-            print("🧠 Whisperモデルをロード中...")
-            model = audio_mod.whisper.load_model("small")
+            device, dev_status = audio_mod.get_optimal_device()
+            print(f"🧠 Whisperモデルをロード中... [{dev_status}]")
+            model = audio_mod.whisper.load_model("small", device=device)
 
-            reg_words = self.config_data.get("registered_words", "初狐羽鹿, Vtuber, 逆転裁判, 切り抜き")
-            rep_dict = self.config_data.get("replace_dict", {})
+            reg_words = self.config_manager.get_effective_registered_words()
+            rep_dict = self.config_manager.get_effective_replace_dict()
 
             try: s_off = float(self.config_data.get("whisper_start_offset", -0.2))
             except ValueError: s_off = -0.2
@@ -2944,7 +3150,7 @@ class App(ctk.CTk):
             except ValueError: e_off = -0.2
             segs = audio_mod.transcribe_audio_segment(
                 model, temp_audio, initial_prompt=reg_words, replace_dict=rep_dict,
-                start_offset=s_off, end_offset=e_off
+                start_offset=s_off, end_offset=e_off, device=device
             )
             
             for _ in range(10):
@@ -2981,6 +3187,7 @@ class App(ctk.CTk):
                     "text": job["intro_telop"]
                 })
                 
+            job["raw_subtitles"] = [dict(s) for s in segments]
             job["subtitles"] = segments
             self.render_subtitle_editor_from_active_job()
             self.refresh_job_select_menu()
@@ -3323,6 +3530,15 @@ class App(ctk.CTk):
         if self.active_job_index == -1: messagebox.showwarning("警告", "項目を選択してください。"); return
         self.save_current_editor_to_active_job()
         job = self.jobs[self.active_job_index]
+        
+        # ユーザー編集差分の自己学習を実行（ローカル適応）
+        raw_subs = job.get("raw_subtitles", [])
+        if raw_subs and "subtitles" in job:
+            learned_edits = self.config_manager.learn_subtitle_diff(raw_subs, job["subtitles"])
+            if learned_edits > 0:
+                print(f"🧠 字幕編集から {learned_edits} 件のパターンをローカル自己学習しました")
+                self.update_learned_stats_label()
+                
         vp = self.video_entry.get().strip()
         if not vp or not os.path.exists(vp): messagebox.showerror("エラー", "動画パスが不正です。"); return
         
@@ -3535,13 +3751,13 @@ class App(ctk.CTk):
         self.tpl_menu.configure(values=list(self.config_data["templates"].keys())); self.tpl_menu.set(nk)
         self.load_prompt_template()
 
-    def copy_prompt(self):
+    def build_full_prompt(self):
         cs = self.count_entry.get().strip()
         if not cs.isdigit() or int(cs) <= 0:
-            messagebox.showwarning("警告", "正の整数を入力してください。")
-            return
+            messagebox.showwarning("警告", "目標個数には正の整数を入力してください。")
+            return None
         cv = int(cs)
-        url = self.youtube_entry.get().strip()
+        url = self.youtube_url_var.get().strip()
         
         name_val = getattr(self, "profile_name_entry", None) and self.profile_name_entry.get().strip() or ""
         char_val = getattr(self, "profile_char_entry", None) and self.profile_char_entry.get().strip() or ""
@@ -3557,7 +3773,7 @@ class App(ctk.CTk):
         if missing_required:
             err_msg = "高精度なプロンプトを作成するため、以下の【必須項目】を入力してください:\n\n" + "\n".join(missing_required)
             messagebox.showwarning("必須項目の未入力", err_msg)
-            return
+            return None
 
         tone_val = getattr(self, "profile_tone_entry", None) and self.profile_tone_entry.get().strip() or ""
         phrases_val = getattr(self, "profile_phrases_entry", None) and self.profile_phrases_entry.get().strip() or ""
@@ -3622,10 +3838,102 @@ class App(ctk.CTk):
         if video_info and "{video_info}" not in self.prompt_textbox.get("1.0", "end-1c"):
             p += f"\n\n# 今回の動画情報:\n{video_info}"
             
-        self.clipboard_clear()
-        self.clipboard_append(p)
-        self.update()
-        messagebox.showinfo("コピー完了", f"プロンプトをコピーしました！(候補数:{cv}個)")
+        return p
+
+    def copy_prompt(self):
+        p = self.build_full_prompt()
+        if p:
+            self.clipboard_clear()
+            self.clipboard_append(p)
+            self.update()
+            cs = self.count_entry.get().strip()
+            messagebox.showinfo("コピー完了", f"プロンプトをコピーしました！(候補数:{cs}個)\n\nブラウザのGeminiに貼り付けて解析を実行し、結果をタブ1のコピペ欄に貼り付けてください。")
+
+    def start_gemini_api_analysis(self):
+        api_key = ""
+        if hasattr(self, "gemini_api_key_var"):
+            api_key = self.gemini_api_key_var.get().strip()
+        if not api_key:
+            api_key = self.config_data.get("gemini_api_key", "").strip()
+
+        if not api_key:
+            messagebox.showinfo(
+                "Gemini APIキーが必要です",
+                "ツール内で自動解析を実行するには、Google Gemini APIキーが必要です。\n\n「全体設定」タブの「🔑 Google Gemini API Key 設定」に入力・保存してください。\n（※APIキーをお持ちでない場合は「📋 プロンプトをコピー」ボタンで無料のブラウザ版Geminiをご利用いただけます）"
+            )
+            return
+
+        self.config_data["gemini_api_key"] = api_key
+        self.config_manager.save_config(self.config_data)
+
+        p = self.build_full_prompt()
+        if not p:
+            return
+
+        if hasattr(self, "gemini_api_btn"):
+            self.gemini_api_btn.configure(state="disabled", text="⏳ Gemini API解析中...")
+        if hasattr(self, "step1_gemini_api_btn"):
+            self.step1_gemini_api_btn.configure(state="disabled", text="⏳ Gemini API解析中...")
+        threading.Thread(target=self.run_gemini_api_thread, args=(p, api_key), daemon=True).start()
+
+    def run_gemini_api_thread(self, prompt_text, api_key):
+        import urllib.request
+        import urllib.parse
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+            payload = {
+                "contents": [
+                    {
+                        "parts": [
+                            {"text": prompt_text}
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": 0.3,
+                    "topP": 0.95
+                }
+            }
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=req_data,
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=90) as response:
+                resp_json = json.loads(response.read().decode("utf-8"))
+                
+            candidates = resp_json.get("candidates", [])
+            if not candidates:
+                raise ValueError("Gemini APIから応答が得られませんでした。")
+                
+            out_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+            if not out_text:
+                raise ValueError("Gemini APIの出力テキストが空でした。")
+                
+            def on_success():
+                if hasattr(self, "gemini_api_btn"):
+                    self.gemini_api_btn.configure(state="normal", text="✨ Gemini APIで自動解析実行")
+                if hasattr(self, "step1_gemini_api_btn"):
+                    self.step1_gemini_api_btn.configure(state="normal", text="✨ Gemini APIで自動解析")
+                self.paste_textbox.delete("1.0", "end")
+                self.paste_textbox.insert("1.0", out_text)
+                self.tabview.set("切り抜き＆字幕編集（一括）")
+                self.switch_wizard_step("step1")
+                self.apply_paste_instructions()
+                
+            self.after(0, on_success)
+            
+        except Exception as e:
+            err_str = str(e)
+            print(f"❌ Gemini API Error: {traceback.format_exc()}")
+            def on_fail():
+                if hasattr(self, "gemini_api_btn"):
+                    self.gemini_api_btn.configure(state="normal", text="✨ Gemini APIで自動解析実行")
+                if hasattr(self, "step1_gemini_api_btn"):
+                    self.step1_gemini_api_btn.configure(state="normal", text="✨ Gemini APIで自動解析")
+                messagebox.showerror("Gemini APIエラー", f"API通信中にエラーが発生しました:\n\n{err_str}\n\n※APIキーが有効か、インターネット接続をご確認ください。")
+            self.after(0, on_fail)
     def on_close(self):
         try:
             import winsound

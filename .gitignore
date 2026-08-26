@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Local reference & design materials (Do not commit to git)
+Reference/
+
+# OS and temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Other standalone workspaces
+tools/裏ガチャシステム/
+
