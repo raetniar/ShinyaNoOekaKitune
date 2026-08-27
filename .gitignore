@@ -9,6 +9,9 @@ Reference/
 Thumbs.db
 *.tmp
 
-# Other standalone workspaces
+# Other standalone workspaces / excluded tools
 tools/裏ガチャシステム/
+tools/スマホ用multiStreamViewer/
+tools/*multiStream*
+tools/*MultiStream*
 
