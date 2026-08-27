@@ -11,8 +11,9 @@
     <header class="header">
       <div class="brand">
         <div class="brand-icon">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
         </div>
         <div>
@@ -27,14 +28,7 @@
       <section class="card">
         <h2>🔔 通知・監視設定</h2>
         
-        <div class="form-group">
-          <label for="openMode">配信を開く形式</label>
-          <select id="openMode" class="form-select">
-            <option value="player">プレイヤー形式（player.twitch.tv - 軽量・広告枠なし推奨）</option>
-            <option value="normal">通常Twitchページ（twitch.tv/チャンネル名 - チャットあり）</option>
-          </select>
-          <p class="field-hint">通知クリック時やカードクリック時に開くURLの形式です。</p>
-        </div>
+
 
         <div class="form-group">
           <label for="checkInterval">チェック間隔</label>
@@ -56,41 +50,7 @@
         </div>
       </section>
 
-      <!-- Twitch API Settings (Optional) -->
-      <section class="card">
-        <h2>🔑 Twitch API 設定（任意・推奨）</h2>
-        <p class="card-desc">
-          ※ 未設定でも公開API（クイックモード）で自動動作しますが、Twitch Developer APIキーを設定するとより高速・安定して配信情報を取得できます。
-        </p>
 
-        <div class="form-group">
-          <label for="clientId">Client ID</label>
-          <input type="text" id="clientId" class="form-input" placeholder="例: gp762nuuoqcoxypju8c569th9wz7q5">
-        </div>
-
-        <div class="form-group">
-          <label for="clientSecret">Client Secret</label>
-          <input type="password" id="clientSecret" class="form-input" placeholder="例: ********************************">
-        </div>
-
-        <div class="api-help-box">
-          <details>
-            <summary>APIキーの取得手順（無料・2分）</summary>
-            <ol>
-              <li><a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener">Twitch Developer Console</a> にTwitchアカウントでログイン。</li>
-              <li>「アプリケーションを登録」をクリック。</li>
-              <li>名前: <code>TWlist-MyNotif</code>（自由） / OAuthリダイレクトURL: <code>http://localhost</code> / カテゴリ: <code>Application Integration</code> を選択して「作成」。</li>
-              <li>一覧から作成したアプリの「管理」を開き、「クライアントID」をコピーして上記に貼り付け。</li>
-              <li>「新しいシークレット」を押して生成されたシークレットをコピーして上記に貼り付け。</li>
-            </ol>
-          </details>
-        </div>
-
-        <div class="btn-row">
-          <button type="button" id="testApiBtn" class="btn btn-secondary">API接続テスト</button>
-          <span id="apiTestResult" class="test-result"></span>
-        </div>
-      </section>
 
       <!-- Backup / Restore -->
       <section class="card">

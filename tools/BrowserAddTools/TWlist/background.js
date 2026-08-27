@@ -14,8 +14,6 @@ chrome.runtime.onInstalled.addListener(async () => {
   
   const data = await chrome.storage.local.get(['channels', 'settings']);
   const settings = data.settings || {
-    clientId: '',
-    clientSecret: '',
     checkIntervalMinutes: 1,
     notifyOnLive: true,
     openMode: 'player' // 'player' | 'normal'
@@ -63,7 +61,7 @@ async function checkStreams() {
       return [];
     }
 
-    const updatedChannels = await fetchStreamStatuses(channels, settings);
+    const updatedChannels = await fetchStreamStatuses(channels);
 
     let liveCount = 0;
     const shouldNotify = settings.notifyOnLive !== false;
@@ -100,9 +98,9 @@ async function checkStreams() {
   }
 }
 
-function sendStreamNotification(channel, openMode = 'player') {
+function sendStreamNotification(channel) {
   const notifId = `${NOTIFICATION_PREFIX}${channel.login}_${Date.now()}`;
-  const streamUrl = buildStreamUrl(channel.login, openMode);
+  const streamUrl = buildStreamUrl(channel.login);
 
   notificationUrls.set(notifId, streamUrl);
 
@@ -117,7 +115,7 @@ function sendStreamNotification(channel, openMode = 'player') {
     iconUrl: 'icons/icon128.png',
     title: titleText,
     message: messageText,
-    contextMessage: openMode === 'player' ? 'クリックでプレイヤーを開く' : 'クリックで配信を開く',
+    contextMessage: 'クリックでチャンネルを開く',
     priority: 2,
     requireInteraction: false
   });
@@ -133,9 +131,7 @@ chrome.notifications.onClicked.addListener(async (notifId) => {
     const parts = notifId.replace(NOTIFICATION_PREFIX, '').split('_');
     const login = parts[0];
     if (login) {
-      const data = await chrome.storage.local.get(['settings']);
-      const openMode = data.settings?.openMode || 'player';
-      chrome.tabs.create({ url: buildStreamUrl(login, openMode) });
+      chrome.tabs.create({ url: buildStreamUrl(login) });
       chrome.notifications.clear(notifId);
     }
   }
@@ -144,7 +140,7 @@ chrome.notifications.onClicked.addListener(async (notifId) => {
 function updateBadge(liveCount) {
   if (liveCount > 0) {
     chrome.action.setBadgeText({ text: String(liveCount) });
-    chrome.action.setBadgeBackgroundColor({ color: '#9146FF' });
+    chrome.action.setBadgeBackgroundColor({ color: '#7766c3' });
   } else {
     chrome.action.setBadgeText({ text: '' });
   }

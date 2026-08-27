@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー - TW-Alert</title>
+  <style>
+    :root {
+      --bg-color: #0e0e12;
+      --card-bg: #18181b;
+      --text-main: #f0f0f5;
+      --text-sub: #a0a0b0;
+      --accent: #7766c3;
+      --border: #2d2d38;
+    }
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    h1 {
+      font-size: 26px;
+      color: #fff;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 12px;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 19px;
+      color: #fff;
+      margin-top: 32px;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
+    p, li {
+      color: var(--text-sub);
+      font-size: 15px;
+    }
+    strong {
+      color: var(--text-main);
+    }
+    ul {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .date {
+      color: var(--text-sub);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    hr {
+      border: 0;
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>プライバシーポリシー</h1>
+    <div class="date">最終更新日: 2026年8月27日</div>
+
+    <p>「<strong>TW-Alert - 配信開始通知＆リスト</strong>」（以下、「本拡張機能」）は、利用者のプライバシーを尊重し、個人情報の保護に努めています。本プライバシーポリシーでは、本拡張機能における情報の取り扱いについて説明します。</p>
+
+    <h2>1. 収集・利用する情報について</h2>
+    <p>本拡張機能は、ユーザーの<strong>個人情報（氏名、住所、メールアドレス、パスワード、クレジットカード情報など）や閲覧履歴を収集・送信することは一切ありません</strong>。</p>
+    <p>本拡張機能で利用・保存されるデータは以下の通りであり、すべて<strong>ユーザーのブラウザ内（chrome.storage.local）にのみローカル保存</strong>されます：</p>
+    <ul>
+      <li><strong>登録したTwitchチャンネル名（ユーザー名）</strong>: 配信ステータスを監視するために利用します。</li>
+      <li><strong>設定値（チェック間隔、通知のON/OFFなど）</strong>: 拡張機能の動作設定を保持するために利用します。</li>
+    </ul>
+
+    <h2>2. 外部へのデータ送信について</h2>
+    <p>本拡張機能は、登録された配信者のLIVEステータスおよび公開配信情報を取得する目的でのみ、公開エンドポイント（https://gql.twitch.tv/*）と直接通信を行います。</p>
+    <p>開発者を含む第三者のサーバーへユーザーデータを送信・収集・蓄積することは一切ありません。</p>
+
+    <h2>3. 権限の使用目的</h2>
+    <ul>
+      <li><strong>notifications (デスクトップ通知)</strong>: 登録したチャンネルがLIVE配信を開始した際にデスクトップ通知を表示するために使用します。</li>
+      <li><strong>alarms (アラーム)</strong>: バックグラウンドで定期的に配信状態をチェックするタイマーを設定するために使用します。</li>
+      <li><strong>host_permissions (https://gql.twitch.tv/*)</strong>: 登録された配信者のLIVEステータスを取得するために使用します。</li>
+    </ul>
+
+    <h2>4. 免責事項</h2>
+    <p>本拡張機能は個人によって開発された非公式ツールであり、Twitch Interactive, Inc. またはその関連会社とは一切関係ありません。</p>
+
+    <h2>5. お問い合わせ</h2>
+    <p>本プライバシーポリシーまたは本拡張機能に関するお問い合わせは、開発者までご連絡ください。</p>
+  </div>
+</body>
+</html>

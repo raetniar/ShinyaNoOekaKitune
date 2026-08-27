@@ -2,10 +2,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const checkInterval = document.getElementById('checkInterval');
   const notifyOnLive = document.getElementById('notifyOnLive');
   const openMode = document.getElementById('openMode');
-  const clientIdInput = document.getElementById('clientId');
-  const clientSecretInput = document.getElementById('clientSecret');
-  const testApiBtn = document.getElementById('testApiBtn');
-  const apiTestResult = document.getElementById('apiTestResult');
   const exportBtn = document.getElementById('exportBtn');
   const importFileInput = document.getElementById('importFileInput');
   const bulkInput = document.getElementById('bulkInput');
@@ -14,22 +10,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const saveBtn = document.getElementById('saveBtn');
   const saveStatus = document.getElementById('saveStatus');
 
-  const data = await chrome.storage.local.get(['settings', 'channels']);
+  const data = await chrome.storage.local.get(['settings']);
   const settings = data.settings || {};
 
   checkInterval.value = String(settings.checkIntervalMinutes || 1);
   notifyOnLive.checked = settings.notifyOnLive !== false;
-  openMode.value = settings.openMode || 'player';
-  clientIdInput.value = settings.clientId || '';
-  clientSecretInput.value = settings.clientSecret || '';
 
   saveBtn.addEventListener('click', async () => {
     const newSettings = {
       checkIntervalMinutes: parseInt(checkInterval.value, 10) || 1,
-      notifyOnLive: notifyOnLive.checked,
-      openMode: openMode.value || 'player',
-      clientId: clientIdInput.value.trim(),
-      clientSecret: clientSecretInput.value.trim()
+      notifyOnLive: notifyOnLive.checked
     };
 
     await chrome.storage.local.set({ settings: newSettings });
@@ -41,37 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveStatus.textContent = '';
       }, 3000);
     });
-  });
-
-  testApiBtn.addEventListener('click', async () => {
-    const cId = clientIdInput.value.trim();
-    const cSecret = clientSecretInput.value.trim();
-
-    if (!cId || !cSecret) {
-      apiTestResult.textContent = 'Client IDとClient Secretの両方を入力してください';
-      apiTestResult.className = 'test-result error';
-      return;
-    }
-
-    testApiBtn.disabled = true;
-    apiTestResult.textContent = '接続確認中...';
-    apiTestResult.className = 'test-result';
-
-    try {
-      const token = await getAppAccessToken(cId, cSecret);
-      if (token) {
-        apiTestResult.textContent = '✔ Twitch APIへの接続に成功しました！';
-        apiTestResult.className = 'test-result success';
-      } else {
-        apiTestResult.textContent = '✖ 認証に失敗しました。IDとSecretを確認してください。';
-        apiTestResult.className = 'test-result error';
-      }
-    } catch (err) {
-      apiTestResult.textContent = '✖ エラー: ' + err.message;
-      apiTestResult.className = 'test-result error';
-    } finally {
-      testApiBtn.disabled = false;
-    }
   });
 
   exportBtn.addEventListener('click', async () => {

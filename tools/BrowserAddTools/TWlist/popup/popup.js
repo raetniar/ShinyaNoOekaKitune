@@ -101,11 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function loadChannelsAndRender() {
-    const data = await chrome.storage.local.get(['channels', 'settings', 'lastCheckedAt']);
+    const data = await chrome.storage.local.get(['channels', 'lastCheckedAt']);
     const channels = data.channels || [];
-    currentOpenMode = data.settings?.openMode || 'player';
-    
-    footerOpenModeHint.textContent = currentOpenMode === 'player' ? 'クリック: プレイヤーで開く' : 'クリック: 通常ページで開く';
+    footerOpenModeHint.textContent = 'クリックまたは ▶ でチャンネルを開く';
 
     renderChannels(channels);
     if (data.lastCheckedAt) {
@@ -201,28 +199,26 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
+        <button class="action-icon-btn btn-delete" title="登録解除">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
       </div>
     `;
 
-    // カード全体クリック: 設定されたデフォルトモードで開く
+    // カード全体クリック: チャンネルページを開く
     card.addEventListener('click', (e) => {
       if (e.target.closest('.card-quick-actions')) return;
-      const url = buildStreamUrl(channel.login, currentOpenMode);
+      const url = buildStreamUrl(channel.login);
       chrome.tabs.create({ url });
     });
 
-    // プレイヤーで開くボタン
+    // ▶ ボタン: チャンネルページを開く
     card.querySelector('.btn-player').addEventListener('click', (e) => {
       e.stopPropagation();
-      chrome.tabs.create({ url: buildStreamUrl(channel.login, 'player') });
-    });
-
-    // 通常Webで開くボタン
-    card.querySelector('.btn-web').addEventListener('click', (e) => {
-      e.stopPropagation();
-      chrome.tabs.create({ url: buildStreamUrl(channel.login, 'normal') });
+      chrome.tabs.create({ url: buildStreamUrl(channel.login) });
     });
 
     // 削除ボタン
