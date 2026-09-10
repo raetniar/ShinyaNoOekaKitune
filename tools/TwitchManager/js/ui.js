@@ -8713,7 +8713,7 @@ function safeOpenExternalUrl(url) {
 window.safeOpenExternalUrl = safeOpenExternalUrl;
 
 async function openTwitchImageResizerTool() {
-    const url = 'https://raetniar.github.io/ShinyaNoOekaKitune/tools/Twitch_Image_Resizer_02.html';
+    const url = 'https://raetniar.github.io/ShinyaNoOekaKitune/tools/Twitch_Image_Resizer/';
     const confirmTitle = cpCopy('imageResizerConfirmTitle');
     const confirmMsg = cpCopy('imageResizerConfirmMsg');
     const devNote = cpCopy('imageResizerDeveloperNote');
