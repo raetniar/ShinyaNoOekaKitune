@@ -15,3 +15,32 @@ tools/スマホ用multiStreamViewer/
 tools/*multiStream*
 tools/*MultiStream*
 
+# StreamTalkAssistant (実運用はパートナーフォルダ側: G:\マイドライブ\【02_UikoUka_活動】\パートナー計画\StreamTalkAssistant\)
+tools/StreamTalkAssistant/
+tools/StreamTalkAssistant_shigu/
+
+# 未整理・開発中ツール（Git管理対象外）
+tools/TwitterPostGenerator/
+tools/goal_customizer_preview.html
+tools/BrowserAddTools/TWlist/twitch_follower_goal_custom.css
+
+# デスクトップアプリ: きりぬきつーる（ローカル専用・Git管理対象外）
+tools/きりぬきつーる/
+tools/きりぬきつーる_長尺用/
+
+# セキュリティ・秘密鍵・パッケージファイル（絶対コミット厳禁）
+*.pem
+*.crx
+
+# スクリプト・サーバー・ローカル作業用アセット
+*.jsx
+server.py
+*Backup*
+*backup*
+TMBackup.txt
+
+# ルート直下の一時・検証用HTML
+/Title_manager_localize_Ver0.4.html
+/TwitchAutoClipper.html
+/ktx_free_tools_youtube_thumbnail_converter.html
+
