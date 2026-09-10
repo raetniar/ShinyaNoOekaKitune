@@ -1,0 +1,16 @@
+[
+  {
+    "keyword": "twitch スタンプ サイズ リサイズ ツール",
+    "targetPath": "/tools/Twitch_Image_Resizer/Twitch_Image_Resizer.html",
+    "status": "observing",
+    "nextReviewDate": "2026-09-17",
+    "actions": [
+      {
+        "date": "2026-09-10",
+        "rankAtAction": null,
+        "needs": "Twitchスタンプ公式サイズ(28/56/112px)への一括自動縮小・白フチ加工・透過PNG書き出しを安全にブラウザで行いたい",
+        "done": "titleを検索クエリ最適化(スタンプ/サイズ/28/56/112px/透過PNG対応)。meta description・OGP・FAQ構造化データ(JSON-LD)を配備"
+      }
+    ]
+  }
+]

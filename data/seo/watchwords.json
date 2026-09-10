@@ -1,0 +1,26 @@
+[
+  {
+    "keyword": "twitch スタンプ サイズ リサイズ ツール",
+    "targetPath": "/tools/Twitch_Image_Resizer/Twitch_Image_Resizer.html",
+    "priority": "high",
+    "notes": "Twitchスタンプ推奨サイズ(28/56/112px)へ自動リサイズ・透過PNG書き出しを求めるクリエイター・配信者"
+  },
+  {
+    "keyword": "twitch バッジ リサイズ 一括",
+    "targetPath": "/tools/Twitch_Image_Resizer/Twitch_Image_Resizer.html",
+    "priority": "high",
+    "notes": "サブスクバッジ・ビッツバッジ(18/36/72px)の一括生成ニーズ"
+  },
+  {
+    "keyword": "twitch パネル 作成 ツール 無料",
+    "targetPath": "/tools/Twitch_Panel_Editor/Twitch_Panel_Editor.html",
+    "priority": "medium",
+    "notes": "自己紹介やルールなどのTwitch概要欄パネル作成"
+  },
+  {
+    "keyword": "twitch 配信 ツール 無料 便利",
+    "targetPath": "/index.html",
+    "priority": "medium",
+    "notes": "Twitch配信者向け総合便利ツール集ポータル"
+  }
+]
