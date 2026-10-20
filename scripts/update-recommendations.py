@@ -18,17 +18,21 @@ def select(entries, category):
         if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id) or video_id in seen:
             continue
         views = entry.get("view_count")
+        # Hidden/unavailable counts must never be converted to zero.
         if not isinstance(views, (int, float)) or views < 0:
-            raise ValueError(f"Missing view count: {video_id}")
+            views = None
         seen.add(video_id)
-        videos.append({"id": video_id, "views": int(views)})
+        videos.append({"id": video_id, "views": int(views) if views is not None else None})
     if not videos:
         raise ValueError(f"No public {category} metadata; retaining previous file")
     latest = videos[:5]  # YouTube's channel tab is extracted in newest-first order.
-    popular = sorted(videos, key=lambda item: item["views"], reverse=True)[:5]
+    ranked = [item for item in videos if item["views"] is not None]
+    if len(ranked) < min(5, len(videos)):
+        raise ValueError(f"Insufficient public view counts for {category}; retaining previous file")
+    popular = sorted(ranked, key=lambda item: item["views"], reverse=True)[:5]
     ids = list(dict.fromkeys(item["id"] for item in latest + popular))
     url = (lambda value: f"https://www.youtube.com/shorts/{value}") if category == "shorts" else (lambda value: f"https://youtu.be/{value}")
-    return [url(value) for value in ids], {"latest": [x["id"] for x in latest], "popular": [x["id"] for x in popular], "publicCount": len(videos)}
+    return [url(value) for value in ids], {"latest": [x["id"] for x in latest], "popular": [x["id"] for x in popular], "publicCount": len(videos), "unavailableViewCounts": len(videos) - len(ranked)}
 
 
 def main():
