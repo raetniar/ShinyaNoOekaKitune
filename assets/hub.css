@@ -144,3 +144,10 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 .carousel-controls button:last-child{font-size:11px}
 .carousel-count{font-size:10px;min-width:32px}
 @media(max-width:600px){.carousel-controls{top:calc(56.25cqw - 24px);padding:3px}}
+
+/* Reveal navigation only while inspecting the image or using the keyboard. */
+.carousel-controls{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s}
+.recommendation-carousel:has(.recommendation-image:hover) .carousel-controls,.recommendation-carousel:has(.content-item:focus-visible) .carousel-controls,.carousel-controls:hover,.carousel-controls:focus-within,.recommendation-carousel.controls-open .carousel-controls{opacity:1;visibility:visible;pointer-events:auto}
+@media(hover:none){.recommendation-carousel:not(.controls-open):has(.recommendation-image:hover) .carousel-controls{opacity:0;visibility:hidden;pointer-events:none}}
+
+.carousel-track .recommendation-image{pointer-events:auto}
