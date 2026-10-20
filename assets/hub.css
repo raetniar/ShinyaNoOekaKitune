@@ -127,3 +127,11 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 @media(max-width:600px){.carousel-track>.content-item{padding:18px 0!important}.carousel-controls{padding-right:0}}
 @media(prefers-reduced-motion:reduce){.carousel-track{transition:none}}
 
+
+/* Float translucent controls over the thumbnail, outside the sliding track. */
+.recommendation-carousel{position:relative;container-type:inline-size}
+.carousel-controls{position:absolute;z-index:2;top:calc(56.25cqw - 55px);right:32px;gap:4px;padding:4px;border:1px solid #ffffff30;border-radius:28px;background:#101d3099;backdrop-filter:blur(4px);color:#fff}
+.carousel-controls button{background:#101d3066;border-color:#ffffff40;color:#fff}
+.carousel-count{color:#fff}
+.carousel-controls button:last-child{margin-left:0}
+@media(max-width:600px){.carousel-controls{top:calc(56.25cqw - 34px);right:8px;padding:4px}}
