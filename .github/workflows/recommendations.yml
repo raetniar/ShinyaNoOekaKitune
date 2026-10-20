@@ -1,0 +1,47 @@
+name: Update YouTube recommendations
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/recommendations.yml'
+      - 'scripts/update-recommendations.py'
+concurrency:
+  group: youtube-recommendations
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install public metadata extractor
+        run: python -m pip install yt-dlp==2026.8.19
+      - name: Refresh both categories (keep existing list on any failure)
+        run: python scripts/update-recommendations.py
+      - name: Commit generated list
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/recommendations.js
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh latest and popular YouTube recommendations'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy refreshed list
+        uses: actions/deploy-pages@v4
+
