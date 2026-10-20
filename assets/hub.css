@@ -204,3 +204,7 @@ body{isolation:isolate}
 .section-heading:has(>.text-link){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
 .section-heading>.text-link{margin-top:0;white-space:nowrap}
 @media(max-width:360px){.section-heading>.text-link{font-size:10px}.section-heading:has(>.text-link){gap:8px}}
+
+/* Fit the longer LINKS action beside its title. */
+#links .section-heading>.more-links{white-space:normal;max-width:260px;text-align:right;font-size:11px;line-height:1.6;margin:0}
+@media(max-width:600px){#links .section-heading{grid-template-columns:auto minmax(0,1fr)}#links .section-heading>.more-links{font-size:10px;max-width:180px;justify-self:end}}
