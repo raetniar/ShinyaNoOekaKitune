@@ -208,3 +208,6 @@ body{isolation:isolate}
 /* Fit the longer LINKS action beside its title. */
 #links .section-heading>.more-links{white-space:normal;max-width:260px;text-align:right;font-size:11px;line-height:1.6;margin:0}
 @media(max-width:600px){#links .section-heading{grid-template-columns:auto minmax(0,1fr)}#links .section-heading>.more-links{font-size:10px;max-width:180px;justify-self:end}}
+
+/* Remove the empty gap between LIVE cards and the water ad. */
+#live.section{padding-bottom:16px}
