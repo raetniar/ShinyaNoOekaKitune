@@ -55,3 +55,52 @@ function applyRecommendations(config, random = Math.random) {
   }
 }
 applyRecommendations(window.UIKO_RECOMMENDATIONS);
+
+// Show the same descriptions on hover, keyboard focus and the touch info button.
+const socialRail = document.querySelector('.social-rail');
+const socialTooltip = document.getElementById('social-tooltip');
+if (socialRail?.querySelectorAll && socialTooltip?.style) {
+  function hideSocialTooltip() {
+    socialTooltip.hidden = true;
+    socialRail.querySelectorAll('.social-info').forEach(button => button.setAttribute('aria-expanded', 'false'));
+  }
+  function showSocialTooltip(item) {
+    socialTooltip.textContent = item.querySelector('.social-description').textContent;
+    socialTooltip.hidden = false;
+    const rect = item.getBoundingClientRect();
+    const box = socialTooltip.getBoundingClientRect();
+    const left = Math.max(12, Math.min(rect.left, window.innerWidth - box.width - 12));
+    const top = rect.bottom + box.height + 20 < window.innerHeight ? rect.bottom + 8 : Math.max(12, rect.top - box.height - 8);
+    socialTooltip.style.left = `${left}px`;
+    socialTooltip.style.top = `${top}px`;
+  }
+  socialRail.querySelectorAll('.social-item').forEach(item => {
+    item.addEventListener('pointerenter', event => {
+      if (event.pointerType !== 'touch') showSocialTooltip(item);
+    });
+    item.addEventListener('pointerleave', () => {
+      if (!item.matches(':focus-within')) hideSocialTooltip();
+    });
+    item.addEventListener('focusin', () => showSocialTooltip(item));
+    item.addEventListener('focusout', event => {
+      if (!item.contains(event.relatedTarget)) hideSocialTooltip();
+    });
+    item.querySelector('.social-info').addEventListener('click', event => {
+      const button = event.currentTarget;
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      hideSocialTooltip();
+      if (!expanded) {
+        showSocialTooltip(item);
+        button.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  document.addEventListener('click', event => {
+    if (!socialRail.contains(event.target)) hideSocialTooltip();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') hideSocialTooltip();
+  });
+  document.addEventListener('scroll', hideSocialTooltip, true);
+  window.addEventListener('resize', hideSocialTooltip);
+}
