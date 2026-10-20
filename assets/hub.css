@@ -35,3 +35,23 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 /* Lower the fox portrait slightly within its existing composition. */
 .hero-art img{top:16px}
 @media(max-width:600px){.hero-art img{top:12px}}
+
+/* Keep the two streaming channels side by side on narrow screens. */
+.live-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.live-grid .channel{min-width:0}
+@media(max-width:600px){
+  .live-grid{gap:10px}
+  .live-grid .channel{padding:18px 12px}
+  .live-grid .channel-top{font-size:8px;letter-spacing:.04em;gap:4px}
+  .live-grid .channel h3{font-size:clamp(21px,6vw,32px);margin-top:20px}
+  .live-grid .channel p{font-size:11px;line-height:1.9;overflow-wrap:anywhere}
+  .live-grid .channel-bottom{flex-direction:column;gap:6px;margin-top:20px;padding-top:12px;font-size:10px}
+}
+@media(max-width:300px){
+  .live-grid{gap:8px}
+  .live-grid .channel{padding:14px 8px}
+  .live-grid .channel-top{font-size:7px;letter-spacing:0}
+  .live-grid .channel h3{font-size:20px}
+  .live-grid .channel p{font-size:10px}
+  .live-grid .channel-bottom{font-size:9px}
+}
