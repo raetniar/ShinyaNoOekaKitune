@@ -126,8 +126,6 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 .carousel-controls button:last-child{font-size:14px;margin-left:6px}
 @media(max-width:600px){.carousel-track>.content-item{padding:18px 0!important}.carousel-controls{padding-right:0}}
 @media(prefers-reduced-motion:reduce){.carousel-track{transition:none}}
-
-
 /* Float translucent controls over the thumbnail, outside the sliding track. */
 .recommendation-carousel{position:relative;container-type:inline-size}
 .carousel-controls{position:absolute;z-index:2;top:calc(56.25cqw - 55px);right:32px;gap:4px;padding:4px;border:1px solid #ffffff30;border-radius:28px;background:#101d3099;backdrop-filter:blur(4px);color:#fff}
@@ -135,25 +133,18 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 .carousel-count{color:#fff}
 .carousel-controls button:last-child{margin-left:0}
 @media(max-width:600px){.carousel-controls{top:calc(56.25cqw - 34px);right:8px;padding:4px}}
-
 .carousel-controls button{width:40px;height:40px;padding:0;line-height:1}
-
 /* Smaller thumbnail controls leave more of the image visible. */
 .carousel-controls{gap:2px;padding:3px;top:calc(56.25cqw - 45px)}
 .carousel-controls button{width:30px;height:30px;min-width:30px;min-height:30px;font-size:18px}
 .carousel-controls button:last-child{font-size:11px}
 .carousel-count{font-size:10px;min-width:32px}
 @media(max-width:600px){.carousel-controls{top:calc(56.25cqw - 24px);padding:3px}}
-
-/* Reveal navigation only while inspecting the image or using the keyboard. */
 .carousel-controls{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s}
 .recommendation-carousel:has(.recommendation-image:hover) .carousel-controls,.recommendation-carousel:has(.content-item:focus-visible) .carousel-controls,.carousel-controls:hover,.carousel-controls:focus-within,.recommendation-carousel.controls-open .carousel-controls{opacity:1;visibility:visible;pointer-events:auto}
 @media(hover:none){.recommendation-carousel:not(.controls-open):has(.recommendation-image:hover) .carousel-controls{opacity:0;visibility:hidden;pointer-events:none}}
-
 .carousel-track .recommendation-image{pointer-events:auto}
-
 .carousel-controls{left:50%;right:auto;transform:translateX(-50%);width:max-content}
-
 /* Quiet four-point stars drifting from upper right to lower left. */
 body{isolation:isolate}
 .ambient-sparkles{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
@@ -165,51 +156,37 @@ body{isolation:isolate}
 @media(max-width:600px){.ambient-sparkles>span:nth-child(n+11){display:none}}
 @media(prefers-reduced-motion:reduce){.ambient-sparkles{display:none}.ambient-sparkles>span,.ambient-sparkles svg{animation:none}}
 
-/* Keep the copy stationary; only thumbnails belong to the moving track. */
 .carousel-track>.content-item{padding-bottom:0!important}
 .carousel-track .recommendation-image{margin-bottom:0}
 .recommendation-carousel>.carousel-description{border:0;padding:18px 24px 24px}
 @media(max-width:600px){.carousel-track>.content-item{padding-bottom:0!important}.recommendation-carousel>.carousel-description{padding:18px 0 24px}}
-
-/* Larger stars with clearer, softly glowing twinkles. */
 .ambient-sparkles>span{width:calc(var(--size) * 1.8);height:calc(var(--size) * 1.8)}
 .ambient-sparkles svg{animation-duration:2.2s;filter:drop-shadow(0 0 3px var(--gold))}
 @keyframes sparkle-drift{0%{transform:translate(22vw,-24vh);opacity:0}18%{opacity:.5}50%{opacity:.72}82%{opacity:.4}100%{transform:translate(-40vw,62vh);opacity:0}}
 @keyframes sparkle-glimmer{0%,100%{transform:scale(.55);opacity:.25}50%{transform:scale(1.15);opacity:1}}
-
-/* Service symbols beside the LIVE channel names. */
 .live-grid .channel h3{display:flex;align-items:center;gap:12px}
 .channel-icon{display:block;flex:none;width:.85em;height:.85em}
 @media(max-width:600px){.live-grid .channel h3{gap:7px}.channel-icon{width:.75em;height:.75em}}
-
-/* Larger service symbols with a simpler channel-card footer. */
 .live-grid .channel-icon{width:1.15em;height:1.15em}
 @media(max-width:600px){.live-grid .channel-icon{width:1em;height:1em}.live-grid .channel h3{gap:6px}}
-
-/* Quiet account handles anchored at the lower right of each channel card. */
 .live-grid .channel{padding-bottom:48px}
 .channel-handle{position:absolute;right:20px;bottom:14px;font-size:11px;line-height:1.4;color:var(--muted);opacity:.55}
 @media(max-width:600px){.live-grid .channel{padding-bottom:40px}.channel-handle{right:12px;bottom:12px;font-size:10px}}
-
-/* Matching gold diamonds beside the main section headings. */
 .section-heading h2{position:relative;padding-left:26px}
 .section-heading h2::before{content:"";position:absolute;left:2px;top:.49em;width:11px;height:11px;background:var(--gold);transform:rotate(45deg)}
 @media(max-width:600px){.section-heading h2{padding-left:22px}.section-heading h2::before{width:9px;height:9px}}
-
 /* Concave four-point sparkle matching the supplied reference. */
 .section-heading h2::before{width:18px;height:18px;left:0;top:.42em;transform:none;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1C18 10 22 14 31 16C22 18 18 22 16 31C14 22 10 18 1 16C10 14 14 10 16 1Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1C18 10 22 14 31 16C22 18 18 22 16 31C14 22 10 18 1 16C10 14 14 10 16 1Z'/%3E%3C/svg%3E") center/contain no-repeat}
 @media(max-width:600px){.section-heading h2::before{width:16px;height:16px}}
 
-/* Keep section action links beside their titles, including on mobile. */
 .section-heading:has(>.text-link){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
 .section-heading>.text-link{margin-top:0;white-space:nowrap}
 @media(max-width:360px){.section-heading>.text-link{font-size:10px}.section-heading:has(>.text-link){gap:8px}}
-
-/* Fit the longer LINKS action beside its title. */
 #links .section-heading>.more-links{white-space:normal;max-width:260px;text-align:right;font-size:11px;line-height:1.6;margin:0}
 @media(max-width:600px){#links .section-heading{grid-template-columns:auto minmax(0,1fr)}#links .section-heading>.more-links{font-size:10px;max-width:180px;justify-self:end}}
-
-/* Remove the empty gap between LIVE cards and the water ad. */
 #live.section{padding-bottom:16px}
-
 #contents.section{padding-bottom:16px}
+
+/* Readable creator guide with the existing site palette. */
+.creator-guide{max-width:980px;padding-top:60px;padding-bottom:70px}.creator-guide h1{font-size:clamp(28px,5vw,44px)}.creator-guide p{font-size:14px;line-height:2.1;color:var(--muted)}.guide-index{display:flex;flex-wrap:wrap;gap:12px 20px;margin:24px 0;font-size:12px}.guide-index a{color:var(--gold);text-decoration:underline;text-underline-offset:4px}.guide-section{padding:32px 0;border-bottom:1px solid var(--line);scroll-margin-top:140px}.guide-section h2{font-family:inherit;font-size:24px;line-height:1.5}.guide-art,.guide-screenshot{display:block;width:100%;height:auto;max-height:500px;object-fit:contain;margin:22px auto;background:var(--surface)}.guide-link{margin-top:26px}.tool p{line-height:1.9}
+
