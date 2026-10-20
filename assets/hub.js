@@ -39,6 +39,18 @@ function applyRecommendations(config, random = Math.random) {
     if (!card) continue;
     const chosen = candidates[Math.floor(random() * candidates.length)];
     card.href = chosen.url;
+    const selectedUrl = new URL(chosen.url);
+    const videoId = selectedUrl.hostname === 'youtu.be' ? selectedUrl.pathname.slice(1) :
+      (selectedUrl.pathname.startsWith('/shorts/') ? selectedUrl.pathname.split('/')[2] : selectedUrl.searchParams.get('v'));
+    const image = card.querySelector('.recommendation-image') || document.createElement('img');
+    image.className = 'recommendation-image';
+    image.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    image.alt = '';
+    image.loading = 'lazy';
+    image.width = 480;
+    image.height = 360;
+    image.onerror = () => image.remove();
+    if (!image.parentNode) card.prepend(image);
     if (chosen.title) card.querySelector('h3').textContent = chosen.title;
   }
 }
