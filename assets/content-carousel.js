@@ -47,6 +47,14 @@
     let position = multiple ? 1 : 0;
     let busy = false, timer, settleTimer, hovering = false, focused = false, visible = true;
     let paused = reducedMotion.matches;
+    let controlsOpen = false, revealTimer, lastTouchAt = 0;
+    function hideControls() {
+      controlsOpen = false; shell.classList.remove('controls-open'); clearTimeout(revealTimer); schedule();
+    }
+    function revealControls() {
+      controlsOpen = true; shell.classList.add('controls-open'); clearTimeout(revealTimer);
+      revealTimer = setTimeout(hideControls, 4000); schedule();
+    }
     const controls = document.createElement('div');
     controls.className = 'carousel-controls';
     const makeButton = (label, symbol) => {
@@ -79,7 +87,7 @@
     }
     function schedule() {
       clearTimeout(timer);
-      if (multiple && !paused && !hovering && !focused && visible && !document.hidden) timer = setTimeout(() => move(1), 10000);
+      if (multiple && !paused && !controlsOpen && !hovering && !focused && visible && !document.hidden) timer = setTimeout(() => move(1), 10000);
     }
     function settle() {
       clearTimeout(settleTimer);
@@ -109,6 +117,7 @@
     });
     let touchStart, suppressClick = false;
     viewport.addEventListener('touchstart', event => {
+      lastTouchAt = Date.now();
       if (event.touches.length === 1) touchStart = {x:event.touches[0].clientX, y:event.touches[0].clientY};
       clearTimeout(timer);
     }, {passive:true});
@@ -121,7 +130,16 @@
       touchStart = null; schedule();
     }, {passive:true});
     viewport.addEventListener('touchcancel', () => { touchStart = null; schedule(); }, {passive:true});
-    viewport.addEventListener('click', event => { if (suppressClick) { event.preventDefault(); event.stopPropagation(); suppressClick = false; } }, true);
+    viewport.addEventListener('click', event => {
+      if (suppressClick) { event.preventDefault(); event.stopPropagation(); suppressClick = false; return; }
+      if (event.pointerType !== 'touch' && Date.now() - lastTouchAt > 700) return;
+      const image = track.children[position].querySelector('.recommendation-image');
+      const rect = image.getBoundingClientRect();
+      const onImage = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+      if (onImage && !controlsOpen) { event.preventDefault(); event.stopPropagation(); revealControls(); }
+    }, true);
+    controls.addEventListener('pointerdown', event => { if (event.pointerType === 'touch') revealControls(); });
+    document.addEventListener('pointerdown', event => { if (!shell.contains(event.target) && controlsOpen) hideControls(); });
     document.addEventListener('visibilitychange', schedule);
     if ('IntersectionObserver' in window) new IntersectionObserver(entries => { visible = entries[0].isIntersecting; schedule(); }, {threshold:0.1}).observe(shell);
     reducedMotion.addEventListener('change', () => { if (reducedMotion.matches) paused = true; syncToggle(); schedule(); });
