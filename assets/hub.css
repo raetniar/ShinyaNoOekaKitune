@@ -89,3 +89,18 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 /* Two media categories remain after moving note into LINKS. */
 .content-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:600px){.content-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Compact, horizontally scrollable social links. */
+.social-rail{display:flex;align-items:center;gap:12px;overflow-x:auto;padding:8px 2px 14px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.social-item{display:flex;align-items:center;flex:0 0 auto;position:relative;gap:0}
+.social-rail a.social-link-item{display:inline-flex;align-items:center;gap:8px;padding:10px 8px;min-height:44px;border:0;font-family:inherit;font-size:14px;line-height:1.5;white-space:nowrap;color:var(--muted);border-radius:4px;transition:color .15s,background .15s}
+.social-rail a.social-link-item:hover,.social-rail a.social-link-item:focus-visible{color:var(--gold);background:var(--surface)}
+.social-rail a.social-link-item>span{font-size:14px;color:inherit;margin:0;font-weight:600}
+.social-link-item svg{width:20px;height:20px;flex:none}
+.social-description{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.social-info{display:none;align-items:center;justify-content:center;width:28px;min-height:44px;background:none;border:0;color:var(--muted);padding:5px;cursor:pointer}
+.social-info svg{width:14px;height:14px}
+.social-tooltip{position:fixed;z-index:30;max-width:min(260px,calc(100vw - 24px));padding:9px 13px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink);box-shadow:0 6px 20px #0002;font-size:12px;line-height:1.7;pointer-events:none}
+.social-tooltip[hidden]{display:none}
+@media(max-width:600px){.social-rail{gap:6px}.social-rail a.social-link-item{padding:10px 6px}.social-link-item svg{width:18px;height:18px}}
+@media(hover:none){.social-info{display:inline-flex}}
