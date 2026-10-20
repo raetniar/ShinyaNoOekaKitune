@@ -190,3 +190,8 @@ body{isolation:isolate}
 .live-grid .channel{padding-bottom:48px}
 .channel-handle{position:absolute;right:20px;bottom:14px;font-size:11px;line-height:1.4;color:var(--muted);opacity:.55}
 @media(max-width:600px){.live-grid .channel{padding-bottom:40px}.channel-handle{right:12px;bottom:12px;font-size:10px}}
+
+/* Matching gold diamonds beside the main section headings. */
+.section-heading h2{position:relative;padding-left:26px}
+.section-heading h2::before{content:"";position:absolute;left:2px;top:.49em;width:11px;height:11px;background:var(--gold);transform:rotate(45deg)}
+@media(max-width:600px){.section-heading h2{padding-left:22px}.section-heading h2::before{width:9px;height:9px}}
