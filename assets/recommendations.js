@@ -6,5 +6,9 @@ window.UIKO_RECOMMENDATIONS = {
     'https://www.youtube.com/shorts/ShXIp7mgHso',
     'https://www.youtube.com/shorts/bMSwiV5xRy8'
   ],
-  videos: []
+  videos: [
+    'https://youtu.be/E8Xk62DB-GA',
+    'https://youtu.be/RqqfOPhB6AU',
+    'https://youtu.be/uGQJRDdRmlM'
+  ]
 };
