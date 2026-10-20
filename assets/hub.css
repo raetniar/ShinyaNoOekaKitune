@@ -185,3 +185,8 @@ body{isolation:isolate}
 /* Larger service symbols with a simpler channel-card footer. */
 .live-grid .channel-icon{width:1.15em;height:1.15em}
 @media(max-width:600px){.live-grid .channel-icon{width:1em;height:1em}.live-grid .channel h3{gap:6px}}
+
+/* Quiet account handles anchored at the lower right of each channel card. */
+.live-grid .channel{padding-bottom:48px}
+.channel-handle{position:absolute;right:20px;bottom:14px;font-size:11px;line-height:1.4;color:var(--muted);opacity:.55}
+@media(max-width:600px){.live-grid .channel{padding-bottom:40px}.channel-handle{right:12px;bottom:12px;font-size:10px}}
