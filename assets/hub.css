@@ -199,3 +199,8 @@ body{isolation:isolate}
 /* Concave four-point sparkle matching the supplied reference. */
 .section-heading h2::before{width:18px;height:18px;left:0;top:.42em;transform:none;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1C18 10 22 14 31 16C22 18 18 22 16 31C14 22 10 18 1 16C10 14 14 10 16 1Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1C18 10 22 14 31 16C22 18 18 22 16 31C14 22 10 18 1 16C10 14 14 10 16 1Z'/%3E%3C/svg%3E") center/contain no-repeat}
 @media(max-width:600px){.section-heading h2::before{width:16px;height:16px}}
+
+/* Keep section action links beside their titles, including on mobile. */
+.section-heading:has(>.text-link){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
+.section-heading>.text-link{margin-top:0;white-space:nowrap}
+@media(max-width:360px){.section-heading>.text-link{font-size:10px}.section-heading:has(>.text-link){gap:8px}}
