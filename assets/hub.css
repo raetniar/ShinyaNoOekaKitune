@@ -151,3 +151,5 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 @media(hover:none){.recommendation-carousel:not(.controls-open):has(.recommendation-image:hover) .carousel-controls{opacity:0;visibility:hidden;pointer-events:none}}
 
 .carousel-track .recommendation-image{pointer-events:auto}
+
+.carousel-controls{left:50%;right:auto;transform:translateX(-50%);width:max-content}
