@@ -176,3 +176,8 @@ body{isolation:isolate}
 .ambient-sparkles svg{animation-duration:2.2s;filter:drop-shadow(0 0 3px var(--gold))}
 @keyframes sparkle-drift{0%{transform:translate(22vw,-24vh);opacity:0}18%{opacity:.5}50%{opacity:.72}82%{opacity:.4}100%{transform:translate(-40vw,62vh);opacity:0}}
 @keyframes sparkle-glimmer{0%,100%{transform:scale(.55);opacity:.25}50%{transform:scale(1.15);opacity:1}}
+
+/* Service symbols beside the LIVE channel names. */
+.live-grid .channel h3{display:flex;align-items:center;gap:12px}
+.channel-icon{display:block;flex:none;width:.85em;height:.85em}
+@media(max-width:600px){.live-grid .channel h3{gap:7px}.channel-icon{width:.75em;height:.75em}}
