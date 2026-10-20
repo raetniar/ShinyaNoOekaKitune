@@ -65,7 +65,9 @@ if (socialRail?.querySelectorAll && socialTooltip?.style) {
     socialRail.querySelectorAll('.social-info').forEach(button => button.setAttribute('aria-expanded', 'false'));
   }
   function showSocialTooltip(item) {
-    socialTooltip.textContent = item.querySelector('.social-description').textContent;
+    const name = item.querySelector('.social-link-item > span').textContent.trim();
+    const description = item.querySelector('.social-description').textContent.trim();
+    socialTooltip.textContent = name === description ? name : `${name}：${description}`;
     socialTooltip.hidden = false;
     const rect = item.getBoundingClientRect();
     const box = socialTooltip.getBoundingClientRect();
