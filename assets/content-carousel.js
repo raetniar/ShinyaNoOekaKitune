@@ -39,10 +39,16 @@
       if (!image) { image = document.createElement('img'); slide.prepend(image); }
       Object.assign(image, {className:'recommendation-image', src:`https://i.ytimg.com/vi/${entry.id}/hqdefault.jpg`, alt:'', loading:'lazy', width:480, height:360, draggable:false});
       image.addEventListener('error', () => { image.style.visibility = 'hidden'; });
+      slide.replaceChildren(image);
+      slide.setAttribute('aria-label', category === 'shorts' ? 'ショート動画を見る' : '動画を見る');
       track.append(slide);
     }
     viewport.append(track);
-    shell.append(viewport);
+    const description = original.cloneNode(true);
+    description.removeAttribute('data-recommendation');
+    description.classList.add('carousel-description');
+    description.querySelector('.recommendation-image')?.remove();
+    shell.append(viewport, description);
     original.replaceWith(shell);
     let position = multiple ? 1 : 0;
     let busy = false, timer, settleTimer, hovering = false, focused = false, visible = true;
@@ -79,6 +85,7 @@
         slide.setAttribute('aria-hidden', i === position ? 'false' : 'true');
       });
       count.textContent = `${logicalIndex() + 1} / ${candidates.length}`;
+      description.href = candidates[multiple ? logicalIndex() : 0].url;
       if (transferFocus) track.children[position].focus({preventScroll:true});
     }
     function syncToggle() {
