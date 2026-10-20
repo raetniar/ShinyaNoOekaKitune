@@ -19,3 +19,19 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 .affiliate-disclosure{grid-column:1/-1;border-top:1px solid var(--line);padding-top:16px;margin:0;font-size:12px;line-height:1.9;color:var(--muted)}
 @media(max-width:600px){.affiliate{padding-bottom:50px}.affiliate-card{grid-template-columns:minmax(0,1fr);padding:23px;gap:20px}.affiliate-button{justify-self:start;max-width:100%;white-space:normal}.affiliate h2{font-size:20px}}
 @media(max-width:300px){.affiliate-card{padding:18px}.affiliate-button{font-size:10px;padding:12px}}
+/* Fox silhouette: two pointed ears with rounded cheeks and chin. */
+.hero-art img{
+  border:0;
+  border-radius:0;
+  transform:none;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='white' d='M12 17 Q12 13 16 15 L34 27 Q44 21 60 20 L72 2 Q74 -1 77 2 C88 12 97 30 98 48 C100 68 93 83 77 91 C61 100 37 100 20 91 C7 84 3 70 4 52 C4 39 7 26 12 17Z'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='white' d='M12 17 Q12 13 16 15 L34 27 Q44 21 60 20 L72 2 Q74 -1 77 2 C88 12 97 30 98 48 C100 68 93 83 77 91 C61 100 37 100 20 91 C7 84 3 70 4 52 C4 39 7 26 12 17Z'/%3E%3C/svg%3E");
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+}
+
+/* Lower the fox portrait slightly within its existing composition. */
+.hero-art img{top:16px}
+@media(max-width:600px){.hero-art img{top:12px}}
