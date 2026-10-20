@@ -181,3 +181,7 @@ body{isolation:isolate}
 .live-grid .channel h3{display:flex;align-items:center;gap:12px}
 .channel-icon{display:block;flex:none;width:.85em;height:.85em}
 @media(max-width:600px){.live-grid .channel h3{gap:7px}.channel-icon{width:.75em;height:.75em}}
+
+/* Larger service symbols with a simpler channel-card footer. */
+.live-grid .channel-icon{width:1.15em;height:1.15em}
+@media(max-width:600px){.live-grid .channel-icon{width:1em;height:1em}.live-grid .channel h3{gap:6px}}
