@@ -164,3 +164,9 @@ body{isolation:isolate}
 @keyframes sparkle-glimmer{0%,100%{transform:scale(.65);opacity:.45}50%{transform:scale(1);opacity:1}}
 @media(max-width:600px){.ambient-sparkles>span:nth-child(n+11){display:none}}
 @media(prefers-reduced-motion:reduce){.ambient-sparkles{display:none}.ambient-sparkles>span,.ambient-sparkles svg{animation:none}}
+
+/* Keep the copy stationary; only thumbnails belong to the moving track. */
+.carousel-track>.content-item{padding-bottom:0!important}
+.carousel-track .recommendation-image{margin-bottom:0}
+.recommendation-carousel>.carousel-description{border:0;padding:18px 24px 24px}
+@media(max-width:600px){.carousel-track>.content-item{padding-bottom:0!important}.recommendation-carousel>.carousel-description{padding:18px 0 24px}}
