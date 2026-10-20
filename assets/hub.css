@@ -106,3 +106,7 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 @media(hover:none){.social-info{display:inline-flex}}
 
 @media(max-width:900px){.social-rail{gap:4px}.social-rail a.social-link-item{justify-content:center;min-width:36px;padding:10px 6px}.social-rail a.social-link-item>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.social-rail .social-info{display:none}}
+
+/* Keep link icons close to their section title. */
+#links .section-heading{margin-bottom:0}
+#links .social-rail{padding-top:0}
