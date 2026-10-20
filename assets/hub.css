@@ -170,3 +170,9 @@ body{isolation:isolate}
 .carousel-track .recommendation-image{margin-bottom:0}
 .recommendation-carousel>.carousel-description{border:0;padding:18px 24px 24px}
 @media(max-width:600px){.carousel-track>.content-item{padding-bottom:0!important}.recommendation-carousel>.carousel-description{padding:18px 0 24px}}
+
+/* Larger stars with clearer, softly glowing twinkles. */
+.ambient-sparkles>span{width:calc(var(--size) * 1.8);height:calc(var(--size) * 1.8)}
+.ambient-sparkles svg{animation-duration:2.2s;filter:drop-shadow(0 0 3px var(--gold))}
+@keyframes sparkle-drift{0%{transform:translate(22vw,-24vh);opacity:0}18%{opacity:.5}50%{opacity:.72}82%{opacity:.4}100%{transform:translate(-40vw,62vh);opacity:0}}
+@keyframes sparkle-glimmer{0%,100%{transform:scale(.55);opacity:.25}50%{transform:scale(1.15);opacity:1}}
