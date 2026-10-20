@@ -195,3 +195,7 @@ body{isolation:isolate}
 .section-heading h2{position:relative;padding-left:26px}
 .section-heading h2::before{content:"";position:absolute;left:2px;top:.49em;width:11px;height:11px;background:var(--gold);transform:rotate(45deg)}
 @media(max-width:600px){.section-heading h2{padding-left:22px}.section-heading h2::before{width:9px;height:9px}}
+
+/* Concave four-point sparkle matching the supplied reference. */
+.section-heading h2::before{width:18px;height:18px;left:0;top:.42em;transform:none;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1C18 10 22 14 31 16C22 18 18 22 16 31C14 22 10 18 1 16C10 14 14 10 16 1Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1C18 10 22 14 31 16C22 18 18 22 16 31C14 22 10 18 1 16C10 14 14 10 16 1Z'/%3E%3C/svg%3E") center/contain no-repeat}
+@media(max-width:600px){.section-heading h2::before{width:16px;height:16px}}
