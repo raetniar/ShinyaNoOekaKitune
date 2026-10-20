@@ -83,3 +83,5 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 .note-item{display:flex;align-items:center}
 .note-item h3{margin:0;font-size:24px}
 @media(max-width:600px){.tool-grid{grid-template-columns:minmax(0,1fr)}}
+
+.recommendation-image{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:var(--surface);margin-bottom:18px}
