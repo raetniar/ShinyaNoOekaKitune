@@ -137,3 +137,10 @@ h1{font-size:clamp(36px,3.8vw,50px);letter-spacing:.02em}
 @media(max-width:600px){.carousel-controls{top:calc(56.25cqw - 34px);right:8px;padding:4px}}
 
 .carousel-controls button{width:40px;height:40px;padding:0;line-height:1}
+
+/* Smaller thumbnail controls leave more of the image visible. */
+.carousel-controls{gap:2px;padding:3px;top:calc(56.25cqw - 45px)}
+.carousel-controls button{width:30px;height:30px;min-width:30px;min-height:30px;font-size:18px}
+.carousel-controls button:last-child{font-size:11px}
+.carousel-count{font-size:10px;min-width:32px}
+@media(max-width:600px){.carousel-controls{top:calc(56.25cqw - 24px);padding:3px}}
