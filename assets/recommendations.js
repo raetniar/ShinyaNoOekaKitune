@@ -1,11 +1,11 @@
 // Generated from public channel tabs: newest five + most-viewed five.
 window.UIKO_RECOMMENDATIONS = {
   "shorts": [
+    "https://www.youtube.com/shorts/EWHDRtJIn-M",
     "https://www.youtube.com/shorts/1HuMG1VRfo8",
     "https://www.youtube.com/shorts/MeNk0vLNiMc",
     "https://www.youtube.com/shorts/xAxNX69IVso",
     "https://www.youtube.com/shorts/mOwL_T2QoXo",
-    "https://www.youtube.com/shorts/Bj1x6ZMGY3Q",
     "https://www.youtube.com/shorts/ZDoygw6swVg",
     "https://www.youtube.com/shorts/bMSwiV5xRy8",
     "https://www.youtube.com/shorts/wbTdXWbajRE",
@@ -13,25 +13,25 @@ window.UIKO_RECOMMENDATIONS = {
     "https://www.youtube.com/shorts/G8X-KrrkaJo"
   ],
   "videos": [
+    "https://youtu.be/9K5BQWLbXUs",
     "https://youtu.be/uGQJRDdRmlM",
     "https://youtu.be/rlacQJ-lj2A",
     "https://youtu.be/jP15FtbAHRM",
     "https://youtu.be/hqRjeGJ9BHM",
-    "https://youtu.be/buI1OEZwIQU",
     "https://youtu.be/PCbTd9r-P1I",
     "https://youtu.be/RqqfOPhB6AU",
     "https://youtu.be/BxQpu_MGM0s",
     "https://youtu.be/2tKyDMxQ0ZM"
   ],
-  "updatedAt": "2026-10-20T21:40:56.284873+00:00",
+  "updatedAt": "2026-10-21T04:55:48.265464+00:00",
   "selection": {
     "shorts": {
       "latest": [
+        "EWHDRtJIn-M",
         "1HuMG1VRfo8",
         "MeNk0vLNiMc",
         "xAxNX69IVso",
-        "mOwL_T2QoXo",
-        "Bj1x6ZMGY3Q"
+        "mOwL_T2QoXo"
       ],
       "popular": [
         "ZDoygw6swVg",
@@ -40,16 +40,16 @@ window.UIKO_RECOMMENDATIONS = {
         "3sbJfd0s9oQ",
         "G8X-KrrkaJo"
       ],
-      "publicCount": 57,
+      "publicCount": 58,
       "unavailableViewCounts": 0
     },
     "videos": {
       "latest": [
+        "9K5BQWLbXUs",
         "uGQJRDdRmlM",
         "rlacQJ-lj2A",
         "jP15FtbAHRM",
-        "hqRjeGJ9BHM",
-        "buI1OEZwIQU"
+        "hqRjeGJ9BHM"
       ],
       "popular": [
         "PCbTd9r-P1I",
@@ -58,7 +58,7 @@ window.UIKO_RECOMMENDATIONS = {
         "uGQJRDdRmlM",
         "2tKyDMxQ0ZM"
       ],
-      "publicCount": 125,
+      "publicCount": 126,
       "unavailableViewCounts": 6
     }
   }
