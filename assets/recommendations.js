@@ -23,7 +23,7 @@ window.UIKO_RECOMMENDATIONS = {
     "https://youtu.be/BxQpu_MGM0s",
     "https://youtu.be/2tKyDMxQ0ZM"
   ],
-  "updatedAt": "2026-10-22T11:59:07.908464+00:00",
+  "updatedAt": "2026-10-22T17:14:53.968922+00:00",
   "selection": {
     "shorts": {
       "latest": [
