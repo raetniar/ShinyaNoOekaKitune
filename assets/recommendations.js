@@ -18,12 +18,12 @@ window.UIKO_RECOMMENDATIONS = {
     "https://youtu.be/uGQJRDdRmlM",
     "https://youtu.be/rlacQJ-lj2A",
     "https://youtu.be/jP15FtbAHRM",
-    "https://youtu.be/PCbTd9r-P1I",
     "https://youtu.be/RqqfOPhB6AU",
+    "https://youtu.be/PCbTd9r-P1I",
     "https://youtu.be/BxQpu_MGM0s",
     "https://youtu.be/2tKyDMxQ0ZM"
   ],
-  "updatedAt": "2026-10-24T16:00:46.852123+00:00",
+  "updatedAt": "2026-10-24T20:54:02.510916+00:00",
   "selection": {
     "shorts": {
       "latest": [
@@ -52,8 +52,8 @@ window.UIKO_RECOMMENDATIONS = {
         "jP15FtbAHRM"
       ],
       "popular": [
-        "PCbTd9r-P1I",
         "RqqfOPhB6AU",
+        "PCbTd9r-P1I",
         "BxQpu_MGM0s",
         "uGQJRDdRmlM",
         "2tKyDMxQ0ZM"
