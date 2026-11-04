@@ -1,11 +1,11 @@
 // Generated from public channel tabs: newest five + most-viewed five.
 window.UIKO_RECOMMENDATIONS = {
   "shorts": [
+    "https://www.youtube.com/shorts/TXzG0RqQn0I",
     "https://www.youtube.com/shorts/3XtdAiVsUZg",
     "https://www.youtube.com/shorts/MYjffwZIcp8",
     "https://www.youtube.com/shorts/Kww0cNJpPSQ",
     "https://www.youtube.com/shorts/QoBQJye0sDI",
-    "https://www.youtube.com/shorts/HpQzk1U0fyY",
     "https://www.youtube.com/shorts/ZDoygw6swVg",
     "https://www.youtube.com/shorts/69mOekj3ZUw",
     "https://www.youtube.com/shorts/G8X-KrrkaJo",
@@ -23,15 +23,15 @@ window.UIKO_RECOMMENDATIONS = {
     "https://youtu.be/BxQpu_MGM0s",
     "https://youtu.be/2tKyDMxQ0ZM"
   ],
-  "updatedAt": "2026-11-04T06:32:37.641867+00:00",
+  "updatedAt": "2026-11-04T19:49:33.388592+00:00",
   "selection": {
     "shorts": {
       "latest": [
+        "TXzG0RqQn0I",
         "3XtdAiVsUZg",
         "MYjffwZIcp8",
         "Kww0cNJpPSQ",
-        "QoBQJye0sDI",
-        "HpQzk1U0fyY"
+        "QoBQJye0sDI"
       ],
       "popular": [
         "ZDoygw6swVg",
@@ -40,7 +40,7 @@ window.UIKO_RECOMMENDATIONS = {
         "bMSwiV5xRy8",
         "wbTdXWbajRE"
       ],
-      "publicCount": 82,
+      "publicCount": 83,
       "unavailableViewCounts": 0
     },
     "videos": {
