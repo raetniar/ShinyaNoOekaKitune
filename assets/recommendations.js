@@ -9,8 +9,8 @@ window.UIKO_RECOMMENDATIONS = {
     "https://www.youtube.com/shorts/ZDoygw6swVg",
     "https://www.youtube.com/shorts/69mOekj3ZUw",
     "https://www.youtube.com/shorts/G8X-KrrkaJo",
-    "https://www.youtube.com/shorts/bMSwiV5xRy8",
-    "https://www.youtube.com/shorts/mOwL_T2QoXo"
+    "https://www.youtube.com/shorts/mOwL_T2QoXo",
+    "https://www.youtube.com/shorts/bMSwiV5xRy8"
   ],
   "videos": [
     "https://youtu.be/kgWbOoAsT3E",
@@ -23,7 +23,7 @@ window.UIKO_RECOMMENDATIONS = {
     "https://youtu.be/BxQpu_MGM0s",
     "https://youtu.be/2tKyDMxQ0ZM"
   ],
-  "updatedAt": "2026-11-10T07:25:12.023614+00:00",
+  "updatedAt": "2026-11-10T19:47:10.175933+00:00",
   "selection": {
     "shorts": {
       "latest": [
@@ -37,8 +37,8 @@ window.UIKO_RECOMMENDATIONS = {
         "ZDoygw6swVg",
         "69mOekj3ZUw",
         "G8X-KrrkaJo",
-        "bMSwiV5xRy8",
-        "mOwL_T2QoXo"
+        "mOwL_T2QoXo",
+        "bMSwiV5xRy8"
       ],
       "publicCount": 88,
       "unavailableViewCounts": 0
