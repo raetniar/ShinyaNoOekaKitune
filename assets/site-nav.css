@@ -1,0 +1,16 @@
+/* Scoped navigation styling; original tool interfaces remain unchanged. */
+.site-unified-menu a[aria-current="page"]{color:#efd091!important;text-decoration:underline!important;text-underline-offset:6px;text-decoration-thickness:2px}
+.site-unified-crumbs{display:flex;align-items:center;flex-wrap:wrap;gap:9px;max-width:1240px;margin:0 auto;padding:10px 24px;color:#b5c1ce;font:500 12px/1.6 "Yu Gothic UI","Noto Sans JP",sans-serif}
+.site-unified-crumbs a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.site-header+.site-unified-crumbs{background:var(--bg,#101d30);border-bottom:1px solid var(--line,#ffffff24)}
+.site-unified-bar{position:relative;z-index:90;box-sizing:border-box;background:#101d30;color:#f4f1e8;border-bottom:1px solid #ffffff28;font:500 13px/1.5 "Yu Gothic UI","Noto Sans JP",sans-serif}
+.site-unified-bar *{box-sizing:border-box}
+.site-unified-row{max-width:1240px;margin:auto;display:flex;align-items:center;gap:24px;padding:13px 24px}
+.site-unified-brand{color:#efd091!important;font-weight:700;white-space:nowrap;text-decoration:none}
+.site-unified-bar .site-unified-menu{display:flex;align-items:center;flex-wrap:wrap;gap:18px}
+.site-unified-bar .site-unified-menu a{color:#f4f1e8;text-decoration:none;white-space:nowrap}
+.site-unified-bar a:hover{color:#efd091}
+.site-unified-bar .site-unified-crumbs{border-top:1px solid #ffffff20;padding-top:8px;padding-bottom:8px}
+.site-unified-back{display:inline-block;margin:0 24px 10px;padding:5px 12px;border-radius:30px;border:1px solid #ffffff55;color:#f4f1e8!important;text-decoration:none}
+.site-unified-bar a:focus-visible,.site-unified-crumbs a:focus-visible{outline:2px solid #efd091;outline-offset:3px}
+@media(max-width:760px){.site-unified-row{display:block;padding:12px 16px}.site-unified-brand{display:inline-block;margin-bottom:9px}.site-unified-bar .site-unified-menu{flex-wrap:nowrap;overflow-x:auto;gap:14px;padding-bottom:7px;scrollbar-width:thin}.site-unified-bar .site-unified-menu a{font-size:12px}.site-unified-crumbs{padding:9px 16px;font-size:11px}.site-unified-back{margin-left:16px}.site-unified-menu{scrollbar-width:thin}}
