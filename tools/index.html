@@ -1204,7 +1204,14 @@
 
         .work-card:nth-child(6) { animation-delay: 0.3s; }
 
-    </style>
+    
+/* Match the main site's deep-night palette while preserving collection layout. */
+:root{--bg-primary:#101d30;--bg-secondary:#17283e;--bg-dark:#101d30;--text-primary:#f4f1e8;--text-secondary:#b5c1ce;--text-muted:#9aaabd;--accent:#efd091}
+body{background-color:var(--bg-primary);color:var(--text-primary)}
+.work-card,.link-card,.tab-nav-container{border-color:#ffffff24}
+.link-image-box{border-color:#ffffff24}
+footer{border-color:#ffffff24}
+</style>
 
 
 <link rel="stylesheet" href="../assets/site-nav.css?v=20261111">

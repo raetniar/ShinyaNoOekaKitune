@@ -190,3 +190,10 @@ body{isolation:isolate}
 /* Readable creator guide with the existing site palette. */
 .creator-guide{max-width:980px;padding-top:60px;padding-bottom:70px}.creator-guide h1{font-size:clamp(28px,5vw,44px)}.creator-guide p{font-size:14px;line-height:2.1;color:var(--muted)}.guide-index{display:flex;flex-wrap:wrap;gap:12px 20px;margin:24px 0;font-size:12px}.guide-index a{color:var(--gold);text-decoration:underline;text-underline-offset:4px}.guide-section{padding:32px 0;border-bottom:1px solid var(--line);scroll-margin-top:140px}.guide-section h2{font-family:inherit;font-size:24px;line-height:1.5}.guide-art,.guide-screenshot{display:block;width:100%;height:auto;max-height:500px;object-fit:contain;margin:22px auto;background:var(--surface)}.guide-link{margin-top:26px}.tool p{line-height:1.9}
 
+
+/* Icon-only theme switch with restrained glow. */
+#theme{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-width:44px;padding:0;border:1px solid var(--gold);border-radius:50%;background:transparent;color:var(--gold);transition:box-shadow .2s ease,border-color .2s ease,background-color .2s ease}
+#theme:hover{color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,transparent);box-shadow:0 0 10px color-mix(in srgb,var(--gold) 32%,transparent)}
+#theme .theme-icon{width:22px;height:22px;display:block}
+#theme[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){#theme{transition:none}}

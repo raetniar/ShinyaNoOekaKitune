@@ -4,14 +4,13 @@
  const link = value => new URL(value, root).href;
  const path = decodeURIComponent(location.pathname.slice(root.pathname.length)) || 'index.html';
  const home = path === 'index.html';
- const guide = path === 'creator-guide.html';
  const record = path === 'omikuji.html';
  const privacy = path === 'privacy.html';
  const collection = path === 'tools.html' || path === 'tools/index.html';
  const tool = path.startsWith('tools/') && !collection;
  const test = path.startsWith('TestPage/');
- const title = guide ? '作品とツールの案内' : record ? 'おみくじ企画の記録' : privacy ? 'プライバシーポリシー' : collection ? 'ツール一覧' : (document.querySelector('h1')?.textContent.trim().slice(0,70) || document.title.split(/[|｜]/)[0] || 'ツール');
- const entries = [['HOME','index.html',home],['LIVE','index.html#live',false],['WORKS','index.html#works',false],['TOOLS','tools.html',collection || tool],['GUIDE','creator-guide.html',guide],['LINKS','index.html#links',false]];
+ const title = record ? 'おみくじ企画の記録' : privacy ? 'プライバシーポリシー' : collection ? 'ツール一覧' : (document.querySelector('h1')?.textContent.trim().slice(0,70) || document.title.split(/[|｜]/)[0] || 'ツール');
+ const entries = [['HOME','index.html',home],['LIVE','index.html#live',false],['WORKS','index.html#works',false],['TOOLS','tools.html',collection || tool],['LINKS','index.html#links',false]];
  function a(label, target, active=false) {
   const el=document.createElement('a');el.href=link(target);el.textContent=label;
   if(active)el.setAttribute('aria-current','page');

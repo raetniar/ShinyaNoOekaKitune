@@ -1,20 +1,27 @@
 const themeButton = document.getElementById('theme');
+const themeIcons = {
+  dark: '<svg class="theme-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.2 15.7A8.6 8.6 0 0 1 8.3 3.8 8.8 8.8 0 1 0 20.2 15.7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  light: '<svg class="theme-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.5 1.5m11.2 11.2 1.5 1.5m0-14.2-1.5 1.5M6.4 17.6l-1.5 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+};
 function setTheme(value) {
   document.documentElement.dataset.theme = value;
-  themeButton.textContent = value === 'light' ? '配色：昼' : '配色：夜';
-  themeButton.setAttribute('aria-label', value === 'light' ? '暗い配色に切り替える' : '明るい配色に切り替える');
+  if (!themeButton) return;
+  themeButton.innerHTML = themeIcons[value === 'light' ? 'light' : 'dark'];
+  const label = value === 'light' ? '暗い配色に切り替える' : '明るい配色に切り替える';
+  themeButton.setAttribute('aria-label', label);
+  themeButton.title = label;
 }
 let storedTheme;
 try { storedTheme = localStorage.getItem('uikouka-hub-theme'); } catch {}
 setTheme(storedTheme === 'light' ? 'light' : 'dark');
-themeButton.hidden = false;
-themeButton.addEventListener('click', () => {
-  const value = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-  setTheme(value);
-  try { localStorage.setItem('uikouka-hub-theme', value); } catch {}
-});
-
-// Pick one approved recommendation per category on each page load.
+if (themeButton) {
+  themeButton.hidden = false;
+  themeButton.addEventListener('click', () => {
+    const value = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    setTheme(value);
+    try { localStorage.setItem('uikouka-hub-theme', value); } catch {}
+  });
+}// Pick one approved recommendation per category on each page load.
 function recommendationUrl(value, category) {
   try {
     const url = new URL(value);
