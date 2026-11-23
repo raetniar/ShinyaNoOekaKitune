@@ -23,7 +23,7 @@ window.UIKO_RECOMMENDATIONS = {
     "https://youtu.be/BxQpu_MGM0s",
     "https://youtu.be/2tKyDMxQ0ZM"
   ],
-  "updatedAt": "2026-11-23T07:46:11.894323+00:00",
+  "updatedAt": "2026-11-23T23:58:02.719942+00:00",
   "selection": {
     "shorts": {
       "latest": [
@@ -40,7 +40,7 @@ window.UIKO_RECOMMENDATIONS = {
         "69mOekj3ZUw",
         "G8X-KrrkaJo"
       ],
-      "publicCount": 99,
+      "publicCount": 97,
       "unavailableViewCounts": 0
     },
     "videos": {
